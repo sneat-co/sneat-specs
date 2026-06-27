@@ -10,7 +10,7 @@ Pre-spec one-pagers. Each Idea is a lint-clean problem-direction-MVP one-pager t
 
 | Idea | Status | Date | Owner | Promotes To |
 |------|--------|------|-------|-------------|
-| [system-space-type](system-space-type.md) | Approved | 2026-06-27 | alex | — |
+| [system-space-type](system-space-type.md) | Specified | 2026-06-27 | alex | system-space-type |
 
 ## Open Questions
 

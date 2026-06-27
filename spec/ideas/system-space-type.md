@@ -1,14 +1,14 @@
 ---
 format: https://specscore.md/idea-specification
-status: Approved
+status: Specified
 ---
 
 # Idea: System space type for shared, cross-user records
 
-**Status:** Approved
+**Status:** Specified
 **Date:** 2026-06-27
 **Owner:** alex
-**Promotes To:** —
+**Promotes To:** system-space-type
 **Supersedes:** —
 **Related Ideas:** —
 
