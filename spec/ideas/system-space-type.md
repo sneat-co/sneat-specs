@@ -1,11 +1,11 @@
 ---
 format: https://specscore.md/idea-specification
-status: Draft
+status: Approved
 ---
 
 # Idea: System space type for shared, cross-user records
 
-**Status:** Draft
+**Status:** Approved
 **Date:** 2026-06-27
 **Owner:** alex
 **Promotes To:** —
