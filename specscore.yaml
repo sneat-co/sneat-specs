@@ -1,0 +1,7 @@
+# SpecScore Repo Config Schema: https://specscore.md/repo-config
+
+project:
+    title: Sneat Platform Specs
+    host: github.com
+    org: sneat-co
+    repo: sneat-specs
