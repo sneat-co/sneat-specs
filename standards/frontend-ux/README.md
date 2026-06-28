@@ -27,8 +27,19 @@ comes from following these patterns, not from a shared widget.
    RxJS in templates.
 7. **Always handle the three transient states.** Every data-bound view shows a
    **loading**, **empty**, and **error** state — not just the happy path.
+8. **Connect every screen.** A screen isn't done until its entry (who links here)
+   and exit (where it sends the user) are wired to real screens. Map the flow
+   before building — see [`flows.md`](./flows.md).
 
 ## Contents
+
+### Start here
+
+- [`flows.md`](./flows.md) — **how screens connect**, plus the per-component
+  lifecycle checklist (entry · validation · in-progress · output · exit). Work
+  through this *before* building a form/page/wizard so screens don't end up
+  orphaned. The other docs cover one component; this one covers the arrows between
+  them.
 
 ### Building blocks
 
