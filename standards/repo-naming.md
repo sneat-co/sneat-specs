@@ -33,6 +33,20 @@ the stable interface other repos depend on. `<id>-contract` names the thing.
 > [migration runbook](./contract-repo-rename-migration.md). New contract repos use
 > `-contract` from the start.
 
+### Why no `ext-` prefix on implementation repos
+
+Extensions are **named products**, not anonymous plugins — `listus`, `contactus`,
+`calendarius`. The `-us` suffix is the house brand signature; the implementation
+repo keeps the clean product name so it aligns with the app, domain, and package
+(`listus` → `listus.app` → `@sneat/listus`). An `ext-` prefix was **considered and
+rejected** (2026-06-28): it would bury the distinctive `-us` mark under a generic
+label, split the product name from the repo name, and add nothing users ever see.
+Platform-level grouping is handled by **topics** (below), not by repo names.
+
+`-us` is the **default, not a rule**. Some extensions are deliberately branded
+otherwise — `gameboard`, `rsvp-express`, `sneat-team` — and are left as-is; brand
+intent wins over mechanical consistency.
+
 ## Discoverability — GitHub topics
 
 Repo names don't group in the org list, so finding "all the extensions" relies on
