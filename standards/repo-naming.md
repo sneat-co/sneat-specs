@@ -29,8 +29,9 @@ the stable interface other repos depend on. `<id>-contract` names the thing.
 > **Legacy:** the existing contract repos still use the old `-ext` suffix
 > (`contactus-ext`, `gameboard-ext`, `sneat-team-ext`). Renaming them is a
 > coordinated Go-module migration (their `github.com/sneat-co/<id>-ext/backend`
-> module path is imported by ~118 files across ~9 repos), tracked separately. New
-> contract repos use `-contract`.
+> module path is imported by ~118 files across ~9 repos) — see the
+> [migration runbook](./contract-repo-rename-migration.md). New contract repos use
+> `-contract` from the start.
 
 ## Discoverability — GitHub topics
 
