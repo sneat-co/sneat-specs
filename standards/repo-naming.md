@@ -1,0 +1,79 @@
+# Repository Naming
+
+How Sneat repositories are named, so the org stays navigable and extensions are
+easy to find.
+
+## Taxonomy
+
+| Family | Pattern | Examples |
+| --- | --- | --- |
+| **Platform / infra** | `sneat-*` | `sneat-go`, `sneat-libs`, `sneat-specs`, `sneat-core-modules`, `sneat-ext-template` |
+| **Extension — implementation** | `<id>` | `listus`, `contactus`, `gameboard`, `assetus` |
+| **Extension — contract** | `<id>-contract` | `listus-contract`, `contactus-contract` |
+
+A **Sneat extension** is a self-contained vertical. Each extension is **two
+repos**:
+
+- **`<id>`** — the implementation: the Go backend module, the Angular/Ionic
+  frontend libraries, and the standalone app.
+- **`<id>-contract`** — the frozen cross-repo **contract surface**: the TypeSpec
+  definitions plus the shared Go models / DTOs / consts / briefs that other repos
+  import.
+
+### Why `-contract`, not `-ext`
+
+The whole vertical *is* an extension, so an `-ext` suffix on the second repo
+doesn't say what makes it different. That repo is specifically the **contract** —
+the stable interface other repos depend on. `<id>-contract` names the thing.
+
+> **Legacy:** the existing contract repos still use the old `-ext` suffix
+> (`contactus-ext`, `gameboard-ext`, `sneat-team-ext`). Renaming them is a
+> coordinated Go-module migration (their `github.com/sneat-co/<id>-ext/backend`
+> module path is imported by ~118 files across ~9 repos), tracked separately. New
+> contract repos use `-contract`.
+
+## Discoverability — GitHub topics
+
+Repo names don't group in the org list, so finding "all the extensions" relies on
+**topics**, not naming:
+
+| Topic | Applied to |
+| --- | --- |
+| `sneat-extension` | every extension **implementation** repo |
+| `sneat-extension-contract` | every extension **contract** repo |
+
+Find them all: **`github.com/sneat-co?q=topic:sneat-extension`**.
+
+Topics are the canonical grouping mechanism — apply them to every extension repo
+regardless of its name, so discoverability never depends on a rename.
+
+## Registry
+
+First-party Sneat extensions and their repos. Keep this in sync when adding an
+extension.
+
+| Extension | Implementation repo | Contract repo | Notes |
+| --- | --- | --- | --- |
+| assetus | `assetus` | — | |
+| budgetus | `budgetus` | — | |
+| calendarius | `calendarius` | — | backend in `calendarius`; frontend currently in `sneat-libs` (migration in progress) |
+| contactus | `contactus` | `contactus-ext` → `contactus-contract` | contract repo pending rename |
+| debtus / splitus | `debtus` | — | |
+| docus | `docus` | — | |
+| eventus | `eventus` | — | |
+| gameboard | `gameboard` | `gameboard-ext` → `gameboard-contract` | contract repo pending rename |
+| listus | `listus` | — | |
+| logistus | `logistus` | — | `logist-apps` holds the deployable app(s) |
+| rsvp-express | `rsvp-express` | — | |
+| sneat-team | `sneat-team` | `sneat-team-ext` → `sneat-team-contract` | contract repo pending rename |
+| trackus | `trackus` | — | |
+
+> Rows marked "pending rename" keep their `-ext` repo until the module-path
+> migration runs. Verify this table against the live org before relying on it.
+
+## Related
+
+- [Sneat extension standards](https://github.com/sneat-co/sneat-libs/blob/main/docs/extension-standards/README.md)
+  — backend wiring, frontend apps, UX.
+- [`extension-contract-repo`](https://github.com/sneat-co/sneat-libs/blob/main/spec/features/extension-contract-repo/README.md)
+  — what the contract repo contains and why it's frozen.
