@@ -282,9 +282,13 @@ consistent with transactional counters. Each extension must implement the
 `(Target, Role) → IInvitePresentation` projection for a rich landing; until then a
 generic fallback card renders from the denormalized summary. The open-time
 **routing resolver** (product/host derivation, locale + white-label routing, the
-`snt.link/i/{inviteID}` shortlink) is deferred to its own future Feature. Open
-follow-up: the first implementation slice + teardown order across the affected
-repos.
+`snt.link/i/{inviteID}` shortlink) is deferred to its own future Feature.
+Sequencing (settled in review): build a **thin GameBoard vertical end-to-end
+first** — just enough reserved-space plumbing + invitus `Invite`/`InviteResponse`
+to make one game-invite flow work (create → respond → game page) and validate the
+whole design against the real consumer — then generalize, with the **teardown last**
+(delete the old go-modules invitus, fold debtus → `tracker`, reconcile contactus,
+promote eventus's response model) only once the new model is proven.
 
 ## Observed Consequences
 
