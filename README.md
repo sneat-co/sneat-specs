@@ -6,9 +6,8 @@ Public specifications and standards for the Sneat platform (SpecScore-managed).
 
 | Directory | Purpose |
 |---|---|
-| [`spec/`](spec/README.md) | SpecScore-formatted specifications — `features/`, `ideas/`, `plans/`. |
+| [`spec/`](spec/README.md) | SpecScore-formatted specifications — `features/`, `ideas/`, `plans/`, `decisions/`. |
 | [`standards/`](standards/README.md) | House standards & conventions that span repos (not SpecScore-gated). |
-| [`decisions/`](decisions/README.md) | Architecture Decision Records (ADRs) — cross-repo decisions with lasting structural consequences. |
 
 ## Standards
 
