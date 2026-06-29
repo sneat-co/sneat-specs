@@ -57,40 +57,61 @@ Generalize it with two fields:
   `gameboard.live`, or a white-label team's own Sneat server). Drives branding
   and accept-routing. New — nothing models this today.
 
-### 2. Two records: `Invite` (1) → `Response` (N)
+### 2. Two records: `Invite` (1) → `InviteResponse` (N)
 
-The RSVP answer lives in a **separate `Response` record** that references the
+The answer lives in a **separate `InviteResponse` record** that references the
 invite — not folded onto the invite. An open/shareable invite yields many
 responses; responses are editable; open-link responders self-identify with no
 invitation row. Headcounts/dietary/comments are attendance data that does not
 belong on the invite.
 
-The `Response` shape is **promoted from eventus** (`yes`/`no`/`maybe` +
+> **Naming.** "RSVP" (*répondez s'il vous plaît*) is grammatically the
+> *request* — it belongs to the invite (e.g. an `rsvpBy` deadline on `Invite`).
+> The invitee's structured, recorded answer is an **`InviteResponse`**
+> (`InviteResponseDbo`). We avoid the bare word `Response` (un-greppable,
+> collides with HTTP/return values) and avoid `Reply` (implies free-text
+> conversation back to the host; only the optional `comment` field is reply-ish).
+> `InviteResponse` also aligns with invitus's existing `create_invite_response`
+> facade. eventus's `IRsvp` is renamed to `InviteResponse` when its model is
+> promoted.
+
+The `InviteResponse` shape is **promoted from eventus** (`yes`/`no`/`maybe` +
 headcounts + dietary/comment + attribution + public resolve context) and
 **replaces** invitus's coarse `AcceptedByUserIDs`/`DeclinedByUserIDs`. With a
-data wipe permitted, we keep only one response mechanism.
+data wipe permitted, we keep only one response mechanism. It is the *universal*
+answer to any invite — accepting a space invite, RSVPing to an event, and
+confirming a game are all an `InviteResponse` (status + attribution), with
+event-only extras (headcounts, dietary, comment) as optional fields. Being
+universal it belongs in **invitus**, not in a separate `rsvpus` module (illusory
+separation) and not in eventus (which would invert the layering, making a
+vertical a platform dependency).
 
-**Where it lives — in invitus, co-located with `Invite`.** `Response` is the
-*universal* answer to any invite: accepting a space invite, RSVPing to an event,
-and confirming a game are all a `Response` (status `yes`/`maybe`/`no` +
-attribution), with event-only extras (headcounts, dietary, comment) as optional
-fields. Because it is universal — not event-specific — it belongs with `Invite`
-in invitus, not in a separate `rsvpus` module (illusory separation) and not in
-eventus (which would invert the layering, making a vertical a platform
-dependency). Co-location keeps the denormalized social-proof counters on
-`Invite` **transactional**: a `Response` write and the counter bump happen in one
-transaction in one store. `Response` is stored as a subcollection of its invite
-(`/invites/{inviteID}/responses/{responseID}`); the landing reads only the
-denormalized summary on `Invite`, never a query over responses — prod's
-`dalgo2memcachegae` store does not support queries (the same constraint that
-shapes the GameBoard single-doc event log).
+**Storage — a root collection `inviteResponses`, mirroring `invites`.** invitus
+already stores invites in a **root** collection (`invites`) keyed by id, with
+`SpaceID`/`Target` as **queryable fields**, and queries them (`get_invite`,
+`get_pending_invite_for_target`). `InviteResponse` follows the same idiom: a root
+`inviteResponses` collection with denormalized ref fields — `inviteID`,
+`target {type, ids}` (so `happeningID`/`spaceID`/`gameID` are filterable),
+`responderUserID`, `status`. This directly serves cross-cutting host views
+("responses across my happenings" → `WHERE target.happeningID == …`; "all my
+responses" → `WHERE responderUserID == …`) with plain indexed queries, and is
+consistent with invitus moving away from embedded lists (`WithInvites` is
+obsolete). A subcollection (`/invites/{id}/responses/{rid}`) is viable via
+Firestore **collection-group queries**, but is rejected as less consistent and
+because a response relates to invite **+ happening + responder**, not a single
+parent. The denormalized social-proof counters live on `Invite`; the counter
+bump and the `InviteResponse` write happen in **one transaction** — Firestore
+transactions span root collections, so co-location is not required for atomicity.
+(The "no queries in prod" constraint cited for the GameBoard event log is
+specific to its memcache-wrapped hot path, **not** platform-wide — invitus
+queries normally.)
 
 ### 3. Membership join is an optional follow-on, never the RSVP
 
-Submitting a `Response` never joins a space. A `yes` from someone who *should*
-become a member (e.g. a player joining the roster) may **trigger** invitus's
-existing space-join flow as a separate, explicit step. Spectators, friends, and
-party guests respond without joining anything.
+Submitting an `InviteResponse` never joins a space. A `yes` from someone who
+*should* become a member (e.g. a player joining the roster) may **trigger**
+invitus's existing space-join flow as a separate, explicit step. Spectators,
+friends, and party guests respond without joining anything.
 
 ### 4. Social proof is denormalized and host-controlled
 
@@ -137,6 +158,7 @@ type Invite struct {
     Kind    InviteKind        // "personal" (bound to one To) | "open" (shareable, Limit)
     To      *InviteContact    // set for personal; nil for open
     Limit   int               // open invites only
+    RsvpBy  *time.Time        // the RSVP *request*: respond-by deadline (optional)
 
     // denormalized social proof
     Going, Maybe, Declined, Adults, Children int
@@ -148,10 +170,13 @@ type Target struct {
     IDs  []string // e.g. [happeningID]  or  [spaceID, gameID]
 }
 
-// shared RSVP response (promoted from eventus; replaces accept/decline)
-type Response struct {
+// the universal invite-answer (promoted from eventus IRsvp; replaces accept/decline).
+// Root collection `inviteResponses`, keyed by id; parent refs are queryable fields.
+type InviteResponseDbo struct {
     InviteID string
-    Status   string  // "yes" | "maybe" | "no"
+    Target   Target   // denormalized for cross-invite/cross-happening queries
+    ResponderUserID string
+    Status   string   // "yes" | "maybe" | "no"
     Adults, Children int
     Dietary, Comment string
     SelfIdentifiedName, SelfIdentifiedFamilyName string // open-link attribution
@@ -185,7 +210,7 @@ Sneat server. Set at invite creation from where the host operates.
 - Membership-vs-attendance boundary is explicit and enforced by structure.
 - Public landing works for logged-out strangers; no extension code loaded.
 - GameBoard ↔ RSVP collapses to: a `target.type="game"` invite with a role-aware
-  view-model, answered via the shared `Response`.
+  view-model, answered via the shared `InviteResponse`.
 - `Target` + `Domain` make the invite reusable across every vertical and
   white-label deployments.
 
@@ -193,8 +218,8 @@ Sneat server. Set at invite creation from where the host operates.
 
 - Real teardown work: delete the old go-modules invitus, fold debtus invites in,
   reconcile contactus, promote eventus's response model to the shared layer.
-- Two records (Invite + Response) to keep consistent; denormalized counters must
-  be maintained transactionally on response writes.
+- Two records (Invite + InviteResponse) to keep consistent; denormalized counters
+  must be maintained transactionally on response writes.
 
 **Neutral**
 
