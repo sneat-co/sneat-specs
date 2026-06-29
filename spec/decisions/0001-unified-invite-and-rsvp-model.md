@@ -47,9 +47,8 @@ target directly.
 `sneat-core-modules/invitus` is the single invite record, owning invite transport
 + identity (channel, link, pin, expiry, from/to, message, roles). Generalize it
 with **`Target`** (*what* the invite is for — generalizes `TargetType`/`TargetIDs`;
-a space becomes one target type, not a special case) and **`Domain`** (*who
-handles* it — the app/server that renders the landing and accepts responses;
-`gameboard.live`, `rsvp.express`, or a white-label team's own Sneat server; new).
+a space becomes one target type, not a special case) and an optional **`Routing`**
+(*where the invitee goes* — see [§7](#7-routing-is-optional-override-only-and-resolved-at-open-time)).
 
 ### 2. Two records: `Invite` (1) → `InviteResponse` (N)
 
@@ -127,6 +126,31 @@ carrying `related` need a space ancestor — GameBoard games satisfy this by liv
 in the reserved system space `$gameboard` per
 [decision 0002](0002-reserved-extension-space-ids.md).
 
+### 7. Routing is optional, override-only, and resolved at open-time
+
+Where the invitee goes is **not** a single frozen `domain` string — that conflates
+three orthogonal axes (**product** · **channel** · **host**) across two distinct
+moments (**review** the invite vs **proceed** after the response), and it would
+freeze per-visitor host selection that must stay dynamic. Instead the invite
+carries an optional **`Routing`** of three symmetric `Destination`s — `Review`,
+`OnAccept`, `OnDecline` — each with optional `Product` / `Channel` / `Host`.
+Everything is **derived by default** (product from `target.type`: game →
+gameboard.live, space → sneat.team, happening → eventus/rsvp; channel → `web`;
+host → resolved from product + channel + visitor locale/white-label). Only
+deliberate **overrides** are stored: drive into a bot (`Channel: "bot"`), pin a
+white-label or a specific host (`Host`), or send the invitee to a different
+product after acceptance than the one that hosted the review (e.g. review in
+rsvp.express, `OnAccept.Product = "gameboard"`).
+
+The concrete URL is computed **at open-time**, not stored — so the **sent link is a
+stable platform resolver/shortlink** (`https://snt.link/i/{inviteID}`) that applies
+the matching `Destination` plus the *current* visitor's locale/tenant and
+redirects. Pinning a per-visitor host (locale/geo → `.ie`) onto the invite is
+explicitly disallowed; that is the resolver's job, with the `Host` override as the
+escape hatch when a specific host is genuinely intended. The open-time resolver
+itself is a separate future Feature (it is where locale and white-label routing
+live).
+
 ### Model sketch
 
 ```go
@@ -141,7 +165,7 @@ type Invite struct {
     Message string
 
     Target  Target            // WHAT (generalizes TargetType/TargetIDs)
-    Domain  string            // WHO handles it (app/server/white-label host)
+    Routing *Routing          // WHERE the invitee goes — optional; omit → all derived
 
     Kind    InviteKind        // "personal" (bound to one To) | "open" (shareable)
     To      *InviteContact    // set for personal; nil for open
@@ -158,6 +182,20 @@ type Target struct {
     IDs  []string // e.g. [happeningID]  or  [spaceID, gameID]
 }
 
+// optional per-stage routing overrides; resolved to a concrete URL at open-time.
+// Nested structs are pointers so omitempty actually omits them; scalars are plain.
+type Routing struct {
+    Review    *Destination `firestore:"review,omitempty"`    // entry: review the invite
+    OnAccept  *Destination `firestore:"onAccept,omitempty"`  // outcome: after "yes"
+    OnDecline *Destination `firestore:"onDecline,omitempty"` // outcome: after "no" (rare)
+}
+
+type Destination struct {
+    Product string `firestore:"product,omitempty"` // "gameboard"|"sneat-team"|… default: from target.Type
+    Channel string `firestore:"channel,omitempty"` // "web"|"bot"|"app"            default: "web"
+    Host    string `firestore:"host,omitempty"`    // pin a host (white-label/.ie/bot) default: resolved
+}
+
 // the universal invite-answer (promoted from eventus IRsvp; replaces accept/decline)
 type InviteResponseDbo struct {
     InviteID        string
@@ -172,19 +210,19 @@ type InviteResponseDbo struct {
 }
 ```
 
-### Target types & Domain
+### Target types & routing
 
-| `Target.Type` | `IDs` | Accept semantics |
-|---|---|---|
-| `space` | `[spaceID]` | join space as member (existing invitus flow) |
-| `happening` | `[happeningID]` | RSVP to event; no join |
-| `game` | `[spaceID?, gameID]` | RSVP to game (schedule read-through); role-aware |
-| `tracker` | `[trackerID]` | legacy debtus join-to-track |
-| `user` | `[userID]` | direct user-to-user invite |
+| `Target.Type` | `IDs` | Accept semantics | Default product |
+|---|---|---|---|
+| `space` | `[spaceID]` | join space as member (existing invitus flow) | sneat-team |
+| `happening` | `[happeningID]` | RSVP to event; no join | eventus / rsvp |
+| `game` | `[spaceID?, gameID]` | RSVP to game (schedule read-through); role-aware | gameboard |
+| `tracker` | `[trackerID]` | legacy debtus join-to-track | debtus |
+| `user` | `[userID]` | direct user-to-user invite | rsvp |
 
-`Domain` identifies the host that serves the landing and accepts responses; it
-drives branding and accept-routing, including a white-label team running its own
-Sneat server. Set at invite creation.
+`Routing` (optional) overrides the derived destinations per stage; the default
+product per target is shown above. See
+[§7](#7-routing-is-optional-override-only-and-resolved-at-open-time).
 
 ## Rationale
 
@@ -232,15 +270,18 @@ it makes the denormalized counters non-transactional across modules.
 
 Positive: one invite model instead of five and one response model instead of two;
 the membership-vs-attendance boundary is structural; the public landing works for
-logged-out strangers; `Target` + `Domain` make the invite reusable across verticals
-and white-label deployments. Costs: real teardown (delete the old go-modules
-invitus, fold debtus invites in as `tracker`, reconcile contactus, promote
-eventus's response model) and two records (Invite + InviteResponse) to keep
+logged-out strangers; `Target` + optional `Routing` make the invite reusable across
+verticals, channels (web/bot/app), and white-label/localized deployments while the
+common invite stores no routing at all. Costs: real teardown (delete the old
+go-modules invitus, fold debtus invites in as `tracker`, reconcile contactus,
+promote eventus's response model) and two records (Invite + InviteResponse) to keep
 consistent with transactional counters. Each extension must implement the
 `(Target, Role) → IInvitePresentation` projection for a rich landing; until then a
-generic fallback card renders from the denormalized summary. Open follow-ups:
-whether `Domain` is a bare host string or a `{ app, host }` struct, and the first
-implementation slice + teardown order across the affected repos.
+generic fallback card renders from the denormalized summary. The open-time
+**routing resolver** (product/host derivation, locale + white-label routing, the
+`snt.link/i/{inviteID}` shortlink) is deferred to its own future Feature. Open
+follow-up: the first implementation slice + teardown order across the affected
+repos.
 
 ## Observed Consequences
 
