@@ -149,7 +149,10 @@ redirects. Pinning a per-visitor host (locale/geo → `.ie`) onto the invite is
 explicitly disallowed; that is the resolver's job, with the `Host` override as the
 escape hatch when a specific host is genuinely intended. The open-time resolver
 itself is a separate future Feature (it is where locale and white-label routing
-live).
+live); its `product × locale → host` mapping is a **static platform config**
+(reviewed/deployed, read-free on the hot path), with the `Host` override covering
+white-label and force-a-host cases — not a convention-derived host or a
+runtime-read registry doc.
 
 ### Model sketch
 
