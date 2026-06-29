@@ -40,10 +40,17 @@ records, per ADR-0001) and GameBoard (games, today spaceless, which breaks the
 #### REQ: dollar-prefix-sigil
 
 A reserved system space's id MUST be the owning extension's id prefixed with `$`
-(e.g. extension `invitus` → space id `$invitus`; `gameboard` → `$gameboard`). The
-`$` sigil denotes a platform-reserved space ("**S**pace"). An extension has at
-most **one** reserved space, and its module-global records are stored under the
-standard space-module path `/spaces/$<ext>/ext/<ext>/{collection}/{id}`.
+(e.g. extension `invitus` → space id `$invitus`; `gameboard` → `$gameboard`;
+`togethered` → `$togethered`). The `$` sigil denotes a platform-reserved space
+("**S**pace"). An extension has at most **one** reserved space, holding records
+under the standard space-module path `/spaces/$<ext>/ext/<module>/{collection}/{id}`.
+The `<module>` sublevel names the module **storing** the record, which is usually —
+but need not be — the space's owning extension: a reserved space MAY host overlay
+records from other modules. For example, when a ToGethered formal event lazily
+upgrades to the Eventus engine, its Eventus overlay lands at
+`/spaces/$togethered/ext/eventus/events/{happeningID}` — `togethered` owns the
+space, `eventus` is the storing module. (This is why the `/ext/<module>/` sublevel
+is retained rather than collapsed into the reserved space id.)
 
 ### Reservation
 
