@@ -13,6 +13,13 @@ status: Approved
 **Supersedes:** —
 **Grade:** B
 
+> **Note:** [Decision 0002](../../decisions/0002-reserved-extension-space-ids.md)
+> reframes the system *space* described here as a spaceless system *namespace* at
+> `/ext/{ext-id}/...`. The access semantics below (public-read,
+> any-authenticated-write, per-record authorization delegated to the owning
+> extension) are unchanged — they are **lifted** from a system space to the system
+> namespace; read "System space" below as "the system namespace at `/ext/`".
+
 ## Summary
 
 A SpaceTypeSystem space whose module-record writes are open to any authenticated user (public reads), branched in the spaceus access check, with per-record mutation authorization delegated to the owning extension.
@@ -23,8 +30,9 @@ spaceus gates every module-record write by **space membership** — the
 `dal4spaceus` module-space worker, which Calendarius's `RunHappeningSpaceWorker`
 (and every other module's writes) runs through. That makes it impossible for an
 extension to keep **shared, cross-user records** — e.g. a gameboard game's
-backing Calendarius happening — in one reserved space that any authenticated
-user can write to without being made a member. The available workarounds are
+backing Calendarius happening — in one spaceless system namespace (`/ext/{ext-id}/...`,
+per [Decision 0002](../../decisions/0002-reserved-extension-space-ids.md)) that any
+authenticated user can write to without being made a member. The available workarounds are
 both bad: a **system/service identity** owning the space does not exist in the
 platform today (every happening is created as the real, member user), and making
 every user a **member of a shared space** would leak every record to every member.
@@ -134,9 +142,12 @@ tests at that point.
   authorize a write, or does it simply permit the space write and rely on the
   extension having authorized *before* calling? This Feature assumes the latter
   (extension authorizes first, then writes); a future callback hook may be wanted.
-- **Reserved-space addressing & provisioning.** How a System space (e.g. the
-  `games` space) is created and addressed (well-known id vs. lookup), and which
-  platform path is allowed to create System spaces.
+- ~~**Reserved-space addressing & provisioning.**~~ **Settled by
+  [Decision 0002](../../decisions/0002-reserved-extension-space-ids.md):** system
+  records are not addressed as a space at all — they live spaceless at
+  `/ext/{ext-id}/...` (the system namespace), and the `SpaceTypeSystem` ACL is lifted
+  to that namespace. See
+  [`reserved-extension-space-ids`](../reserved-extension-space-ids/README.md).
 - **Naming.** `SpaceTypeSystem` vs `SpaceTypeShared`/`SpaceTypePublic`.
 - **Single write chokepoint.** `open-write-for-authenticated` assumes the
   `dal4spaceus` module-space worker is the *only* gate every module write passes

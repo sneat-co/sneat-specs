@@ -1,11 +1,11 @@
 ---
 format: https://specscore.md/decision-specification
-status: Draft
+status: In Review
 ---
 
-# Decision: Reserved $-prefixed space IDs for extensions
+# Decision: Spaceless system namespace for global extension records
 
-**Status:** Draft
+**Status:** In Review
 **Date:** 2026-06-29
 **Owner:** alex
 **Tags:** —
@@ -13,84 +13,135 @@ status: Draft
 **Supersedes:** —
 **Superseded By:** —
 
+> **Note:** This Decision reverses its own earlier draft (which proposed
+> per-extension `$`-prefixed reserved *spaces*, e.g. `$invitus`/`$gameboard`).
+> The filename slug `reserved-extension-space-ids` is retained for stable links
+> and is now historical; the `reserved-extension-space-ids` Idea/Feature and the
+> `system-space-type` Feature are reconciled to this direction (see *Consequences*).
+
 ## Context
 
-The Approved [`system-space-type`](../features/system-space-type/README.md)
-Feature introduced `SpaceTypeSystem` — a platform-owned space whose module records
-accept writes from **any authenticated user** (no membership), are **public-read**,
-and whose **per-record** authorization is delegated to the owning extension. It is
-the home for an extension's shared, cross-user records. But it explicitly left one
-thing open: *how a System space is **addressed** (well-known id vs lookup)*.
+The Approved [`system-space-type`](../features/system-space-type/README.md) Feature
+introduced `SpaceTypeSystem` — a platform-owned space whose module records accept
+writes from **any authenticated user** (no membership), are **public-read**, and
+whose **per-record** authorization is delegated to the owning extension. It is the
+home for an extension's shared, cross-user records, and it left one thing open:
+*how that home is addressed.*
 
-Two concrete needs now force the question. [Decision
-0001](0001-unified-invite-and-rsvp-model.md) places invitus's invites and
-`InviteResponse` records — platform-owned, cross-user, spaceless — in a reserved
-system space. And **GameBoard games** are global today
-(`/ext/gameboard/games/{id}`, spaceless), which breaks the linkage validator
-`WithRelated.ValidateWithKey`: it derives a `spaceID` from a record's key ancestry,
-so a record carrying a `related` link (a game → its happening) **must** have a
-space ancestor. Both want the same thing — a predictable, collision-proof way to
-name and address an extension's one reserved system space — and giving spaceless
-globals a real space ancestor resolves the `related` problem for free.
+Three concrete cases need that home: invitus's invites + `InviteResponse`
+([Decision 0001](0001-unified-invite-and-rsvp-model.md)), **GameBoard games**
+(`/ext/gameboard/games/{id}` today), and **ToGethered**'s spots / intents /
+subscriptions (`/ext/togethered/...` today). All three are platform-owned,
+cross-user, and **belong to no space**.
+
+The earlier draft of this Decision proposed giving each a per-extension reserved
+*space* (`$<ext>`) so the records gained a space ancestor — which the linkage
+validator `WithRelated.ValidateWithKey` currently requires (it derives a `spaceID`
+from a record's key ancestry, so a record carrying a `related` link must sit under
+a space). On review that was rejected: it models inherently spaceless data as a
+member of a space that no one belongs to, and yields a redundant
+`/spaces/$<ext>/ext/<ext>/…` path whose only job is to satisfy machinery. This
+Decision takes the opposite, simpler route — make spaceless a first-class shape
+rather than disguise it as a space.
 
 ## Decision
 
-A reserved system space is addressed by a **well-known `$`-prefixed id equal to the
-owning extension's id**: `$invitus`, `$gameboard`, `$eventus`. The `$` sigil reads
-as "**S**pace" — a platform-reserved space namespace. (1) The id is `$` + the
-extension id; one reserved space per extension, with its module-global records at
-the standard path `/spaces/$<ext>/ext/<ext>/{collection}/{id}`. (2) The `$` prefix
-is reserved to the platform — the public create-space path rejects any id beginning
-with `$`. (3) The id is **well-known**, derivable from the extension id with no
-lookup. (4) A `$`-prefixed id **denotes `SpaceTypeSystem`**, so a bare id is
-self-identifying.
+Global / system extension records live **spaceless** at the root path
+`/ext/{ext-id}/{collection}/{doc-id}` (nested subcollections allowed, e.g.
+`/ext/{ext-id}/spots/{spotID}/days/{date}`). They are **not** wrapped in any space.
+
+1. **Storage.** System-level records: `/ext/{ext-id}/...`. Space-owned records are
+   unchanged: `/spaces/{space-id}/ext/{ext-id}/...`.
+2. **Related-ref format.** A system-namespace ref is `{ext-id}/{collection}/{doc-id}`
+   — **the ext-id is mandatory** (it is the namespace root) and there is **no
+   suffix**. A space-bound ref keeps its suffix: `{ext-id}/{collection}/{doc-id}@{space-id}`.
+   The presence or absence of `@{space-id}` is the sole discriminator: absent ⇒
+   resolve under `/ext/{ext-id}/...`; present ⇒ resolve under
+   `/spaces/{space-id}/ext/{ext-id}/...`.
+3. **Access control.** The `SpaceTypeSystem` semantics — public-read,
+   any-authenticated-write, per-record authorization delegated to the owning
+   extension — are **lifted from "a system *space*" to the system *namespace*** at
+   `/ext/`. The same authorization logic, relocated; not reinvented.
+4. **No `$` sigil, no reserved spaces.** `$invitus` / `$gameboard` / `$togethered`
+   are not created; the `$`-prefix reservation in space-id validation is not needed.
 
 ## Rationale
 
-The `$` convention answers `system-space-type`'s open addressing question with a
-*well-known id* rather than a *lookup*, and it does so by reusing existing
-machinery instead of inventing a spaceless special case. Crucially it dissolves the
-`related`/linkage tension: previously-spaceless globals (invites, games) gain a
-real **space ancestor**, so the validator works unchanged and *everything* is
-uniformly space-scoped — one storage and access-control path (the existing
-`dal4spaceus` system-space branch). The paths are human-readable and collision-proof
-once `$` is reserved in id validation.
+These records belong to no space, and the model should say so. Spaceless storage is
+**semantically honest**, the paths are **shorter** (`/ext/togethered/...` vs
+`/spaces/$togethered/ext/togethered/...`), the **ext-id is the natural first-class
+namespace**, and — decisively — there is **no migration**: invites, games and
+intents already live at `/ext/{ext-id}/...` today, so this Decision *blesses the
+current location* instead of moving data into a synthetic space.
+
+The cost is a one-time, bounded change to the linkage core: the validator and
+resolver gain a single spaceless branch, and the access-control hook is lifted from
+`SpaceTypeSystem` to the system namespace (the same ACL, applied to `/ext/`). That
+is cheaper, and conceptually cleaner, than permanently disguising spaceless data as
+a fake space on every read, write and path.
 
 ## Declined Alternatives
 
-### Registry / lookup of reserved space ids
+### Per-extension reserved `$<ext>` spaces (this Decision's own earlier draft)
 
-A platform doc mapping extension → reserved spaceID, read at runtime. Lost: extra
-indirection and a read for an id that is trivially derivable — convention beats
-configuration.
+Give each extension a `$<ext>` `SpaceTypeSystem` space and store records at
+`/spaces/$<ext>/ext/<ext>/…`. Lost: it models spaceless data as a space member, and
+the `$<ext>/ext/<ext>` path is redundant — the extension id appears twice and the
+space exists only to satisfy the validator. Reuses machinery at the cost of lying
+about ownership.
 
-### Rely only on the existing `SpaceRef` type-prefix (`system!<id>`), no `$`
+### Single shared `$sneat` system space
 
-The type already encodes "system" in a `SpaceRef`. Lost: a *bare* space id — used
-as a Firestore doc id and in collection paths — is not self-identifying without
-carrying the type, and there is nothing for id-validation to reserve. The `$`
-prefix makes a bare id recognizable and reservable.
+One platform space `$sneat` holding every extension's system records at
+`/spaces/$sneat/ext/<ext>/…`. Removes the doubling and keeps the validator
+unchanged, but still wears the space costume: `$sneat` is a "space" no one belongs
+to, and the path still carries a `/spaces/$sneat` prefix whose only purpose is
+machinery.
 
-### Opaque / random reserved ids
+### Spaceless storage with a sentinel ref (`…@$` / `…@$sneat`)
 
-Lost: not predictable, forces a lookup, and is not human-readable in paths or logs.
+Store spaceless at `/ext/…` but keep a sentinel space token in the ref for format
+uniformity. Lost: a ref that *names* a space but resolves to no space is
+misleading, and it saves no code (the validator reads the spaceless storage key and
+the resolver must special-case the sentinel regardless). Clean absence of the
+suffix is more honest than a token that lies.
 
 ## Consequences at Decision Time
 
-Positive: resolves `system-space-type`'s addressing open question; gives invites
-and games a real space ancestor so the `related` validator needs no special-casing;
-uniform space-scoping on one code path; readable, predictable paths. Net-new work:
-reserve the `$` prefix in space-id validation, provision the reserved spaces
-(`$invitus`, `$gameboard`, …), and add `coretypes` helpers (`ReservedSpaceID`,
-`IsReserved`, `$`-implies-System derivation). This **supersedes** GameBoard's
-current spaceless `/ext/gameboard/games` root — greenfield, so migrate. Neutral:
-the `/spaces/$invitus/ext/invitus/…` path carries an apparent `$invitus` +
-`ext/invitus` redundancy, accepted deliberately to keep one uniform space-module
-convention. Follow-ups settled in review (2026-06-29): a reserved space is
-referenced by its **bare `$<ext>` id** (no `system!` type-prefix — `$` carries the
-type); there is **exactly one** reserved space per extension (hard 1:1, no
-`$<ext>-<purpose>` scheme); and the `$` sigil is confirmed (greenfield, no existing
-`$`-prefixed ids, no backward-compatibility constraint).
+**Supersedes** the `$`-prefixed reserved-space direction in its entirety — no
+`$invitus`/`$gameboard`/`$togethered`, no `$`-prefix reservation in space-id
+validation, no per-extension reserved-space provisioning. To reconcile: the
+[`reserved-extension-space-ids`](../features/reserved-extension-space-ids/README.md)
+Idea/Feature is retargeted (or retired) to this spaceless model; the
+[`system-space-type`](../features/system-space-type/README.md) Feature is reframed
+from "system *space*" to "system *namespace*"; and
+[Decision 0001](0001-unified-invite-and-rsvp-model.md) and
+[Decision 0003](0003-invite-acceptance-graph-edges.md) drop their `$<ext>` space
+references in favour of `/ext/{ext-id}/...`.
+
+**Code** (canonical linkage package: `sneat-core-modules/linkage`, with the TS
+mirror in `sneat-libs`). A bounded change with the following touch-points:
+- `RelatedItemKey.Validate` — `spaceID` becomes optional (empty ⇒ system namespace).
+- Ref serialization (`RelatedItemKey.String`, `NewFullItemRef`) — omit the `@{space}`
+  suffix when there is no space.
+- `WithRelated.ValidateWithKey` — recognise a spaceless storage key
+  (`/ext/{ext-id}/...`, no space ancestor) as the system namespace instead of
+  walking off the top of the key.
+- The ref→path resolver (`dbo4spaceus.NewSpaceModuleItemKeyFromItemRef` /
+  `NewSpaceModuleItemKey`, used by `facade4linkage`) — when the ref has no space,
+  build `/ext/{ext-id}/...` directly (a spaceless key-builder that does **not** call
+  `NewSpaceKey`, which panics on empty).
+- The `dal4spaceus` `SpaceTypeSystem` authorization hook — extend to authorize
+  system-namespace records at `/ext/`.
+- TypeScript mirror (`with-related.ts`) — `ISpaceModuleItemRef.spaceID` optional;
+  `getLongRelatedItemID` omits `@` when no space.
+- Tests for both shapes (space-bound and system-namespace).
+
+**Positive:** honest semantics; shorter paths; ext-id as a first-class namespace;
+**zero data migration** (current `/ext/{ext-id}/...` storage is blessed as-is).
+**Costs / neutral:** two storage shapes now coexist (space-bound and
+system-namespace), so the linkage layer branches on the `@{space-id}` discriminator;
+the ext-id is **mandatory** on every related-ref.
 
 ## Observed Consequences
 
@@ -98,7 +149,10 @@ None observed yet.
 
 ## Affected Features
 
-None at this time.
+- [`reserved-extension-space-ids`](../features/reserved-extension-space-ids/README.md) — retarget/retire to the spaceless model.
+- [`system-space-type`](../features/system-space-type/README.md) — reframe "system space" → "system namespace".
+- [`eventus/mini-products/togethered`](https://github.com/sneat-co/backstage) (backstage) — records at `/ext/togethered/...`.
+- Decisions [0001](0001-unified-invite-and-rsvp-model.md) and [0003](0003-invite-acceptance-graph-edges.md) — drop `$<ext>` space references.
 
 ---
 *This document follows the https://specscore.md/decision-specification*

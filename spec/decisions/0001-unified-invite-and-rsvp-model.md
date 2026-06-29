@@ -69,27 +69,28 @@ not eventus (which would invert layering).
 > aligns with invitus's existing `create_invite_response` facade; eventus's
 > `IRsvp` is renamed on promotion.
 
-**Storage — in invitus's reserved system space `$invitus`.** Invites and responses
-are platform-owned, cross-user, spaceless records, so they live in invitus's
-**reserved system space** (`$invitus`, type `SpaceTypeSystem`) under the standard
-space-module path — see [decision 0002](0002-reserved-extension-space-ids.md) and
-the [`reserved-extension-space-ids`](../features/reserved-extension-space-ids/README.md)
+**Storage — spaceless, in invitus's system namespace `/ext/invitus/`.** Invites and
+responses are platform-owned, cross-user, spaceless records, so they live in
+invitus's **system namespace** (`/ext/invitus/...`, with the `SpaceTypeSystem`
+access semantics lifted to it) — they are **not** wrapped in any space; see
+[decision 0002](0002-reserved-extension-space-ids.md) and the
+[`reserved-extension-space-ids`](../features/reserved-extension-space-ids/README.md)
 and [`system-space-type`](../features/system-space-type/README.md) Features:
 
 ```
-/spaces/$invitus/ext/invitus/invites/{inviteID}
-/spaces/$invitus/ext/invitus/inviteResponses/{responseID}
+/ext/invitus/invites/{inviteID}
+/ext/invitus/inviteResponses/{responseID}
 ```
 
 `InviteResponse` carries denormalized ref fields (`inviteID`, `target {type,
-ids}`, `responderUserID`, `status`). Because the reserved space + module prefix is
+ids}`, `responderUserID`, `status`). Because the system-namespace + module prefix is
 a **fixed** path, cross-cutting host views ("responses across my happenings" →
 `WHERE target.happeningID == …`; "all my responses" → `WHERE responderUserID == …`)
 are plain indexed collection queries — not collection-group, not space-variable. A
 per-invite subcollection is rejected: a response relates to invite **+ happening +
 responder**, not one parent. Social-proof counters live on `Invite`; the counter
 bump and the response write are **one transaction** (Firestore transactions span
-collections, so co-location is not required). The system-space auth model fits:
+collections, so co-location is not required). The system-namespace auth model fits:
 any authenticated user may write (no membership), reads are public, and invitus
 enforces per-record authorization.
 
@@ -121,9 +122,9 @@ logged-out stranger on a public landing.
 Domain entities link via the platform's `related` graph (`IWithRelatedOnly` /
 `IRelatedModules` in `sneat-libs`), so neither side hard-codes the other; a game
 reads schedule/venue through its linked happening. The linkage validator
-(`WithRelated.ValidateWithKey`) derives a `spaceID` from key ancestry, so records
-carrying `related` need a space ancestor — GameBoard games satisfy this by living
-in the reserved system space `$gameboard` per
+(`WithRelated.ValidateWithKey`) gains a spaceless branch, so records carrying
+`related` may live in the system namespace without a space ancestor — GameBoard
+games satisfy this by living spaceless at `/ext/gameboard/games/{id}` per
 [decision 0002](0002-reserved-extension-space-ids.md).
 
 ### 7. Routing is optional, override-only, and resolved at open-time

@@ -11,7 +11,7 @@ Feature specifications for this project.
 | Feature | Status | Description |
 |---------|--------|-------------|
 | [system-space-type](system-space-type/README.md) | Approved | A SpaceTypeSystem space whose module-record writes are open to any authenticated user (public reads), branched in the spaceus access check, with per-record mutation authorization delegated to the owning extension. |
-| [reserved-extension-space-ids](reserved-extension-space-ids/README.md) | Draft | A `$`-prefixed, well-known space-id convention for an extension's reserved SpaceTypeSystem space (`$invitus`, `$gameboard`): `$` reserved to the platform, `$`-prefix implies System type, id derived from the extension id with no lookup. Resolves the addressing open question from system-space-type. |
+| [reserved-extension-space-ids](reserved-extension-space-ids/README.md) | Draft | A spaceless system namespace for an extension's global, cross-user records: they live at `/ext/{ext-id}/...` (not in any space), referenced by a suffix-less `{ext-id}/{collection}/{doc-id}` ref, with the linkage validator/resolver gaining a spaceless branch and the SpaceTypeSystem ACL lifted to the namespace. Resolves the addressing open question from system-space-type. |
 
 ## Open Questions
 
