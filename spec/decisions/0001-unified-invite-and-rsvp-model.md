@@ -164,7 +164,7 @@ type Invite struct {
     Pin     string
     Expires time.Time
     Status  InviteStatus
-    Roles   []string          // player|coach|parent|judge|friend|member ...
+    Roles   []string          // player|coach|team-admin|parent|scorekeeper|timekeeper|judge|spectator ...
     Message string
 
     Target  Target            // WHAT (generalizes TargetType/TargetIDs)
@@ -285,7 +285,8 @@ generic fallback card renders from the denormalized summary. The open-time
 `snt.link/i/{inviteID}` shortlink) is deferred to its own future Feature.
 Sequencing (settled in review): build a **thin GameBoard vertical end-to-end
 first**, and within that the **role-rich participant flow** (player /
-parent-of-player / coach / scorekeeper / timekeeper / judge) — chosen over the
+parent-of-player / coach / team-admin (coordinator) / scorekeeper / timekeeper /
+judge) — chosen over the
 spectator/conversion flow because the **end-goal is building the relationship
 graph**: an accepted, role-tagged invite must **deposit the corresponding
 relationship edge via `linkage`** (the same graph-write-back eventus and ToGethered
