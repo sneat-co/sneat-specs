@@ -42,8 +42,9 @@ records, per ADR-0001) and GameBoard (games, today spaceless, which breaks the
 A reserved system space's id MUST be the owning extension's id prefixed with `$`
 (e.g. extension `invitus` → space id `$invitus`; `gameboard` → `$gameboard`;
 `togethered` → `$togethered`). The `$` sigil denotes a platform-reserved space
-("**S**pace"). An extension has at most **one** reserved space, holding records
-under the standard space-module path `/spaces/$<ext>/ext/<module>/{collection}/{id}`.
+("**S**pace"). An extension has **exactly one** reserved space (a hard 1:1 — no
+multi-reserved-space or `$<ext>-<purpose>` scheme), holding records under the
+standard space-module path `/spaces/$<ext>/ext/<module>/{collection}/{id}`.
 The `<module>` sublevel names the module **storing** the record, which is usually —
 but need not be — the space's owning extension: a reserved space MAY host overlay
 records from other modules. For example, when a ToGethered formal event lazily
@@ -74,9 +75,11 @@ predicate (e.g. `IsReserved`) MUST report whether a given space id is reserved.
 
 #### REQ: dollar-implies-system
 
-A space id beginning with `$` MUST denote a `SpaceTypeSystem` space. The platform
-MAY derive the System type from the `$` prefix, so that a bare reserved id is
-self-identifying without an accompanying type.
+A space id beginning with `$` MUST denote a `SpaceTypeSystem` space, and the
+platform MUST derive the System type from the `$` prefix. A reserved space is
+therefore referenced by its **bare `$<ext>` id** (e.g. `$invitus`) — the legacy
+`SpaceRef` type-prefix form (`system!$invitus`) MUST NOT be used for reserved
+spaces, because the `$` already carries the type.
 
 ## Acceptance Criteria
 
@@ -128,14 +131,17 @@ tests at that point.
 
 ## Open Questions
 
-- **Canonical `SpaceRef` form.** `system!$invitus` (explicit type) vs treating a
-  `$`-prefixed bare id as a weak ref whose type is implied. `dollar-implies-system`
-  enables the latter; the canonical written form is still to be chosen.
-- **One vs many reserved spaces per extension.** This Feature assumes one
-  (`$<ext>`); a `$<ext>-<purpose>` suffix scheme is the fallback if a second is
-  ever needed.
-- **Sigil choice.** `$` chosen for readability and because it is unused as a
-  leading character in current space ids; a plan-time scan must confirm that.
+Settled in review (2026-06-29), folded into Behavior above:
+
+- **Canonical `SpaceRef` form** → the bare `$<ext>` id; the `system!$invitus`
+  type-prefix form is not used for reserved spaces (`$` carries the type). See
+  `REQ:dollar-implies-system`.
+- **One vs many reserved spaces per extension** → **exactly one** per extension
+  (hard 1:1); no `$<ext>-<purpose>` scheme. See `REQ:dollar-prefix-sigil`.
+- **Sigil choice / scan** → `$` confirmed: greenfield project, no existing
+  `$`-prefixed space ids, no backward-compatibility constraint.
+
+None remaining.
 
 ---
 *This document follows the https://specscore.md/feature-specification*

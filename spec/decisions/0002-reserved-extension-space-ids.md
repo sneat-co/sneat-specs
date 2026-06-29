@@ -86,9 +86,11 @@ reserve the `$` prefix in space-id validation, provision the reserved spaces
 current spaceless `/ext/gameboard/games` root — greenfield, so migrate. Neutral:
 the `/spaces/$invitus/ext/invitus/…` path carries an apparent `$invitus` +
 `ext/invitus` redundancy, accepted deliberately to keep one uniform space-module
-convention. Open follow-ups: the canonical `SpaceRef` form for a reserved space
-(`system!$invitus` vs a `$`-prefixed weak ref), and whether one reserved space per
-extension is always enough (fallback: a `$<ext>-<purpose>` suffix scheme).
+convention. Follow-ups settled in review (2026-06-29): a reserved space is
+referenced by its **bare `$<ext>` id** (no `system!` type-prefix — `$` carries the
+type); there is **exactly one** reserved space per extension (hard 1:1, no
+`$<ext>-<purpose>` scheme); and the `$` sigil is confirmed (greenfield, no existing
+`$`-prefixed ids, no backward-compatibility constraint).
 
 ## Observed Consequences
 

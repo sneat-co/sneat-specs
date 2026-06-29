@@ -55,7 +55,7 @@ Reserve `$` in space-id validation (reject user/extension create-space ids begin
 
 | Tier | Assumption | How to validate |
 |------|------------|-----------------|
-| Must-be-true | No existing space id begins with `$`, so reserving the prefix breaks nothing. | Scan space-id generation and a sample of existing ids; confirm `$` is unused as a leading character. |
+| ~~Must-be-true~~ Confirmed | No existing space id begins with `$`, so reserving the prefix breaks nothing. | **Confirmed by owner (2026-06-29):** greenfield project, no `$`-prefixed space ids exist, no backward-compatibility constraint. |
 | Must-be-true | A record under `/spaces/$<ext>/ext/<ext>/…` satisfies the linkage validator's `spaceID`-from-ancestry derivation. | Trace `WithRelated.ValidateWithKey` for a key at `/spaces/$gameboard/ext/gameboard/games/{id}`; confirm it resolves `spaceID = $gameboard`. |
 | Should-be-true | A well-known id (no lookup) is sufficient — first consumers need exactly one reserved space each. | Confirm invitus and gameboard each need a single reserved space. |
 | Should-be-true | The public create-space path is the single chokepoint where a `$`-prefixed id must be rejected. | Review the create-space validation path (`dto4spaceus`); confirm it is the only user-facing creation entry point. |
@@ -75,10 +75,13 @@ Reserve `$` in space-id validation (reject user/extension create-space ids begin
 
 ## Open Questions
 
-- **Canonical `SpaceRef` form.** Is a reserved space referenced as `system!$invitus`
-  (explicit type) or may a `$`-prefixed bare id act as a weak ref whose type is
-  implied?
-- **One vs many reserved spaces per extension.** The MVP assumes exactly one
-  (`$<ext>`); a `$<ext>-<purpose>` suffix scheme is the fallback if more are needed.
-- **Sigil choice.** `$` (for "Space") vs another reserved character; `$` chosen for
-  readability and because it is unused in current ids.
+Settled in review (2026-06-29):
+
+- **Canonical `SpaceRef` form** → the bare `$<ext>` id (no `system!` type-prefix
+  for reserved spaces; `$` carries the type).
+- **One vs many reserved spaces per extension** → **exactly one** per extension
+  (hard 1:1); no `$<ext>-<purpose>` scheme.
+- **Sigil choice / scan** → `$` confirmed (greenfield, no existing `$` ids, no
+  backward-compatibility constraint).
+
+None remaining.
