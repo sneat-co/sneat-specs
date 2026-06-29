@@ -1,12 +1,12 @@
 ---
 format: https://specscore.md/feature-specification
-status: In Review
+status: Approved
 ---
 
 # Feature: Minor Data Protection
 
 > [SpecScore.**Studio**](https://specscore.studio): | [Explore](https://specscore.studio/app/github.com/sneat-co/sneat-specs/spec/features/minor-data-protection?op=explore) | [Edit](https://specscore.studio/app/github.com/sneat-co/sneat-specs/spec/features/minor-data-protection?op=edit) | [Ask question](https://specscore.studio/app/github.com/sneat-co/sneat-specs/spec/features/minor-data-protection?op=ask) | [Request change](https://specscore.studio/app/github.com/sneat-co/sneat-specs/spec/features/minor-data-protection?op=request-change) |
-**Status:** In Review
+**Status:** Approved
 **Date:** 2026-06-29
 **Owner:** alex
 **Source Ideas:** coppa-gdpr

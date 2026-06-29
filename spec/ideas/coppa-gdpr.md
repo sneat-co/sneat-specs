@@ -1,11 +1,11 @@
 ---
 format: https://specscore.md/idea-specification
-status: Specifying
+status: Specified
 ---
 
 # Idea: COPPA / GDPR child-privacy compliance
 
-**Status:** Specifying
+**Status:** Specified
 **Date:** 2026-06-29
 **Owner:** alex
 **Promotes To:** guardian-consent, jurisdiction-resolver, minor-data-protection
