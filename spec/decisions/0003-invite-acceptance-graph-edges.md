@@ -71,6 +71,17 @@ associated on accept (invitus's existing claim).
   player is that **a minor player MUST have ≥1 guardian linked**; an adult needn't.
   Any user (minor or adult) may self-accept; a guardian accepts on behalf of a
   userless minor (or by choice).
+- **Minor (and gender) determination is multi-signal.** `isMinor` resolves from,
+  in precedence order: (1) **date of birth** (authoritative — age < age-of-majority);
+  (2) **the team/game division** — a youth division ("Under-12") whose age cap is
+  below the age of majority implies `isMinor = true` even without a DOB. The
+  division also carries a **gender category** ("Girls"/"Boys"/"Mixed"), so inviting
+  a player into "Under-12 Girls" auto-sets the contact's `isMinor` **and** `gender`
+  as **overridable defaults** (a later DOB/explicit gender wins). Age divisions flex
+  (a player may be a year or two over the nominal cap), which is harmless while the
+  cap sits well below majority; near-majority divisions (U18/U19) fall back to DOB.
+  This requires an **age-bracket + gender-category** on the team/division (and
+  optionally the game) — a model addition for gameboard/team.
 - Parent/child is **many-to-many** (reuse the existing family-space model): many
   guardians → one player (mum/dad/older sibling); one guardian → many players.
 
@@ -186,8 +197,11 @@ None at this time.
   system-suggested from team co-membership — it forms only on explicit
   parent-initiated contact; discovery is navigational (child → teammates →
   teammate's guardian).
-- **Minor determination.** What signals "minor" to enforce the ≥1-guardian rule — a
-  DOB or `isMinor` flag, and who sets it (player vs guardian)?
+- ~~Minor determination~~ **Settled (2026-06-29):** multi-signal — DOB
+  (authoritative), else inferred from the team/game **division** (youth age-bracket
+  ⟹ `isMinor`; gender category ⟹ `gender`), as overridable defaults. Requires an
+  age-bracket + gender-category on the team/division (a gameboard/team model
+  addition). See §2.
 - **Minor self-accept → guardian step.** A minor user who self-accepts cannot
   satisfy ≥1 guardian alone: spawn a reverse guardian invite, or allow accept but
   flag the player profile incomplete until a guardian links? (Lean: allow + flag +
