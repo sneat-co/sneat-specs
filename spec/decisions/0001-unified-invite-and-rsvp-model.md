@@ -284,11 +284,18 @@ generic fallback card renders from the denormalized summary. The open-time
 **routing resolver** (product/host derivation, locale + white-label routing, the
 `snt.link/i/{inviteID}` shortlink) is deferred to its own future Feature.
 Sequencing (settled in review): build a **thin GameBoard vertical end-to-end
-first** — just enough reserved-space plumbing + invitus `Invite`/`InviteResponse`
-to make one game-invite flow work (create → respond → game page) and validate the
-whole design against the real consumer — then generalize, with the **teardown last**
-(delete the old go-modules invitus, fold debtus → `tracker`, reconcile contactus,
-promote eventus's response model) only once the new model is proven.
+first**, and within that the **role-rich participant flow** (player /
+parent-of-player / coach / scorekeeper / timekeeper / judge) — chosen over the
+spectator/conversion flow because the **end-goal is building the relationship
+graph**: an accepted, role-tagged invite must **deposit the corresponding
+relationship edge via `linkage`** (the same graph-write-back eventus and ToGethered
+do), and for the crew roles (scorekeeper/timekeeper/judge) also grant the
+per-game append authority gameboard already models. This takes the hard part — the
+role → graph-edge taxonomy and the accept-time write-back — first. Then generalize,
+with the **teardown last** (delete the old go-modules invitus, fold debtus →
+`tracker`, reconcile contactus, promote eventus's response model) only once the new
+model is proven. The invite-acceptance → graph-edge write-back is a model addition
+not yet specified here — to be captured as its own Decision/Feature.
 
 ## Observed Consequences
 
