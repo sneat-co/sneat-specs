@@ -9,15 +9,17 @@ status: In Review
 **Date:** 2026-06-29
 **Owner:** alex
 **Tags:** —
-**Source Idea:** reserved-extension-space-ids
+**Source Idea:** —
 **Supersedes:** —
 **Superseded By:** —
 
 > **Note:** This Decision reverses its own earlier draft (which proposed
 > per-extension `$`-prefixed reserved *spaces*, e.g. `$invitus`/`$gameboard`).
 > The filename slug `reserved-extension-space-ids` is retained for stable links
-> and is now historical; the `reserved-extension-space-ids` Idea/Feature and the
-> `system-space-type` Feature are reconciled to this direction (see *Consequences*).
+> and is now historical. **This Decision is the single authoritative record for
+> the spaceless system namespace**: the earlier `reserved-extension-space-ids`
+> Idea/Feature was removed as redundant with it, and the `system-space-type`
+> Feature is superseded (see *Consequences*).
 
 ## Context
 
@@ -125,9 +127,9 @@ or a space type.
 **Supersedes** the `$`-prefixed reserved-space direction in its entirety — no
 `$invitus`/`$gameboard`/`$togethered`, no `$`-prefix reservation in space-id
 validation, no per-extension reserved-space provisioning. To reconcile: the
-[`reserved-extension-space-ids`](../features/reserved-extension-space-ids/README.md)
-Idea/Feature is retargeted to this spaceless model; the
-[`system-space-type`](../features/system-space-type/README.md) Idea/Feature is
+`reserved-extension-space-ids` Idea/Feature was **removed** as redundant with
+this Decision (this Decision is now the contract for the spaceless namespace);
+the [`system-space-type`](../features/system-space-type/README.md) Idea/Feature is
 **superseded** (its space-type access model is replaced by per-record
 authorization); and
 [Decision 0001](0001-unified-invite-and-rsvp-model.md) and
@@ -166,7 +168,7 @@ None observed yet.
 
 ## Affected Features
 
-- [`reserved-extension-space-ids`](../features/reserved-extension-space-ids/README.md) — retarget/retire to the spaceless model.
+- `reserved-extension-space-ids` — **removed** (Idea + Feature): redundant with this Decision, which is now the authoritative record for the spaceless namespace.
 - [`system-space-type`](../features/system-space-type/README.md) — **superseded**: its space-type-level ACL is replaced by per-record authorization.
 - [`eventus/mini-products/togethered`](https://github.com/sneat-co/backstage) (backstage) — records at `/ext/togethered/...`.
 - Decisions [0001](0001-unified-invite-and-rsvp-model.md) and [0003](0003-invite-acceptance-graph-edges.md) — drop `$<ext>` space references.

@@ -10,8 +10,7 @@ Feature specifications for this project.
 
 | Feature | Status | Description |
 |---------|--------|-------------|
-| [system-space-type](system-space-type/README.md) | Deprecated | **Superseded by [Decision 0002](../decisions/0002-reserved-extension-space-ids.md)** — replaced by the spaceless [system namespace](reserved-extension-space-ids/README.md) (`/ext/`) with per-record access control. (Was: a SpaceTypeSystem space for shared cross-user records.) |
-| [reserved-extension-space-ids](reserved-extension-space-ids/README.md) | Draft | A spaceless system namespace for an extension's global, cross-user records: they live at `/ext/{ext-id}/...` (not in any space), referenced by a suffix-less `{ext-id}/{collection}/{doc-id}` ref, with the linkage validator/resolver gaining a spaceless branch and access authorized per-record. Resolves the addressing open question from the now-superseded system-space-type. |
+| [system-space-type](system-space-type/README.md) | Deprecated | **Superseded by [Decision 0002](../decisions/0002-reserved-extension-space-ids.md)** — replaced by the spaceless system namespace (`/ext/`) with per-record access control, specified in that Decision. (Was: a SpaceTypeSystem space for shared cross-user records.) |
 
 ## Open Questions
 

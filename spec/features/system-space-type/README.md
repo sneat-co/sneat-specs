@@ -17,10 +17,9 @@ status: Deprecated
 > System/global extension records do **not** live in a system *space* of this type —
 > they live spaceless in the **system namespace** at `/ext/{ext-id}/...`, and access
 > is authorized **per-record**, not by this space-type's blanket public-read /
-> any-authenticated-write policy. The living successor is
-> [`reserved-extension-space-ids`](../reserved-extension-space-ids/README.md)
-> ("System Namespace for Global Extension Records"). The space-type and access model
-> below are retained as historical context only.
+> any-authenticated-write policy. The spaceless system namespace is specified in
+> [Decision 0002](../../decisions/0002-reserved-extension-space-ids.md). The
+> space-type and access model below are retained as historical context only.
 
 ## Summary
 
@@ -147,9 +146,8 @@ tests at that point.
 - ~~**Reserved-space addressing & provisioning.**~~ **Settled by
   [Decision 0002](../../decisions/0002-reserved-extension-space-ids.md):** system
   records are not addressed as a space at all — they live spaceless at
-  `/ext/{ext-id}/...` (the system namespace), and the `SpaceTypeSystem` ACL is lifted
-  to that namespace. See
-  [`reserved-extension-space-ids`](../reserved-extension-space-ids/README.md).
+  `/ext/{ext-id}/...` (the system namespace), and access is authorized
+  **per-record** (no namespace/space-type blanket).
 - **Naming.** `SpaceTypeSystem` vs `SpaceTypeShared`/`SpaceTypePublic`.
 - **Single write chokepoint.** `open-write-for-authenticated` assumes the
   `dal4spaceus` module-space worker is the *only* gate every module write passes

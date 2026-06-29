@@ -11,7 +11,6 @@ Pre-spec one-pagers. Each Idea is a lint-clean problem-direction-MVP one-pager t
 | Idea | Status | Date | Owner | Promotes To |
 |------|--------|------|-------|-------------|
 | [coppa-gdpr](coppa-gdpr.md) | Approved | 2026-06-29 | alex | — |
-| [reserved-extension-space-ids](reserved-extension-space-ids.md) | Specifying | 2026-06-29 | alex | reserved-extension-space-ids |
 | [system-space-type](system-space-type.md) | Stale | 2026-06-27 | alex | — |
 
 ## Open Questions
