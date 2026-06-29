@@ -76,21 +76,30 @@ associated on accept (invitus's existing claim).
 
 ### 3. The family graph (private life), with the team as a bridge
 
-Parent↔player and parent↔parent relationships live in **family spaces (private
-life)**, **not** the team space. The team is only the *bridge* that introduces two
-families; the resulting connection is owned by private life and **persists beyond
-the team**. On accept, the user's (always-present, possibly virtual) family space
-is materialized and the family graph begins building. A child may belong to
-**multiple family spaces** (split/blended households); a signed-in user picks which
-family space — or both — the team-seeded connections attach to.
+Family relationships (guardian↔child, parent↔parent) live in **family spaces
+(private life)**, **not** the team space. The team is only the *bridge*; any
+resulting connection is owned by private life and **persists beyond the team**. On
+accept, the user's (always-present, possibly virtual) family space is materialized
+and the family graph begins building. A child may belong to **multiple family
+spaces** (split/blended households); a signed-in user picks which family space — or
+both — the connections attach to.
 
-**Inter-family edge — `family ↔ family`, formed as a _suggestion_.** When two
-families' children are teammates, a **suggested** connection is seeded by that
-shared-team context ("your child and the Smiths' are on the Hawks — connect?") and
-promoted to a real edge on opt-in — not a silent auto-edge. Rationale: graph growth
-is the goal, but it is private life, so a context-seeded suggestion (the
-"people-you-may-know" pattern) grows the graph *with consent*. **(Default — flagged
-in Open Questions; switch to auto-formed if consent is not required.)**
+**Teammate edges auto-form; parent↔parent edges do not.** Only the *factual* edges
+form automatically from team co-membership: **player ↔ player (teammate)** (and
+guardian ↔ own-child). These surface in contactus — a guardian viewing their
+child's profile sees the child's contacts *including teammates*, and can navigate
+teammate → that teammate's guardian.
+
+**Parent↔parent is NOT auto-formed and NOT system-suggested** from shared-team
+membership: two families on the same team **cannot be assumed friendly**. A
+parent↔parent edge forms **only from an explicit parent-initiated contact** — one
+guardian directly inviting/requesting another (e.g. a car-share request to a
+teammate's parents) — which is itself the relationship signal and rides the same
+invite→accept→edge path (`target.type = "user"`). Discovery is **navigational, not
+a pre-formed edge**: guardian → child's profile → child's teammates → a teammate →
+that teammate's guardian → reach out. So the graph grows the safe factual edges
+automatically and exposes a *path* to other parents, but only records a parent↔parent
+edge on genuine mutual action.
 
 ### 4. Visibility
 
@@ -116,10 +125,12 @@ the claim-on-accept is invitus's existing flow, parent/child many-to-many and th
 family space already exist, and the crew roles are already gameboard's
 `Source`/`IsAuthorized`. The one genuinely new structural choice is putting
 parent↔parent in the **family** graph rather than the team — which is correct
-because it is private life and must outlive any one team. Suggestion-over-auto for
-the inter-family edge trades a little graph-growth speed for consent, which private
-life demands. Tolerating duplicates and merging is the only workable answer to
-cross-provider identity.
+because it is private life and must outlive any one team. We auto-form only the
+*factual* edges (teammates) and never infer parent friendship from a shared team —
+parent↔parent forms on explicit contact only — because shared-team ≠ friendly, and
+private life demands that restraint while still growing the safe graph and exposing
+a navigable path between parents. Tolerating duplicates and merging is the only
+workable answer to cross-provider identity.
 
 ## Declined Alternatives
 
@@ -128,11 +139,13 @@ cross-provider identity.
 Rejected: the connection is private life and must persist after the child leaves
 the team; the team is a bridge, not the owner.
 
-### Auto-formed inter-family edge
+### Auto-formed or system-suggested parent↔parent edge from team co-membership
 
-Rejected as the default: silently linking strangers' private family graphs because
-their kids are teammates is invasive. Kept as the override if product decides
-consent is unnecessary.
+Rejected: linking — or even *suggesting* a link between — two families' private
+graphs because their kids are teammates assumes a friendship that may not exist
+(shared-team ≠ friendly). Only factual edges (teammates) auto-form; parent↔parent
+requires explicit parent-initiated contact. Navigation (child → teammates →
+teammate's guardian) gives discovery without presuming a relationship.
 
 ### Prevent duplicate accounts at creation
 
@@ -168,8 +181,11 @@ None at this time.
 
 ## Open Questions
 
-- **Inter-family edge: suggested (default here) vs auto-formed.** Confirm consent is
-  required (suggestion) or not (auto).
+- ~~Inter-family edge auto vs suggested~~ **Settled (2026-06-29):** teammate
+  (player↔player) edges auto-form; parent↔parent never auto-forms or is
+  system-suggested from team co-membership — it forms only on explicit
+  parent-initiated contact; discovery is navigational (child → teammates →
+  teammate's guardian).
 - **Minor determination.** What signals "minor" to enforce the ≥1-guardian rule — a
   DOB or `isMinor` flag, and who sets it (player vs guardian)?
 - **Minor self-accept → guardian step.** A minor user who self-accepts cannot
