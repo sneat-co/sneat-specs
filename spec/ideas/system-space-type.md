@@ -1,16 +1,24 @@
 ---
 format: https://specscore.md/idea-specification
-status: Specified
+status: Stale
 ---
 
 # Idea: System space type for shared, cross-user records
 
-**Status:** Specified
+**Status:** Stale
 **Date:** 2026-06-27
 **Owner:** alex
-**Promotes To:** system-space-type
+**Promotes To:** —
 **Supersedes:** —
 **Related Ideas:** —
+
+> **⚠️ Stale — superseded by [Decision 0002](../decisions/0002-reserved-extension-space-ids.md).**
+> The system *space* type proposed here is not pursued: global/system extension
+> records live spaceless in the **system namespace** at `/ext/{ext-id}/...`, and
+> access is authorized **per-record**, not by a space-type's blanket
+> public-read / any-authenticated-write. Successor:
+> [`reserved-extension-space-ids`](../features/reserved-extension-space-ids/README.md)
+> ("System Namespace for Global Extension Records"). Retained as historical context.
 
 ## Problem Statement
 

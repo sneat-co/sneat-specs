@@ -25,21 +25,23 @@ A spaceless **system namespace** for an extension's global, cross-user records:
 they live at `/ext/{ext-id}/{collection}/{doc-id}` — **not** wrapped in any space.
 A related-ref with no `@{space-id}` suffix (`{ext-id}/{collection}/{doc-id}`,
 ext-id mandatory) resolves there; the linkage validator and resolver gain a
-spaceless branch; and the `SpaceTypeSystem` access semantics are lifted from a
-system *space* to this namespace. Resolves the addressing open question left by
-[`system-space-type`](../system-space-type/README.md).
+spaceless branch; and access is authorized **per-record** (not by a space type or a
+namespace-wide policy). Supersedes the now-retired
+[`system-space-type`](../system-space-type/README.md), whose space-type access model
+this replaces.
 
 ## Problem
 
-The `system-space-type` Feature gave us records any authenticated user may write
-and anyone may read, with per-record authorization owned by the extension — the
-home for shared, cross-user records. But it left **addressing** unspecified: *where
-do those records live, and how is that home referenced?* Three consumers need the
-answer now — invitus (invites + `InviteResponse` records, per ADR-0001), GameBoard
-(games), and ToGethered (spots/intents/subscriptions). All are platform-owned,
-cross-user, and **belong to no space**, yet they break the `related`/linkage
-validator `WithRelated.ValidateWithKey`, which derives a `spaceID` from key ancestry
-and so currently requires every linked record to have a space ancestor.
+The (now-superseded) `system-space-type` Feature framed shared, cross-user records
+as a system *space* with blanket public-read / any-authenticated-write. Two things
+supersede it: **addressing** — these records live spaceless at `/ext/` (below) — and
+the **access model** — authorization is **per-record** (`REQ:record-level-acl`), not
+a space-type blanket. Three consumers need this now — invitus (invites +
+`InviteResponse` records, per ADR-0001), GameBoard (games), and ToGethered
+(spots/intents/subscriptions). All are platform-owned, cross-user, and **belong to
+no space**, yet they break the `related`/linkage validator
+`WithRelated.ValidateWithKey`, which derives a `spaceID` from key ancestry and so
+currently requires every linked record to have a space ancestor.
 
 ## Behavior
 
@@ -85,14 +87,15 @@ MUST agree: `spaceID` optional, serialization omits `@` when there is no space.
 
 ### Access control
 
-#### REQ: lifted-system-namespace-acl
+#### REQ: record-level-acl
 
-The `SpaceTypeSystem` access semantics — **public-read**, **any-authenticated-write**
-(no membership), and **per-record authorization delegated to the owning extension** —
-MUST be **lifted from a system *space* to the system *namespace*** at `/ext/`. It is
-the same authorization logic relocated, not reinvented: spaceus permits the write to
-the namespace; deciding whether the caller may mutate a **specific record** remains
-the owning extension's responsibility.
+Access to a system-namespace record MUST be authorized **per record**, never by a
+namespace- or extension-level blanket policy. `/ext/{ext-id}/` is a **storage
+location, not an authorization scope**: there is no blanket public-read and no
+blanket any-authenticated-write. Each record carries/owns its own access-control,
+and the authorization gate MUST evaluate **that record's** read and write policy on
+every access. (This supersedes the `SpaceTypeSystem` space-/namespace-level model —
+see [Decision 0002](../../decisions/0002-reserved-extension-space-ids.md).)
 
 ## Acceptance Criteria
 
@@ -127,23 +130,30 @@ under `/spaces/{space-id}/ext/{ext-id}/...`.
 **When** `WithRelated.ValidateWithKey` inspects the record's key ancestry
 **Then** it recognises the spaceless system namespace (empty `spaceID`) and validation succeeds without requiring a space ancestor.
 
-### AC: namespace-write-open-to-authenticated (verifies REQ:lifted-system-namespace-acl)
+### AC: record-acl-governs-write (verifies REQ:record-level-acl)
 
-**Scenario:** the lifted ACL governs `/ext/` records
-**Given** a system-namespace record under `/ext/{ext-id}/...`
-**When** an authenticated, non-member user (authorized by the owning extension) writes it
-**Then** the write succeeds (public-read, any-authenticated-write), and an unauthenticated write is rejected.
+**Scenario:** a record's own ACL decides who may write it
+**Given** a system-namespace record under `/ext/{ext-id}/...` whose access-control names a permitted writer
+**When** that permitted principal writes the record, and separately a principal its policy does not permit attempts to write it
+**Then** the permitted write succeeds and the non-permitted write is rejected — the decision comes from the record's policy, not from any namespace-wide rule.
+
+### AC: no-namespace-blanket-write (verifies REQ:record-level-acl)
+
+**Scenario:** there is no namespace-level write permission
+**Given** a request authorized only for some unrelated context
+**When** it attempts to write an `/ext/{ext-id}/...` record whose ACL does not permit it
+**Then** the write is rejected — there is no blanket "any authenticated user may write `/ext/`".
 
 ## Rehearse Integration
 
 The ACs are testable Go-level behaviors against the `sneat-libs`/`sneat-core-modules`
 linkage package (`RelatedItemKey.Validate`, ref serialization, and
 `WithRelated.ValidateWithKey` over a spaceless key), the ref→path resolver
-(`dbo4spaceus.NewSpaceModuleItemKeyFromItemRef`), and the `dal4spaceus`
-`SpaceTypeSystem` authorization hook lifted to `/ext/`; with a parallel check on the
+(`dbo4spaceus.NewSpaceModuleItemKeyFromItemRef`), and per-record authorization for
+`/ext/` records (each record's own read/write policy); with a parallel check on the
 TypeScript mirror (`with-related.ts`). Rehearse stubs are deferred to plan/implement
-time, when the spaceless linkage branch and the lifted ACL land; the ACs are written
-to be directly executable as table tests at that point.
+time, when the spaceless linkage branch and per-record authorization land; the ACs
+are written to be directly executable as table tests at that point.
 
 ## Open Questions
 
@@ -158,6 +168,9 @@ Settled in review (2026-06-29), folded into Behavior above:
   discriminator. See `REQ:spaceless-ref-format`.
 - **Migration** → none; current `/ext/{ext-id}/...` storage is blessed as-is. See
   `REQ:spaceless-system-storage`.
+- **Access model** → authorized **per-record** (each record owns its read/write
+  policy); no namespace/space-type blanket. Supersedes `system-space-type`. See
+  `REQ:record-level-acl`.
 
 None remaining.
 

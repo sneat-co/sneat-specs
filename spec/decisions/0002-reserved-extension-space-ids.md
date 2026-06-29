@@ -58,10 +58,12 @@ Global / system extension records live **spaceless** at the root path
    The presence or absence of `@{space-id}` is the sole discriminator: absent ⇒
    resolve under `/ext/{ext-id}/...`; present ⇒ resolve under
    `/spaces/{space-id}/ext/{ext-id}/...`.
-3. **Access control.** The `SpaceTypeSystem` semantics — public-read,
-   any-authenticated-write, per-record authorization delegated to the owning
-   extension — are **lifted from "a system *space*" to the system *namespace*** at
-   `/ext/`. The same authorization logic, relocated; not reinvented.
+3. **Access control is per-record.** `/ext/` is a **storage location, not an
+   authorization scope**: there is **no namespace- or extension-level access
+   policy** — no blanket public-read, no blanket any-authenticated-write. Each
+   record carries/owns its own access-control, and the authorization gate evaluates
+   **that record's** policy on every read and write. (This replaces the earlier
+   `SpaceTypeSystem` space-/namespace-level model — see *Declined Alternatives*.)
 4. **No `$` sigil, no reserved spaces.** `$invitus` / `$gameboard` / `$togethered`
    are not created; the `$`-prefix reservation in space-id validation is not needed.
 
@@ -75,10 +77,12 @@ intents already live at `/ext/{ext-id}/...` today, so this Decision *blesses the
 current location* instead of moving data into a synthetic space.
 
 The cost is a one-time, bounded change to the linkage core: the validator and
-resolver gain a single spaceless branch, and the access-control hook is lifted from
-`SpaceTypeSystem` to the system namespace (the same ACL, applied to `/ext/`). That
-is cheaper, and conceptually cleaner, than permanently disguising spaceless data as
-a fake space on every read, write and path.
+resolver gain a single spaceless branch. Authorization is enforced **per-record** —
+each record owns its read/write policy — rather than by a space type or a
+namespace-wide rule; that also removes the standing bypass a blanket
+"any-authenticated-write at `/ext/`" would create. This is cheaper, and
+conceptually cleaner, than permanently disguising spaceless data as a fake space on
+every read, write and path.
 
 ## Declined Alternatives
 
@@ -106,15 +110,26 @@ misleading, and it saves no code (the validator reads the spaceless storage key 
 the resolver must special-case the sentinel regardless). Clean absence of the
 suffix is more honest than a token that lies.
 
+### Namespace-/space-type-level ACL (blanket `/ext/` policy or `SpaceTypeSystem`)
+
+Govern access by a rule attached to the *namespace* or a space *type* — e.g.
+`SpaceTypeSystem`'s blanket public-read + any-authenticated-write, with only
+per-record *write* delegated. Lost: a namespace-wide "any authenticated user may
+write here" is a **standing authorization bypass** — a request authorized for one
+context can reach unrelated `/ext/` records (exactly the cross-tenant write a code
+review caught). Access is therefore decided **per-record**, never by the namespace
+or a space type.
+
 ## Consequences at Decision Time
 
 **Supersedes** the `$`-prefixed reserved-space direction in its entirety — no
 `$invitus`/`$gameboard`/`$togethered`, no `$`-prefix reservation in space-id
 validation, no per-extension reserved-space provisioning. To reconcile: the
 [`reserved-extension-space-ids`](../features/reserved-extension-space-ids/README.md)
-Idea/Feature is retargeted (or retired) to this spaceless model; the
-[`system-space-type`](../features/system-space-type/README.md) Feature is reframed
-from "system *space*" to "system *namespace*"; and
+Idea/Feature is retargeted to this spaceless model; the
+[`system-space-type`](../features/system-space-type/README.md) Idea/Feature is
+**superseded** (its space-type access model is replaced by per-record
+authorization); and
 [Decision 0001](0001-unified-invite-and-rsvp-model.md) and
 [Decision 0003](0003-invite-acceptance-graph-edges.md) drop their `$<ext>` space
 references in favour of `/ext/{ext-id}/...`.
@@ -131,8 +146,10 @@ mirror in `sneat-libs`). A bounded change with the following touch-points:
   `NewSpaceModuleItemKey`, used by `facade4linkage`) — when the ref has no space,
   build `/ext/{ext-id}/...` directly (a spaceless key-builder that does **not** call
   `NewSpaceKey`, which panics on empty).
-- The `dal4spaceus` `SpaceTypeSystem` authorization hook — extend to authorize
-  system-namespace records at `/ext/`.
+- Per-record authorization for `/ext/` records — enforce each record's own
+  read/write policy (no namespace/space-type blanket); the legacy `dal4spaceus`
+  `SpaceTypeSystem` space-type is retired, not extended. Security-sensitive; tracked
+  as a separate follow-up (see the code PRs).
 - TypeScript mirror (`with-related.ts`) — `ISpaceModuleItemRef.spaceID` optional;
   `getLongRelatedItemID` omits `@` when no space.
 - Tests for both shapes (space-bound and system-namespace).
@@ -150,7 +167,7 @@ None observed yet.
 ## Affected Features
 
 - [`reserved-extension-space-ids`](../features/reserved-extension-space-ids/README.md) — retarget/retire to the spaceless model.
-- [`system-space-type`](../features/system-space-type/README.md) — reframe "system space" → "system namespace".
+- [`system-space-type`](../features/system-space-type/README.md) — **superseded**: its space-type-level ACL is replaced by per-record authorization.
 - [`eventus/mini-products/togethered`](https://github.com/sneat-co/backstage) (backstage) — records at `/ext/togethered/...`.
 - Decisions [0001](0001-unified-invite-and-rsvp-model.md) and [0003](0003-invite-acceptance-graph-edges.md) — drop `$<ext>` space references.
 

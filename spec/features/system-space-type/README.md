@@ -1,24 +1,26 @@
 ---
 format: https://specscore.md/feature-specification
-status: Approved
+status: Deprecated
 ---
 
 # Feature: System Space Type
 
 > [SpecScore.**Studio**](https://specscore.studio): | [Explore](https://specscore.studio/app/github.com/sneat-co/sneat-specs/spec/features/system-space-type?op=explore) | [Edit](https://specscore.studio/app/github.com/sneat-co/sneat-specs/spec/features/system-space-type?op=edit) | [Ask question](https://specscore.studio/app/github.com/sneat-co/sneat-specs/spec/features/system-space-type?op=ask) | [Request change](https://specscore.studio/app/github.com/sneat-co/sneat-specs/spec/features/system-space-type?op=request-change) |
-**Status:** Approved
+**Status:** Deprecated
 **Date:** 2026-06-27
 **Owner:** alex
-**Source Ideas:** system-space-type
+**Source Ideas:** —
 **Supersedes:** —
 **Grade:** B
 
-> **Note:** [Decision 0002](../../decisions/0002-reserved-extension-space-ids.md)
-> reframes the system *space* described here as a spaceless system *namespace* at
-> `/ext/{ext-id}/...`. The access semantics below (public-read,
-> any-authenticated-write, per-record authorization delegated to the owning
-> extension) are unchanged — they are **lifted** from a system space to the system
-> namespace; read "System space" below as "the system namespace at `/ext/`".
+> **⚠️ Superseded by [Decision 0002](../../decisions/0002-reserved-extension-space-ids.md).**
+> System/global extension records do **not** live in a system *space* of this type —
+> they live spaceless in the **system namespace** at `/ext/{ext-id}/...`, and access
+> is authorized **per-record**, not by this space-type's blanket public-read /
+> any-authenticated-write policy. The living successor is
+> [`reserved-extension-space-ids`](../reserved-extension-space-ids/README.md)
+> ("System Namespace for Global Extension Records"). The space-type and access model
+> below are retained as historical context only.
 
 ## Summary
 
