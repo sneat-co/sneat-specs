@@ -206,8 +206,10 @@ None at this time.
   satisfy ≥1 guardian alone: spawn a reverse guardian invite, or allow accept but
   flag the player profile incomplete until a guardian links? (Lean: allow + flag +
   prompt.)
-- **Compliance.** Minor *users* raise parental-consent / COPPA-K questions; the
-  mandatory-guardian rule is the natural attach point — design later.
+- **Compliance.** Minor *users* raise parental-consent obligations (COPPA / GDPR
+  Art. 8 / UK Children's Code); the mandatory-guardian rule is the natural consent
+  attach point. Tracked in its own track — see the `coppa-gdpr` Idea
+  (`../ideas/coppa-gdpr.md`).
 - **Relationship-role-label taxonomy.** The exact `linkage` role labels + registered
   opposites (parent-of/child-of, coach-of/coached-by, teammate=symmetric,
   crew/game) — shared with eventus and ToGethered (both have it open); settle once,
