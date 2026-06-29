@@ -71,11 +71,9 @@ not eventus (which would invert layering).
 
 **Storage — spaceless, in invitus's system namespace `/ext/invitus/`.** Invites and
 responses are platform-owned, cross-user, spaceless records, so they live in
-invitus's **system namespace** (`/ext/invitus/...`, with the `SpaceTypeSystem`
-access semantics lifted to it) — they are **not** wrapped in any space; see
-[decision 0002](0002-reserved-extension-space-ids.md) and the
-[`reserved-extension-space-ids`](../features/reserved-extension-space-ids/README.md)
-and [`system-space-type`](../features/system-space-type/README.md) Features:
+invitus's **system namespace** (`/ext/invitus/...`, with **per-record** access
+control) — they are **not** wrapped in any space; see
+[decision 0002](0002-reserved-extension-space-ids.md):
 
 ```
 /ext/invitus/invites/{inviteID}

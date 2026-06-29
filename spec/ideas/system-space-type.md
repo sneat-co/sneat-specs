@@ -16,9 +16,9 @@ status: Stale
 > The system *space* type proposed here is not pursued: global/system extension
 > records live spaceless in the **system namespace** at `/ext/{ext-id}/...`, and
 > access is authorized **per-record**, not by a space-type's blanket
-> public-read / any-authenticated-write. Successor:
-> [`reserved-extension-space-ids`](../features/reserved-extension-space-ids/README.md)
-> ("System Namespace for Global Extension Records"). Retained as historical context.
+> public-read / any-authenticated-write. The spaceless model is specified in
+> [Decision 0002](../decisions/0002-reserved-extension-space-ids.md). Retained as
+> historical context.
 
 ## Problem Statement
 

@@ -19,8 +19,7 @@ Capture and store a **verifiable parental-consent record** — the lawful-basis
 artifact for processing a minor's data — at the **guardian-link** step of the
 invitus accept flow ([Decision 0003](../../decisions/0003-invite-acceptance-graph-edges.md)).
 The record lives in the spaceless system namespace (`/ext/{ext-id}/...`, per
-[Decision 0002](../../decisions/0002-reserved-extension-space-ids.md) /
-[reserved-extension-space-ids](../reserved-extension-space-ids/README.md)),
+[Decision 0002](../../decisions/0002-reserved-extension-space-ids.md)),
 captures the jurisdiction + consent-age resolved at that moment (from the
 `jurisdiction-resolver` sibling Feature), and is written with **lightweight
 verification**: the guardian is a verified adult user with a confirmed contact
@@ -208,7 +207,7 @@ jurisdiction's **retention window** elapses.
 ## Architecture & Dependencies
 
 - **Consent-record store** — a collection in the system namespace (`/ext/{ext-id}/...`,
-  [reserved-extension-space-ids](../reserved-extension-space-ids/README.md)); the
+  [Decision 0002](../../decisions/0002-reserved-extension-space-ids.md)); the
   linkage validator's spaceless branch lets the record carry `related` links to the
   guardian↔child link without a space ancestor, while keeping it platform-owned,
   enumerable, and auditable.
@@ -277,7 +276,7 @@ to be directly executable as table tests at that point.
   (e.g. `/ext/coppa-gdpr/...`) versus hosting the collection as a `coppa-gdpr`
   overlay module under invitus's namespace (`/ext/invitus/...`; the system namespace
   may host overlay records from other modules — see
-  [reserved-extension-space-ids](../reserved-extension-space-ids/README.md)). Lean: a
+  [Decision 0002](../../decisions/0002-reserved-extension-space-ids.md)). Lean: a
   **dedicated compliance namespace**, because the record is platform/legal
   infrastructure that must be independently auditable and outlive invitus records.
 
