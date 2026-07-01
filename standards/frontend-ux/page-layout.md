@@ -54,12 +54,23 @@ calendar" vs "Personal calendar"). Plain `<ion-title>` is fine for pages with no
 space context.
 *(calendarius / contactus page headers.)*
 
+In practice most contactus pages still hand-roll a plain `<ion-title>` with
+bespoke `@switch`/`@if` logic (only ~2 of 12 titled pages use
+`sneat-space-page-title`) — so reaching for the shared component is a real
+improvement over the current majority, not just codifying what's already there.
+
 ## Content
 
 - `<ion-content class="cardy">` for card-based pages (forms, detail views) — this
   is the **Recommended** default.
 - Plain `<ion-content>` for dense, list-only pages.
 - Inside content, stack `ion-card`s — see [`cards.md`](./cards.md).
+
+> **Reality check:** `cardy` is the *recommended* default but not yet the majority
+> in practice — in contactus only ~4 of 15 page-level `ion-content` elements carry
+> it, and trackus uses it nowhere. Add it to new/touched card-based pages; the
+> inconsistency across existing pages is a known cleanup, not a signal that plain
+> `ion-content` is equally fine for card layouts.
 
 ## Footer — only when it earns its place
 
@@ -71,6 +82,11 @@ page**, not to a single card. Three established shapes:
 | **Conditional selection bar** | Shown only while items are selected; bulk actions (share/archive/delete) in `slot="end"`, a reset in `slot="start"`, count in the title | `contactus/.../pages/contacts/contacts-page.component.html` |
 | **Always-present summary** | A persistent total/count plus a primary "Add" | `contactus/.../members/pages/members/members-page.component.html` |
 | **Dialog action row** | Confirm / cancel for a dialog page, often in an `ion-grid` | `listus/.../pages/dialogs/copy-list-items/copy-list-items-page.component.html` |
+| **Persistent content-page action row** | Whole-page actions on a normal routed page (not a dialog) — e.g. bulk "Delete completed" / "Hide watched" | `listus/.../pages/list/list-page.component.html` |
+
+The footer is **not** dialogs-only: listus's routed `list-page` carries a
+persistent footer action row for its whole-list actions. The test is *scope*
+(does the action apply to the whole page?), not *whether the page is a dialog*.
 
 **Recommended:** don't add a footer to plain detail/edit pages — put their
 submit/cancel in the form's own footer (see [`forms.md`](./forms.md)) or a card.

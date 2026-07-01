@@ -50,9 +50,21 @@ title with no actions (as some contactus cards do). If you later add a button,
 prefer switching to the `ion-item` / `ion-item-divider` form so the action sits
 cleanly in `slot="end"`.
 
+### Also seen: `ion-card-title` inside a plain `ion-item`
+
+calendarius uses a third, hybrid header — an `<ion-card-title>` (for the type-scale
+text) placed inside a plain `<ion-item>` (not `ion-card-header`), with the action
+in `slot="end"` — and even documents the choice inline ("We intentionally do not
+use ion-item-divider here"). *(calendarius
+`happening-participants.component.html`.)* Acceptable when you want card-title
+typography **and** a clean action slot; but prefer the `ion-item-divider` form
+unless you specifically need the larger title text, to keep headers uniform.
+
 ## Summary
 
 - One `ion-card` per content block; native Ionic only.
 - Header with actions/collapse → `ion-item-divider` (or `ion-item`), actions in
   `slot="end"`. **Recommended.**
 - Static title, no actions → `ion-card-header` is acceptable.
+- Need card-title typography + an action → `ion-card-title` inside an `ion-item`
+  is an accepted hybrid (calendarius), but don't reach for it by default.

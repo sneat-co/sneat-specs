@@ -77,6 +77,25 @@ const { data, role } = await modal.onWillDismiss();
 Return results by dismissing with data and a `role` (e.g. `'cancel'`). With
 `SneatBaseModalComponent`, call `dismissModal(data, role)`.
 
+## Page-shaped modals (routed-looking, but presented as modals)
+
+listus's dialogs are a distinct, sanctioned shape worth naming: components under
+`pages/.../dialogs/` named `*-page.component.ts` and built with a **full
+`ion-header` / `ion-content` / `ion-footer` page skeleton**, yet **never
+registered as routes** — they are presented via `ModalController.create(...)`.
+*(listus `pages/dialogs/copy-list-items/copy-list-items-page.component.ts`,
+`pages/lists/new-list-dialog.component.ts`.)*
+
+- This is an accepted alternative to a compact `SneatBaseModalComponent` when the
+  dialog is content-heavy enough to want a page layout — but the naming is
+  misleading (it reads like a route, behaves like a modal), so **keep the
+  `*-page` under a `dialogs/` folder** to signal intent.
+- These components predate `SneatBaseModalComponent` and roll their own
+  `modal?.dismiss(...)`. New page-shaped modals should still extend the base class.
+- If you hit "modal.dismiss() can't find the modal", listus's workaround is to
+  patch `modal.componentProps['modal'] = modal` right after `create()`
+  *(listus `ListDialogs.service.ts`)*.
+
 ## Inline modals & popovers
 
 - **Inline `ion-modal` with `trigger`** for quick pickers (date/time): a trigger
@@ -100,6 +119,13 @@ This is the current house convention. **Recommended:** keep using `confirm()` fo
 simple yes/no destructive prompts for consistency; reach for `AlertController`
 only when you need styled buttons or inputs.
 
+**Irreversible bulk actions must confirm — swipe is not consent.** A "Clear list"
+that deletes every item, or a "Remove" that deletes a whole list, needs a
+`confirm()` step. listus's `list-page.component.ts` "Clear list" and
+`lists-page.component.ts` list "Remove" currently execute immediately with **no**
+confirmation — relying on the swipe gesture as the only friction. Don't ship an
+irreversible action whose only guard is the gesture that triggered it.
+
 ## Toasts for feedback
 
 Use `ToastController` for non-blocking success/error feedback after an action:
@@ -114,8 +140,17 @@ await toast.present();
 ```
 *(contactus `invite-modal.component.ts`; listus `new-list-item.component.ts`.)*
 
-- `duration: 2000` default; `color="danger"` for errors (see
-  [`states.md`](./states.md)), `position: 'middle'` for important messages.
+- **Duration by weight:** `2000` for full verb-phrase confirmations ("Invitation
+  sent", "Contact created"); a shorter `~1500` for lightweight
+  copy-to-clipboard acknowledgements. contactus `invite-modal.component.ts`
+  demonstrates both (2000 for `sendInvite`, a `1500` default for the copy-link
+  toasts) — match the duration to the weight of the message rather than using one
+  flat number.
+- `color="danger"` for errors (see [`states.md`](./states.md)),
+  `position: 'middle'` for important messages.
+- **Every mutating action deserves a toast on failure** — not just a silent
+  `errorLogger.logError(...)`. See the "Surface failures" rule in
+  [`states.md`](./states.md).
 
 ## Summary
 

@@ -150,6 +150,36 @@ Keep create/list/detail routes consistently named relative to each other:
   toast/inline message. → [`states.md`](./states.md).
 - **Disconnected wizard** — steps that render but don't advance/retreat, or that
   lose earlier steps' data. Thread state through a parent signal; see
-  contactus `person-wizard.component.ts` for conditional step ordering.
+  contactus `person-wizard.component.ts` (recipe below).
 - **Reliance on router `state`** — assuming a passed object is present. After a
   refresh only the URL survives; always be able to load from the `id`.
+- **Live dead-end button** — a control wired to a handler that only logs
+  `'not implemented yet'` and returns, shipped in visible markup with no user
+  feedback. listus's `list-page.component.html` ships several ("Add to groceries",
+  "Groceries shopping list", watch-list add/delete) whose handlers only call
+  `errorLogger.logError('not implemented yet')`. Either hide the control behind a
+  feature flag or don't render it.
+- **Inconsistent sibling create flows** — two "create" screens for related
+  entities that exit differently for no reason. contactus's `new-person-form`
+  correctly redirects to the new contact's details with `replaceUrl`, but its
+  sibling `new-member-form` pops/`navigateBackToSpacePage('members')` back to the
+  list instead. Pick one exit convention and apply it to both.
+
+## The wizard recipe (contactus `person-wizard`)
+
+The one built-out multi-step wizard in the surveyed apps is contactus's
+`person-wizard.component.ts`. Copy its mechanism rather than inventing another:
+
+- **`formOrder`** — a `readonly WizardStepDef[]` naming the steps in order
+  (contactType → ageGroup → gender → relatedAs → name → roles →
+  communicationChannels → submit).
+- **`show: {[stepID]: boolean}`** — a visibility map (one flag per step), **not**
+  an index/pointer. Advancing means flipping the next step's flag on.
+- **`openNext(currentStepID)`** — finds the current step, applies `skipStep()`
+  filters (space-/contact-type conditionals, e.g. hide `roles` in a family space),
+  reads external hide/required config from a parent-supplied `$fields()`, and — if
+  the next step already `stepHasValue()` (read straight off the entity DBO) —
+  auto-advances again so pre-filled/optional steps are skipped silently.
+- **Data threads through a single `$contact` input / `contactChange` output** — the
+  wizard holds no separate copy of the entity data; only `show` / `$wizardStep` are
+  local UI state. This keeps refresh-safety trivial: the entity is the state.
