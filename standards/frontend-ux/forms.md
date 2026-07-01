@@ -33,6 +33,25 @@ Examples: calendarius `happening-form.component.html` (stacked textarea),
 `happening-slot-form.component.html` (`labelPlacement="end"` checkbox),
 `happening-title-modal.component.html` (inline input label).
 
+> **Note on divergence (measured):** this file is not internally consistent
+> yet, and that's a signal of what the codebase actually does. The table
+> above prescribes plain inline `label="Field"` for `ion-input`, but this
+> same file's own [money-pair example](#money-amount-inputs--value--currency-as-a-pair)
+> — sourced from real assetus code — uses `label="Appraised value"
+> labelPlacement="stacked"` on an `ion-input`. A third style, the pre-Ionic
+> "sibling `ion-label` next to the control" (`<ion-item><ion-label>Field</ion-label>
+> <ion-input .../></ion-item>`, no `label=` attribute at all), is what docus's
+> `new-document-page.component.html` uses throughout its typed-fields and
+> legacy-fields sections. All three coexist across the surveyed apps.
+> **Recommended:** `labelPlacement="stacked"` is closer to the de-facto
+> majority for data-entry inputs (not just textareas) — treat the table's
+> "inline for `ion-input`" row as the aspirational case for short single-word
+> labels, and reach for `stacked` when the label is more than one or two
+> words, or when the field sits in a dense grid of similar fields. Don't
+> silently convert working sibling-`ion-label` forms to chase this — apply
+> the attribute-based form only to new fields or when a form is touched
+> wholesale anyway.
+
 ## Reactive forms are the default
 
 Use Angular **reactive forms** (`FormGroup` + `FormControl`, `Validators.*`) as
@@ -97,6 +116,70 @@ the identical shape repeats for `renewalCost`/`renewalCurrency` in
 - Keep the two `ion-item`s adjacent (no unrelated field between them) so the
   pairing reads visually, even though they're separate controls.
 
+## Multi-entity role pickers (named contact/entity roles)
+
+Some entities relate to more than one of *another* entity, each in a distinct,
+named capacity — a marriage certificate has exactly 2 spouses; a birth
+certificate has a child plus 1-2 parents; an employment contract has an
+employee and an employer. Don't model this as one multi-select picker with a
+bare max count (that loses "which one is the child vs. the parent"); model it
+as **one single-select picker per named role**, driven by a small schema:
+
+```ts
+interface IRoleDef {
+  readonly id: string;
+  readonly label: string;
+  readonly min: number; // 0 = optional
+  readonly max: number; // usually 1 per role
+}
+```
+
+```html
+<ion-card>
+  <ion-item-divider color="light"><ion-label>People</ion-label></ion-item-divider>
+  @for (role of schema.contactRoles; track role.id) {
+    @if (isRoleVisible(role)) {
+      <ion-item lines="none">
+        <ion-label color="medium">
+          {{ role.label }}{{ role.min === 0 ? " (optional)" : "" }}
+        </ion-label>
+      </ion-item>
+      <sneat-contacts-selector-input [$max]="1"
+        [$selectedContacts]="roleContactsFor(role.id)"
+        (selectedContactsChange)="onRoleContactsChange(role.id, $event)" />
+    } @else {
+      <ion-item button="true" lines="none" (click)="revealOptionalRole(role)">
+        <ion-label color="primary">+ Add {{ role.label }}</ion-label>
+      </ion-item>
+    }
+  }
+</ion-card>
+```
+*(docus `new-document-page.component.html` / `doc-contact-roles.ts` —
+`IDocContactRoleDef` + `validateDocContactRoles()`; marriage = 2×`{min:1,max:1}`
+"Spouse" roles, birth = `child` + `parent1` (`min:1`) + `parent2` (`min:0`).)*
+
+- **One role, one picker**, reusing the app's existing single-entity selector
+  (here, contactus's `sneat-contacts-selector-input` with `$max="1"`) — don't
+  build a bespoke multi-select for this; compose the existing single-select
+  per role instead.
+- **Optional roles (`min: 0`) start collapsed** behind a "+ Add {role}" row
+  (a real `button="true"` `ion-item`, not a visible empty picker) and reveal
+  their picker on click — this keeps a 2-required/1-optional set (birth
+  certificate) from showing an empty, unlabelled third picker by default.
+  Once revealed, a role stays revealed for the rest of the session.
+- **Validate with a pure function** over the schema (`validateXRoles(schema,
+  refs): string[]`, one message per violated role — "Spouse is required" /
+  "Parent: choose at most 1") rather than hand-rolled per-field checks; keep
+  it side-effect-free and unit-test it directly (docus's
+  `doc-contact-roles.spec.ts`).
+- **Gate the rest of the form behind "required roles filled"** rather than
+  rendering inline per-role error text: hide the typed-fields section and the
+  submit button until every `min`-required role has a selection. This is
+  progressive disclosure, not the touched-field inline-error pattern earlier
+  in this doc — appropriate here because there's no single "the form" to mark
+  touched; each role is materially a separate, addable sub-form.
+
 ## Submit
 
 - **Disable** the submit button while the form is invalid or a save is in flight,
@@ -114,4 +197,7 @@ the identical shape repeats for `renewalCost`/`renewalCurrency` in
 - Errors: `color="danger"`, only after `touched`, specific messages.
 - Money: amount + currency as an adjacent pair, mapped to one `{ value,
   currency }` object, omitted (not zeroed) when empty.
+- Multi-entity roles: one single-select picker per named role, optional roles
+  collapsed behind "+ Add {role}", validated by a pure schema function, rest
+  of the form gated behind required roles being filled.
 - Submit: disabled-until-valid + in-flight spinner; footer in modals, card on pages.
