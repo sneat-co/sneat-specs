@@ -24,7 +24,7 @@ Wrap every input — `ion-input`, `ion-textarea`, `ion-select`, `ion-checkbox`,
 
 | Control | Label convention |
 | --- | --- |
-| `ion-input` | inline `label="Field"` |
+| `ion-input` | `labelPlacement="stacked"` by default for data entry; inline `label="Field"` is fine for short one-word labels — see the divergence note below |
 | `ion-textarea` | `label="…" labelPlacement="stacked"` (label above), usually `auto-grow="true"` |
 | `ion-checkbox` / `ion-radio` | `labelPlacement="end"` (control left, label right) |
 | `ion-select` | `interface="popover"`, `label="…"` |
@@ -225,7 +225,8 @@ interface IRoleDef {
 ## Summary
 
 - One control per `ion-item`; group in cards / dividers.
-- Labels: inline for inputs, `stacked` for textareas, `end` for checkboxes/radios.
+- Labels: `stacked` is the default for data-entry inputs (and textareas); inline
+  `label=` is fine for short labels; `end` for checkboxes/radios. (See divergence note.)
 - Reactive forms by default; don't mix with `ngModel`.
 - Errors: `color="danger"`, only after `touched`, specific messages.
 - Money: amount + currency as an adjacent pair, mapped to one `{ value,
