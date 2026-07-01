@@ -61,6 +61,42 @@ being touched so the form isn't red before the user types:
 - For form-level errors, a single `ion-card` with `ion-card-header color="danger"`
   is the established pattern *(contactus `new-member-form.component.html`)*.
 
+## Money amount inputs — value + currency as a pair
+
+A monetary field is **two controls treated as one unit**: a numeric amount and
+a currency, always rendered adjacently, both bound into a single `{ value,
+currency }` shape on submit (not two independent form fields the user could
+mismatch):
+
+```html
+<ion-item>
+  <ion-input label="Appraised value" labelPlacement="stacked" type="number"
+    [(ngModel)]="appraisedValue" />
+</ion-item>
+<ion-item>
+  <ion-select label="Currency" labelPlacement="stacked" [(ngModel)]="appraisedCurrency">
+    @for (currency of currencies; track currency) {
+      <ion-select-option [value]="currency">{{ currency }}</ion-select-option>
+    }
+  </ion-select>
+</ion-item>
+```
+*(assetus `asset-add-valuable.component.html` — `appraisedValue`/`appraisedCurrency`;
+the identical shape repeats for `renewalCost`/`renewalCurrency` in
+`asset-add-digital-asset.component.html`.)*
+
+- Default the currency (`CurrencyCode`, from the shared `CurrencyList`) rather
+  than leaving it blank — assetus defaults to `'USD'`.
+- On submit, map the pair into one object and **omit it entirely** when the
+  amount is empty, rather than sending a zero or a currency with no amount:
+  ```ts
+  appraisedValue: this.appraisedValue
+    ? { value: this.appraisedValue, currency: this.appraisedCurrency }
+    : undefined,
+  ```
+- Keep the two `ion-item`s adjacent (no unrelated field between them) so the
+  pairing reads visually, even though they're separate controls.
+
 ## Submit
 
 - **Disable** the submit button while the form is invalid or a save is in flight,
@@ -76,4 +112,6 @@ being touched so the form isn't red before the user types:
 - Labels: inline for inputs, `stacked` for textareas, `end` for checkboxes/radios.
 - Reactive forms by default; don't mix with `ngModel`.
 - Errors: `color="danger"`, only after `touched`, specific messages.
+- Money: amount + currency as an adjacent pair, mapped to one `{ value,
+  currency }` object, omitted (not zeroed) when empty.
 - Submit: disabled-until-valid + in-flight spinner; footer in modals, card on pages.
