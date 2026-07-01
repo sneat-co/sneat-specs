@@ -101,6 +101,25 @@ field — the emphasis appears only when the action is meaningful.
   actions (`add-outline`, `close-outline`, `save-outline`); reserve solid icons
   for emphasis.
 
+### Icon-only buttons need an `aria-label`
+
+A button whose only content is an `ion-icon` has no accessible name unless one
+is added explicitly — a screen reader announces it as "button" with no
+indication of what it does. Add `aria-label` describing the action:
+
+```html
+<ion-button fill="clear" id="open-appraisal-date" aria-label="Pick appraisal date">
+  <ion-icon icon="calendar" />
+</ion-button>
+```
+*(assetus `asset-add-valuable.component.html` / `asset-add-digital-asset.component.html`
+— the "open date picker" calendar-icon button next to a readonly date field.)*
+
+This gap is common wherever a form pairs a readonly input with an icon-only
+"open picker" button (assetus's document/appliance/electronics/utility/
+digital-asset/valuable add-forms all share the same calendar-button shape) —
+apply the fix pattern above whenever you touch one.
+
 ## `ion-fab`
 
 Not used in the surveyed extensions — actions are placed inline, in headers, or in

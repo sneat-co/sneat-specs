@@ -64,12 +64,14 @@ action:
 
 ## Grouped / collapsible lists — `ion-item-group` + `ion-item-divider`
 
-Group related items under a divider that doubles as a collapsible, tappable
-header with actions in `slot="end"`:
+Group related items under a divider that doubles as a collapsible header, with
+actions in `slot="end"` — see [below](#clickable-rows-need-a-real-interactive-element)
+for how to make that header actually keyboard-operable:
 
 ```html
 <ion-item-group>
-  <ion-item-divider (click)="clickGroup(listGroup)" tappable>
+  <ion-item-divider (click)="clickGroup(listGroup)" tabindex="0" role="button"
+    (keydown.enter)="clickGroup(listGroup)">
     <ion-icon [name]="isCollapsed(listGroup) ? 'chevron-down-outline' : 'chevron-up-outline'" />
     <ion-label>{{ listGroup.title }}</ion-label>
     <ion-buttons slot="end">
@@ -81,10 +83,47 @@ header with actions in `slot="end"`:
   <!-- grouped items -->
 </ion-item-group>
 ```
-*(listus `lists-page.component.html`)*
+*(listus `lists-page.component.html`, adjusted — see below.)*
 
 Use a chevron icon to signal collapse state, and call
 `$event.stopPropagation()` in header buttons so they don't toggle the group.
+
+## Clickable rows need a real interactive element
+
+`tappable` is **not an `ion-item` / `ion-item-divider` property** — it isn't in
+Ionic's `IonItem`/`IonItemDivider` component interfaces (checked against
+`@ionic/core`'s `components.d.ts`). Setting `tappable="true"` on a row compiles
+and does nothing: the row still renders as a plain, non-focusable `<div>`, so
+keyboard and screen-reader users can't reach it even though `(click)` fires
+for a mouse. This is a recurring copy-paste mistake — it shows up in
+calendarius, contactus, `space` components, `sneat-ui`'s own
+`select-from-list.component.html`, and (until this fix) in this very doc's
+grouped-list example above.
+
+- **For a clickable `ion-item`** (a row that navigates or selects, like an
+  asset-type picker entry): use the real prop, `button="true"`. This renders an
+  actual `<button>` internally — focusable, `Enter`/`Space`-activatable, with
+  the right ARIA role, for free.
+
+  ```html
+  <!-- assetus new-asset-page.component.html — grouped asset-kind picker -->
+  <ion-item [lines]="..." button="true" (click)="selectCategory(c)">
+    <ion-icon slot="start" [name]="c.iconName" color="medium" />
+    <ion-label>{{ c.title }}</ion-label>
+  </ion-item>
+  ```
+  *(Before: `tappable="true"`, inert to keyboard. After: `button="true"`,
+  keyboard-operable — fixed in assetus PR #48.)*
+
+- **For `ion-item-divider`** (no `button` prop exists on it at all): add
+  `tabindex="0" role="button"` plus a `(keydown.enter)` (and usually
+  `(keydown.space)`) handler alongside `(click)`, as in the corrected snippet
+  above — there's no native-element shortcut here, so the keyboard path has to
+  be added by hand.
+
+Applies to every "grouped/collapsible list" and "picker" pattern in this file
+and in [`cards.md`](./cards.md) — audit existing `tappable` usages when
+touching that code.
 
 ### Alternative: `ion-accordion-group` for collapsible groups
 
@@ -128,5 +167,6 @@ Show counts with an `ion-badge` in the divider:
 | --- | --- |
 | Scrollable list | `ion-list` inside `ion-card`, `@for … track` + `@empty` |
 | Per-item swipe actions | `ion-item-sliding` + `ion-item-options` (success start / danger end) |
-| Grouped / collapsible | `ion-item-group` + tappable `ion-item-divider` |
+| Grouped / collapsible | `ion-item-group` + `ion-item-divider` (`tabindex`/`role="button"` for keyboard) |
+| Clickable row | `ion-item [button]="true"` — **not** `tappable` (not a real prop) |
 | Count on a group header | `ion-badge` in the divider |
