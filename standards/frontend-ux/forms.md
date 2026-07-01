@@ -116,6 +116,39 @@ the identical shape repeats for `renewalCost`/`renewalCurrency` in
 - Keep the two `ion-item`s adjacent (no unrelated field between them) so the
   pairing reads visually, even though they're separate controls.
 
+## Displaying a signed balance — color by direction
+
+A balance between two parties (who owes whom) is directional: the same numeric
+field means opposite things depending on who's asking. debtus's balance screens
+(home summary, per-contact list, transfer receipt) establish the convention:
+
+- **Color by direction, not by the sign of the raw number** — money owed *to*
+  the user is `color="success"`, money the user owes is `color="warning"`,
+  applied consistently everywhere a balance or a transfer amount is shown:
+  ```html
+  <ion-badge [color]="t.direction === 'lend' ? 'success' : 'warning'">
+    {{ formatAmount(t.amount) }}
+  </ion-badge>
+  ```
+  *(debtus `debtus-contact-details-page.component.html`,
+  `transfer-details-page.component.html`, `debtus-home-page.component.html`.)*
+- **One pure formatting function per shape, kept beside the model, not
+  duplicated per component**: `formatAmount({ value, currency })` for a plain
+  amount, `formatSignedBalance(balance)` for the user-perspective sentence
+  ("owes you 30.00 USD" / "you owe 30.00 USD" / "settled up" when the net is
+  zero) — both unit-tested independently of any component. *(debtus
+  `extension-debtus-contract/src/lib/models/balance-utils.ts` +
+  `balance-utils.spec.ts`.)*
+- **Treat net-zero as its own state**, not a `0.00` row — debtus's
+  `isZeroBalance()` filters settled contacts out of the home page's "by
+  contact" list entirely, and `summarizeBalances()` drops a currency from the
+  aggregate the moment its net crosses back through zero, rather than showing
+  "owes you 0.00 USD".
+
+This complements [money amount inputs](#money-amount-inputs--value--currency-as-a-pair)
+above, which covers *entering* money; this covers *displaying* a value whose
+sign carries domain meaning (debt direction), not just magnitude.
+
 ## Multi-entity role pickers (named contact/entity roles)
 
 Some entities relate to more than one of *another* entity, each in a distinct,
