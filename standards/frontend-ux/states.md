@@ -90,6 +90,51 @@ Surface errors; don't swallow them. Three established shapes:
 `color="danger"` message (with a retry affordance where it helps) when it's set —
 not just forms. Use a toast for failures of one-off actions (save, delete).
 
+### Surface failures — never log-only
+
+The single most common state defect across the surveyed apps is a mutating action
+whose `error:` handler only calls `errorLogger.logError(...)` (console/telemetry)
+with **no user-visible feedback** — the spinner just resets and nothing appears to
+have happened. This is a **silent failure** (see [`flows.md`](./flows.md)) and is
+not acceptable for an action the user initiated.
+
+- Every `error:` callback of a user-initiated mutation (create/save/delete/
+  archive/invite) must surface a `color="danger"` toast **in addition to**
+  `errorLogger.logError(...)` — the logger is for you, the toast is for the user.
+- This is a **target**, not the current state: calendarius uses `ToastController`
+  **nowhere** (all failures funnel silently through `errorLogger`, e.g.
+  `slot-context-menu.component.ts`), and trackus's `new-tracker-form.component.ts`
+  create-failure path is log-only. Apply the rule to new and touched code.
+
+### The canonical tri-state signal formula
+
+Derive loading / empty / error from signals so the three are mutually exclusive
+and can't flicker. trackus's `trackers.component.ts` is the reference:
+
+```ts
+$error = signal<Error | undefined>(undefined);
+$loading = computed(() => !!spaceID && this.$trackers() === undefined && !this.$error());
+// empty is then simply: $trackers()?.length === 0
+```
+*(trackus `components/trackers/trackers.component.ts` — `@if ($loading()) …
+@else if ($error()) … @else … @empty`.)*
+
+### Skeleton rows — dim the real shape
+
+For list loading, prefer a **skeleton row shaped like the real item** over a bare
+spinner: a dimmed placeholder avatar (`opacity: 0.3` + a generic gravatar src) plus
+`ion-skeleton-text animated="animated"`, as in contactus
+`members/.../members-list.component.html`. This reads as "content arriving" rather
+than "blocked".
+
+### Persisting small view-state locally
+
+Collapsed-group state, "show completed/watched" toggles, and similar per-user view
+preferences should persist across sessions **without** a backend round-trip. listus
+does this with a reusable `LocalAppState<AppState>` base (localStorage read/write +
+a `changed` observable) — see listus `services/listus-app-state.service.ts`. Reach
+for that pattern instead of re-deriving view-state on every visit.
+
 ## Conventions at a glance
 
 - State via `signal()`s; `@if` / `@for … track` / `@empty` in templates (no

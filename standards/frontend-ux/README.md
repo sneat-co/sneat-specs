@@ -1,8 +1,9 @@
 # Frontend UX Standards
 
 House UX conventions for Sneat extensions, codified from the live frontends of
-**calendarius**, **contactus**, and **listus**. Each rule cites a real example so
-you can see it in context.
+**calendarius**, **contactus**, **listus**, and **trackus** (web), plus the
+**debtus / splitus** Telegram bots (see [`bot-ux.md`](./bot-ux.md)). Each rule
+cites a real example so you can see it in context.
 
 These are conventions, not a framework: extensions use **native Ionic** building
 blocks (`ion-card`, `ion-list`, `ion-item`, `ion-button`, `ion-modal`, …)
@@ -56,6 +57,12 @@ comes from following these patterns, not from a shared widget.
 - [`forms.md`](./forms.md) — inputs, labels, reactive forms, validation, submit.
 - [`modals.md`](./modals.md) — modals, alerts, popovers, toasts, dialog structure.
 - [`states.md`](./states.md) — loading, empty, and error states.
+
+### Other media
+
+- [`bot-ux.md`](./bot-ux.md) — conversational UX for the Telegram bots
+  (debtus / splitus): messages, inline keyboards, confirm/undo, pending state,
+  multi-step flows.
 
 ## How to read the citations
 

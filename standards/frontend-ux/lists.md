@@ -23,7 +23,11 @@ and iterate with `@for` (always with `track`):
 ```
 
 Always provide the `@empty` branch — see [`states.md`](./states.md) for the
-loading-vs-empty distinction.
+loading-vs-empty distinction. This is **not optional**: listus's own
+`list-page.component.html` and `lists-page.component.html` render nothing at all
+when their collections are empty (no `@empty`, no "nothing here yet" copy), which
+leaves a blank card with no orientation for the user. A list without an `@empty`
+branch is incomplete.
 
 Examples: listus `list-page.component.html` (reorderable items),
 contactus `contacts-component.html` (contact list with a trailing "Add" item).
@@ -81,6 +85,30 @@ header with actions in `slot="end"`:
 
 Use a chevron icon to signal collapse state, and call
 `$event.stopPropagation()` in header buttons so they don't toggle the group.
+
+### Alternative: `ion-accordion-group` for collapsible groups
+
+For genuinely collapsible groups (as opposed to a static divider), Ionic's
+`ion-accordion-group` / `ion-accordion` is an accepted — and often better —
+alternative to hand-rolling `ion-item-group` + chevron + `stopPropagation`: it
+provides expand/collapse animation, single-vs-multiple expansion, and a11y
+semantics for free. Put the header in `slot="header"` and gate any header action
+with `stopPropagation()` as usual.
+
+```html
+<ion-accordion-group>
+  <ion-accordion>
+    <ion-item slot="header" color="light">
+      <ion-label>{{ category.emoji }} {{ category.title }}</ion-label>
+      <ion-buttons slot="end">
+        <ion-button (click)="addTo($event, category)"><ion-icon name="add" /></ion-button>
+      </ion-buttons>
+    </ion-item>
+    <div slot="content"><!-- grouped items --></div>
+  </ion-accordion>
+</ion-accordion-group>
+```
+*(trackus `components/trackers/trackers.component.html`.)*
 
 ## Counts — `ion-badge` in a divider
 

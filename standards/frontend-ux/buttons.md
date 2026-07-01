@@ -37,10 +37,19 @@ Examples: `fill="outline"` for an in-card "Add" (listus `lists-page`),
 | `expand="block"` | **Recommended** for full-width actions in normal content flow |
 | `expand="full"` | Full-width inside dialogs / modal content / grid cells |
 
-> **Note on divergence:** listus uses `expand` heavily (`full` in grid cells,
-> `block` in content); contactus uses it sparingly. **Recommended:** reach for
-> `expand="block"` for full-width buttons in page content, and reserve
-> `expand="full"` for dialogs/modals and grid columns.
+> **Note on divergence (measured):** the apps do **not** actually agree here, and
+> `expand="block"` is nearly nonexistent in practice. contactus has **zero**
+> `expand="block"` usages — all 4 of its full-width page CTAs are
+> `ion-grid > ion-row > ion-col > ion-button expand="full"` (e.g.
+> `new-member-form`, `member-removal-page`). listus concentrates `expand` in one
+> file (`list-page.component.html`: 6×`full`, 2×`block` in its action row/footer).
+> calendarius barely uses `expand` at all (its page submit is `size="large"` with
+> no `expand`, so it is **not** full-width).
+> **Recommended (unchanged, but be honest about the gap):** for a full-width CTA
+> in normal content flow, `expand="block"` is the intended house style; the
+> de-facto majority is `expand="full"` inside an `ion-grid` column. Pick one per
+> screen and don't leave a primary "Create X" button content-sized-by-accident
+> (calendarius's `happening-form` submit is the cautionary example).
 
 ## Disabled & in-flight state
 
@@ -62,6 +71,25 @@ show progress inline so the user knows something is happening:
 
 Disabling on submit also guards against double-clicks. See
 [`states.md`](./states.md) for in-flight spinners more broadly.
+
+## State-reactive inline "Add" button
+
+For an inline add/submit button paired with a single text field (an add-item bar),
+drive both `color` and `fill` from the field's content so the button visibly
+"arms" once there's something to submit:
+
+```html
+<ion-button
+  [color]="isFocused() && title().trim() ? 'primary' : 'medium'"
+  [fill]="title().trim() ? 'solid' : 'outline'"
+  (click)="add()">
+  <ion-icon name="add" slot="start" /><ion-label>Add</ion-label>
+</ion-button>
+```
+*(listus `pages/list/new-list-item/new-list-item.component.html`.)*
+
+This is a cleaner affordance than a permanently-primary button next to an empty
+field — the emphasis appears only when the action is meaningful.
 
 ## Icons
 
