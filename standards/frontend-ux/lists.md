@@ -125,6 +125,31 @@ Applies to every "grouped/collapsible list" and "picker" pattern in this file
 and in [`cards.md`](./cards.md) — audit existing `tappable` usages when
 touching that code.
 
+**The same gap exists on `ion-chip`** when it's used as a single-select option
+picker (e.g. a going/maybe/out attendance picker) — `ion-chip` has no `button`
+prop at all (checked against `@ionic/core`'s `Chip` class: only `color` /
+`outline` / `disabled`), so a bare `(click)` leaves it just as non-focusable as
+`tappable`. Fix it the same way as `ion-item-divider` above — there's no native
+shortcut, so add the keyboard path by hand, plus `role="radio"`/`aria-checked`
+(or `role="button"` for a non-exclusive chip) so the selection state is
+announced:
+
+```html
+<ion-chip
+  [color]="status() === s.id ? 'primary' : 'medium'"
+  tabindex="0"
+  role="radio"
+  [attr.aria-checked]="status() === s.id"
+  (click)="status.set(s.id)"
+  (keydown.enter)="status.set(s.id)"
+  (keydown.space)="$event.preventDefault(); status.set(s.id)"
+  >{{ s.label }}</ion-chip
+>
+```
+*(gameboard `rsvp-page.component.ts` — the going/maybe/out attendance picker on
+its anon RSVP landing; found because it's the core action on the page, not
+because of a lint rule.)*
+
 ### Alternative: `ion-accordion-group` for collapsible groups
 
 For genuinely collapsible groups (as opposed to a static divider), Ionic's
@@ -161,6 +186,53 @@ Show counts with an `ion-badge` in the divider:
 ```
 *(contactus `members-page.component.html`)*
 
+## Grouped list with a computed fill/availability summary
+
+A recurring shape: a roster/list where every row has a **status derived from a
+separate response map** (RSVP'd going/maybe/out, a signup sheet's filled/open
+slots, an approval queue's approved/pending/rejected), plus a **one-line summary**
+of how full/complete the whole thing is ("8 of 12 going, need 4 more"). gameboard's
+roster console (`game-invites/:gameId`) is the reference:
+
+- **One pure fold function**, not per-template computation: `computeRosterFill(
+  roster, responses, target): FillSummary` takes the raw list + the response map
+  + the target count and returns everything the UI needs — the grouped rows
+  *and* the summary line — in one pass (gameboard `roster-fill.ts`). Keep it
+  side-effect-free and unit-test it directly, the same way [`forms.md`](./forms.md)'s
+  balance-display convention keeps `formatSignedBalance` separate from any
+  component.
+- **The "no entry yet" status is derived, never persisted** — a roster member with
+  no response is displayed as e.g. `no-reply`, computed as the fallback in the
+  fold, not written to storage. Only real responses are persisted.
+- **Group by the derived status** (going / maybe / out / no-reply, or your
+  domain's equivalent), each group rendered only `@if (group.rows.length > 0)` —
+  but see the empty-summary gap below.
+- **The summary line is prominent and reads as a sentence**, not a bare
+  fraction: `"{{goingCount}} of {{needed}} going, need {{remaining}} more"` /
+  `"… — full"` when `isFull`, computed once in the same fold (gameboard
+  `RosterFillSummary.fillLabel`).
+
+### Don't let "every group empty" render nothing
+
+If every status group is conditionally hidden when empty (as above), an empty
+*overall* collection (no roster members at all yet) renders **nothing at all**
+under the section heading — worse than the missing-`@empty` gap flagged at the
+top of this file, because there's no single `@for`/`@empty` pair to catch it;
+the emptiness is spread across N independently-hidden groups. Add one explicit
+check ahead of the grouped loop for the whole-collection-empty case:
+
+```html
+@if (fill().total === 0) {
+  <ion-note class="hint">No players on the roster yet — add one below.</ion-note>
+} @else {
+  @for (group of groups(); track group.key) {
+    @if (group.rows.length > 0) { … }
+  }
+}
+```
+*(gameboard `roster-page.component.ts` — caught by exercising a freshly-created,
+still-empty roster, not by reading the per-group template.)*
+
 ## Summary
 
 | Need | Pattern |
@@ -170,3 +242,4 @@ Show counts with an `ion-badge` in the divider:
 | Grouped / collapsible | `ion-item-group` + `ion-item-divider` (`tabindex`/`role="button"` for keyboard) |
 | Clickable row | `ion-item [button]="true"` — **not** `tappable` (not a real prop) |
 | Count on a group header | `ion-badge` in the divider |
+| Grouped-by-derived-status + fill summary | one pure fold fn for rows + summary; guard the whole-collection-empty case, not just each group |

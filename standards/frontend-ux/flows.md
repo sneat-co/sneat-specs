@@ -183,3 +183,63 @@ The one built-out multi-step wizard in the surveyed apps is contactus's
 - **Data threads through a single `$contact` input / `contactChange` output** — the
   wizard holds no separate copy of the entity data; only `show` / `$wizardStep` are
   local UI state. This keeps refresh-safety trivial: the entity is the state.
+
+## The anon-first invite → RSVP recipe (gameboard `game-invites`)
+
+Several extensions share a shape one screen up from the wizard recipe: an
+**organizer** builds something with a roster/list on an authenticated (or at
+least session-ful) page, generates a **shareable link with no sign-in
+required**, and an **invitee** opens that link cold — no account, often no
+prior visit — and must be able to act in one screen. gameboard's
+`game-invites/rsvp/:token` (coach organizes a game → invites the roster →
+a parent RSVPs for their kid from the link) is the reference implementation;
+the shape generalizes to any "invite a person to respond" flow (event RSVPs,
+signup sheets, approval links).
+
+```
+organize-game (auth-optional) ──create──▶ roster console ──"Copy invite link"──▶ (clipboard)
+                                                 ▲                                    │
+                                                 └──────────"See full roster"─────────┤
+                                                                                       ▼
+                                                                          rsvp/:token (anon, cold entry)
+                                                                          ──submit──▶ confirmation
+                                                                                         │
+                                                                                "Create account" (non-blocking)
+```
+
+- **The action is never gated behind sign-in.** The RSVP page has no auth guard
+  at all — a first-time invitee must be able to open the link and act with zero
+  friction. Show a "Create account" / "Sign in" nudge **only after** a
+  successful action, never before it (gameboard `rsvp-page.component.ts`'s
+  `signin-hint`, shown only once `confirmed()` is true).
+- **The link is an opaque token, not a raw ID**, encoding `{primaryId,
+  targetId?}` (gameboard `invite-token.ts`'s `{gameId, playerId?}`). `targetId`
+  present = a per-recipient targeted link (pre-fills who it's for); absent = an
+  open-join link (the recipient picks or adds themselves). One encode/decode
+  pair serves both link shapes — don't build two separate URL formats.
+- **Build the link from the app's base URL, not the bare origin.** If the app is
+  mounted under a path prefix (a `baseHref` + matching Worker/proxy route, e.g.
+  `gameboard.live/app`), `location.origin` alone omits the prefix — and the bare
+  root domain may route to an *entirely different* app/Worker (here, the
+  marketing landing), so the link 404s for every invitee. This is not a
+  theoretical gap: it shipped exactly this way in gameboard's first cut and was
+  caught by exercising the copied link, not by reading the code. Derive the base
+  from `document.baseURI` (resolves the `<base href>` tag to an absolute URL)
+  instead:
+  ```ts
+  private origin(): string {
+    if (typeof document === 'undefined') return '';
+    return document.baseURI.replace(/\/+$/, '');
+  }
+  ```
+  *(gameboard `roster-page.component.ts`.)* Whenever a "copy link" affordance is
+  added to an app that isn't mounted at its Worker's root, treat the round-trip
+  (copy the link, then actually open it in a fresh context) as part of the
+  fix — a code read alone won't catch this class of bug.
+- **Register the literal token route before its sibling param route.** `rsvp/:token`
+  must be declared ahead of a same-prefix `:id` route (here, `game-invites/:gameId`)
+  in the route table, or the literal `rsvp` segment gets swallowed by the
+  wildcard param and never matches (gameboard `app.routes.ts`).
+- **The confirmation links back into the organizer's view** (`rsvp-page`'s "See
+  full roster" → the roster console), so the invitee isn't stranded on a
+  dead-end confirmation screen — see the orphan-page anti-pattern above.
