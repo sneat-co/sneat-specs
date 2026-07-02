@@ -82,6 +82,7 @@ extension.
 | rsvp-express | `rsvp-express` | — | |
 | sneat-team | `sneat-team` | `sneat-team-ext` → `sneat-team-contract` | contract repo pending rename |
 | trackus | `trackus` | — | |
+| yardius | `yardius` | `yardius-contract` | |
 
 > Rows marked "pending rename" keep their `-ext` repo until the module-path
 > migration runs. Verify this table against the live org before relying on it.
