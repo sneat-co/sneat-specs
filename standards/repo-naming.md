@@ -80,6 +80,7 @@ extension.
 | listus | `listus` | — | |
 | logistus | `logistus` | — | `logist-apps` holds the deployable app(s) |
 | rsvp-express | `rsvp-express` | — | |
+| sizeus | `sizeus` | `sizeus-contract` | standalone hosted at sizechart.app |
 | sneat-team | `sneat-team` | `sneat-team-ext` → `sneat-team-contract` | contract repo pending rename |
 | trackus | `trackus` | — | |
 | yardius | `yardius` | `yardius-contract` | |
