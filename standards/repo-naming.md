@@ -77,6 +77,7 @@ extension.
 | docus | `docus` | — | |
 | eventus | `eventus` | — | |
 | gameboard | `gameboard` | `gameboard-ext` → `gameboard-contract` | contract repo pending rename |
+| kids-club | `kids-club` | `kids-club-contract` | first `-contract`-convention repo; impl repo private |
 | listus | `listus` | — | |
 | logistus | `logistus` | — | `logist-apps` holds the deployable app(s) |
 | rsvp-express | `rsvp-express` | — | |
