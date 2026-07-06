@@ -76,6 +76,7 @@ extension.
 | debtus / splitus | `debtus` | — | |
 | docus | `docus` | — | |
 | eventus | `eventus` | — | |
+| formius | `formius` | — | reusable personal-profile platform (`formius.app`); renamed from `fillless` 2026-07-06; frontend-only, no Go backend |
 | gameboard | `gameboard` | `gameboard-ext` → `gameboard-contract` | contract repo pending rename |
 | kids-club | `kids-club` | `kids-club-contract` | first `-contract`-convention repo; impl repo private |
 | listus | `listus` | — | |
