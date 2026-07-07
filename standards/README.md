@@ -10,4 +10,4 @@ building.
 | Standard | Purpose |
 |---|---|
 | [Frontend UX](frontend-ux/README.md) | UI/UX conventions for Sneat extensions — cards, buttons, lists, page layout, forms, modals, and loading/empty/error states, each citing real components from `calendarius` / `contactus` / `listus`. |
-| [Repository Naming](repo-naming.md) | How repos are named (`sneat-*` platform, `<id>` extension impl, `<id>-contract` contract) + the GitHub-topics registry for finding all extensions. |
+| [Repository Naming](repo-naming.md) | How repos are named (`sneat-*` platform, `<id>` product/implementation repos, `ext-<id>` public extension-definition repos) + the GitHub-topics registry for finding all extensions. |
