@@ -55,6 +55,19 @@ belongs in a contract module (below).
 | Behavior needed by many consumers | Facade *interface* in the `ext-<id>/backend` contract module; implemented once, injected by the host | (when a capability's ports proliferate past ~3 adapters) |
 | Domain-free primitives only | `sneat-go-core` (`coretypes`, `facade`, validation glue) | — |
 
+### What moves to `ext-<id>/backend` vs what stays private
+
+- **Moves (shared vocabulary):** `dto4<id>` request/response types, brief/read
+  models, consts, and facade *interfaces*.
+- **Stays in `<id>/backend` (implementation):** `dbo4<id>` storage schemas,
+  `dal4<id>`, `api4<id>`, facade *implementations*. Another extension needing
+  your DBO is a boundary smell — offer a brief or a port instead.
+- **Reference:** `ext-contactus/backend` (`contactusmodels` + `facade4contactus`)
+  is the completed shape. Coverage elsewhere is partial as of 2026-07-09
+  (ext-bookius/kids-club/schoolus: DTOs only; ext-sizeus/yardius: no backend
+  contract; **ext-calendarius does not exist yet** — create it when a second
+  extension beyond eventius needs happening types).
+
 **Do not move domain types into `sneat-go-core`.** The kernel's fan-in is ~100+
 packages; a domain type there turns every core release into a domain release and
 recreates the version treadmill this standard exists to escape. The backend
