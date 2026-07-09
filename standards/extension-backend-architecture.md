@@ -67,9 +67,10 @@ belongs in a contract module (below).
   section only clarifies which backend packages belong there.
 - **Reference:** `ext-contactus/backend` (`contactusmodels` + `facade4contactus`)
   is the completed shape.
-- **Known compliance gaps (2026-07-09):** `ext-calendarius` missing entirely
-  (eventius's sneat-go adapter imports `calendarius/backend` types directly —
-  first candidate to close, with bookius/school-portal consumers coming);
+- **Known compliance gaps (2026-07-09):** ~~`ext-calendarius` missing entirely~~
+  → **created 2026-07-09** ([sneat-co/ext-calendarius](https://github.com/sneat-co/ext-calendarius),
+  `backend/v0.0.1`: `calendariusmodels` + `facade4calendarius.HappeningsFacade`;
+  sneat-go's eventius adapter still to be repointed per its README migration plan);
   ext-sizeus/ext-yardius lack backend contracts; ext-kids-club/ext-schoolus lack
   frontend contracts; several contracts are duplicated between `ext-<id>` and
   `<id>` repos with diverging versions (bookius, gameboard, sizeus) — the
