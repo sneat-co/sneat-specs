@@ -62,11 +62,18 @@ belongs in a contract module (below).
 - **Stays in `<id>/backend` (implementation):** `dbo4<id>` storage schemas,
   `dal4<id>`, `api4<id>`, facade *implementations*. Another extension needing
   your DBO is a boundary smell — offer a brief or a port instead.
+- **Mandate:** per [repo-naming.md](repo-naming.md), *every* extension has an
+  `ext-<id>` definition repo carrying both frontend and backend contracts. This
+  section only clarifies which backend packages belong there.
 - **Reference:** `ext-contactus/backend` (`contactusmodels` + `facade4contactus`)
-  is the completed shape. Coverage elsewhere is partial as of 2026-07-09
-  (ext-bookius/kids-club/schoolus: DTOs only; ext-sizeus/yardius: no backend
-  contract; **ext-calendarius does not exist yet** — create it when a second
-  extension beyond eventius needs happening types).
+  is the completed shape.
+- **Known compliance gaps (2026-07-09):** `ext-calendarius` missing entirely
+  (eventius's sneat-go adapter imports `calendarius/backend` types directly —
+  first candidate to close, with bookius/school-portal consumers coming);
+  ext-sizeus/ext-yardius lack backend contracts; ext-kids-club/ext-schoolus lack
+  frontend contracts; several contracts are duplicated between `ext-<id>` and
+  `<id>` repos with diverging versions (bookius, gameboard, sizeus) — the
+  `ext-<id>` copy is canonical, delete the in-product fork when touched.
 
 **Do not move domain types into `sneat-go-core`.** The kernel's fan-in is ~100+
 packages; a domain type there turns every core release into a domain release and
