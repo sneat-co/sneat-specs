@@ -97,12 +97,58 @@ emitted so localisation (e.g. Russian) can be added without a URL migration.
 - Trust/legal pages (privacy, terms) ship as clearly-marked drafts (noindex)
   pending legal review; binding policies remain with the app on sneat.app.
 
-## Consequences
+## Rationale
+- A dedicated family home lets us tell a coherent outcomes-led story to busy
+  parents without diluting sneat.co (company/investors) or overloading the app
+  entry on sneat.app. Splitting audiences by domain keeps each surface focused.
+- Reusing the existing Astro → Cloudflare hosting pattern (not a new repo) means
+  zero new infrastructure, shared conventions, and one-command deploys.
+- Gating every public claim on typed `status` data enforces honesty during
+  private beta and makes "what we may say" a reviewable code change, not prose.
+
+## Declined Alternatives
+
+### Host family marketing on sneat.app or sneat.co
+
+Rejected: sneat.app is the application (auth/accounts) and must not carry SEO
+marketing; sneat.co is company/investor-facing. Mixing audiences on one host
+weakens all three and blurs the calls to action.
+
+### A separate new repository for sneat.family
+
+Rejected: the `sneat-sites` monorepo already provides the Astro build, Cloudflare
+deploy and CI pattern. A new repo adds overhead for no technical gain (brief §21
+prefers existing conventions unless there is a strong technical reason).
+
+### Move the application to sneat.family
+
+Rejected — and explicitly forbidden by the brief. The app stays on sneat.app;
+sneat.family is marketing only and links out to it, never proxying or iframing.
+
+### Serve www as a second custom domain
+
+Rejected in favour of a 301 from www to the apex, to avoid duplicate-content
+hosts and keep one canonical marketing host (matches the sneat.money pattern).
+
+## Consequences at Decision Time
 - A coherent, honest, accessible (WCAG 2.2 AA target) family marketing site is
   live and integrated with the existing sites; sneat.co points family visitors
   to sneat.family.
-- Copy is constrained by status data files, so future launches must update
-  `data/capabilities.ts` / `data/products.ts` to change public claims.
+- Public copy is constrained by status data files, so future launches must
+  update `data/capabilities.ts` / `data/products.ts` to change what is asserted.
+- Trust/legal pages ship as noindex drafts until legal review; analytics stays
+  off until a dedicated GA4 property exists.
+
+## Observed Consequences
+- 2026-07-13: initial release deployed (20 pages, worker `sneat-family`, apex +
+  www→apex 301, security/caching headers, sitemap/robots/llms.txt). All routes
+  return 200; no mobile overflow. No post-launch issues recorded yet.
+
+## Affected Features
+- None yet (marketing site; no SpecScore feature depends on it). Related product
+  specs are referenced only descriptively (Remindius, RenewOn, Documentus,
+  Formius, Sizeus, AnyMeter, ReQuoter, Bookius) and are not modified by this
+  decision.
 
 ## Open Questions
 - Dedicated GA4 property + measurement ID for sneat.family.
