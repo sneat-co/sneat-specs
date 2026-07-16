@@ -164,7 +164,39 @@ the ext-id is **mandatory** on every related-ref.
 
 ## Observed Consequences
 
-None observed yet.
+### Addendum 2026-07-16 — ToGethered narrows its use of the system namespace (owner decision)
+
+While designing ToGethered's recurring activities (Calendarius happenings as the
+recurrence engine), the dual storage shape this Decision accepts as a cost ("two
+storage shapes now coexist") surfaced as real DAL complexity: shared modules like
+Calendarius would need parallel space-bound and system-namespace facade variants.
+The owner decided:
+
+1. **Every ToGethered Spot gets a real space** — `SpaceTypeSpot`, deterministic
+   `SpaceID` derived from the `spotID`, **empty membership in MVP** (followers
+   remain subscriptions, never members; spot moderators may become members
+   later). Recurring-activity happenings live under it immediately
+   (`/spaces/{spotSpaceID}/ext/calendarius/happenings/...`), and the live
+   spot-scoped ToGethered records (spots, spot-days, intents, spot
+   subscriptions) will be **fully migrated** into spot spaces (plan in
+   `sneat-co/backstage/docs/design/togethered-conversation-model/implementation-plan.md`).
+2. **This is not the declined `$<ext>` pseudo-space.** A spot space models a real
+   domain container — the venue and its community — one per spot, giving a home
+   to the deferred spot-moderation/ownership features. The Declined Alternatives
+   above rejected *machinery-only* spaces (`$togethered`, `$sneat`); their
+   objections do not transfer.
+3. **The system namespace itself stands.** This Decision remains authoritative
+   for genuinely global records with no meaningful container — invitus invites,
+   GameBoard games — and the spaceless linkage branch stays. What changes is
+   ToGethered's classification: its spot-scoped records *do* have a natural
+   container, so they stop using the spaceless shape once migrated.
+4. **Per-record authorization is unchanged** and applies inside spot spaces
+   exactly as it does in the system namespace (empty-membership spaces grant
+   nothing by membership).
+
+The 2026-06-29 rationale's "zero data migration" advantage is consciously
+traded away for single-path DAL uniformity; the migration cost is accepted by
+the owner.
 
 ## Affected Features
 
