@@ -1,13 +1,13 @@
 ---
 format: https://specscore.md/decision-specification
-status: In Review
+status: Approved
 ---
 # Decision: Unified invite & RSVP model
 
-**Status:** In Review
+**Status:** Approved
 **Date:** 2026-06-29
 **Owner:** alex
-**Tags:** —
+**Tags:** invitus, eventius, rsvp, identity
 **Source Idea:** —
 **Supersedes:** —
 **Superseded By:** —
@@ -15,7 +15,7 @@ status: In Review
 ## Context
 
 Sneat needs invites and RSVPs for several verticals — joining a space, RSVPing to
-an event (birthday, eventus), confirming attendance at a GameBoard game, and the
+an event (birthday, Eventius), confirming attendance at a GameBoard game, and the
 legacy debtus "join to track a debt" flow. The trigger was designing the
 **GameBoard ↔ RSVP.express** integration, which surfaced how much invite/RSVP
 machinery already exists — and how much is **duplicated**. At least five
@@ -25,14 +25,15 @@ overlapping implementations exist:
 |---|---|---|
 | **invitus** — `sneat-core-modules/invitus/dbo4invitus` | Generalized invite: `SpaceID`/`InviteSpace` (team→space rename done), an emerging **`TargetType` + `TargetIDs`** (`""`, `tracker`, `user`), `Roles[]`, coarse `AcceptedByUserIDs`/`DeclinedByUserIDs` + counts, `create_invite_response` facade | **Canonical** — becomes the one invite |
 | invitus — `sneat-go-modules/modules/invitus/models4invitus` | Older team-flavored copy (`TeamID`/`InviteTeam`) | **Delete** |
-| **eventus** — `contract/.../models/{rsvp,invitation,rsvp-link}.ts` | Richest event-RSVP: `yes`/`no`/`maybe` + adult/child headcounts + dietary/comment, open-vs-invitee `LinkKind`, privacy-safe public `IRsvpContext`; explicitly *"RSVP is pure event-attendance and NEVER joins the host's space"* | **Promote** — its response model becomes shared |
+| **Eventius** — legacy event-local `{rsvp,invitation,rsvp-link}` models | Rich event-RSVP: `yes`/`no`/`maybe` + adult/child headcounts + dietary/comment, open-vs-invitee link, privacy-safe public context; explicitly *"RSVP is pure event-attendance and NEVER joins the host's space"* | **Retire after promotion** — its response model becomes shared in Invitus; Eventius keeps no parallel response store |
 | debtus / `sneat-mod-debtus-go` invite | Telegram-era invite (channels tg/fbm, claims, `Related`) | **Fold in** as `target.type = "tracker"` |
 | contactus — `contact_invites.go` | Contact-level invites | **Reconcile** |
 
 Two properties shape the choice. **Membership ≠ attendance:** invitus's center of
 gravity is "accept = join the space as a member," but an event RSVP is a different
 lifecycle — a guest can say "going" and appear as social proof **without** joining
-anything (eventus already enforces this; invitus does not). **The invite landing
+anything (Eventius already enforces this; Invitus's legacy join flow does not).
+**The invite landing
 is a conversion surface for logged-out strangers:** a recipient taps an SMS link
 with no account, app, or extension installed, so the landing must render from
 plain data, not by loading an extension's Angular components (the Sneat frontend
@@ -48,25 +49,25 @@ target directly.
 + identity (channel, link, pin, expiry, from/to, message, roles). Generalize it
 with **`Target`** (*what* the invite is for — generalizes `TargetType`/`TargetIDs`;
 a space becomes one target type, not a special case) and an optional **`Routing`**
-(*where the invitee goes* — see [§7](#7-routing-is-optional-override-only-and-resolved-at-open-time)).
+(*where the invitee goes* — see [§8](#8-routing-is-optional-override-only-and-resolved-at-open-time)).
 
 ### 2. Two records: `Invite` (1) → `InviteResponse` (N)
 
 The answer is a **separate `InviteResponse` record** referencing the invite — not
 folded onto it (an open invite yields many responses; responses are editable;
 open-link responders self-identify with no invitation row). It is **promoted from
-eventus** (`yes`/`no`/`maybe` + headcounts + dietary/comment + attribution +
+Eventius** (`yes`/`no`/`maybe` + headcounts + dietary/comment + attribution +
 public resolve context) and **replaces** invitus's coarse
 `AcceptedByUserIDs`/`DeclinedByUserIDs`. It is the *universal* answer to any invite
 (space-join, event RSVP, game confirm are all an `InviteResponse`), with event
 extras optional — so it belongs in **invitus**, not a separate `rsvpus` module and
-not eventus (which would invert layering).
+not Eventius (which would invert layering).
 
 > **Naming.** "RSVP" (*répondez s'il vous plaît*) is grammatically the *request* —
 > it belongs to the invite (`rsvpBy` deadline). The invitee's structured, recorded
 > answer is an **`InviteResponse`** (`InviteResponseDbo`). We avoid bare `Response`
 > (un-greppable) and `Reply` (implies free-text conversation). `InviteResponse`
-> aligns with invitus's existing `create_invite_response` facade; eventus's
+> aligns with Invitus's existing `create_invite_response` facade; Eventius's
 > `IRsvp` is renamed on promotion.
 
 **Storage — spaceless, in invitus's system namespace `/ext/invitus/`.** Invites and
@@ -92,14 +93,22 @@ collections, so co-location is not required). The system-namespace auth model fi
 any authenticated user may write (no membership), reads are public, and invitus
 enforces per-record authorization.
 
-### 3. Membership join is an optional follow-on, never the RSVP
+### 3. Event identity is Happening identity
+
+An event invite uses `Target.Type = "happening"` and the canonical Calendarius
+Happening ID. Eventius events are Happenings with `kind=event`; there is no
+second Event entity and no separate Eventius Event ID. The targeted Happening
+may still be in planning state with only a title. Date, time, location, and
+description may be filled in later without changing the invite target.
+
+### 4. Membership join is an optional follow-on, never the RSVP
 
 Submitting an `InviteResponse` never joins a space. A `yes` from someone who
 *should* become a member (e.g. a player joining the roster) may **trigger**
 invitus's existing space-join flow as a separate step. Spectators, friends, and
 party guests respond without joining anything.
 
-### 4. Social proof is denormalized and host-controlled
+### 5. Social proof is denormalized and host-controlled
 
 Aggregate counters (`going`/`maybe`/`declined`, headcount totals) are denormalized
 onto the invite so the public landing renders "12 going" without reading the guest
@@ -107,7 +116,7 @@ list. Showing *who* is coming is gated by a host visibility setting: `counts-onl
 | `first-names` | `avatars` | `hidden`. The public resolve context never leaks the
 full list.
 
-### 5. Rendering by data-delegation, not component-delegation
+### 6. Rendering by data-delegation, not component-delegation
 
 An extension projects `(Target, recipient Role) → IInvitePresentation` — a generic
 view-model (title, hero, host, role-specific CTA, generic fact sections,
@@ -115,7 +124,7 @@ deep-link). The host app renders it with its own generic components, staying
 ignorant of extension domain logic. This is the only approach that works for a
 logged-out stranger on a public landing.
 
-### 6. Cross-entity links use the generic `related` graph
+### 7. Cross-entity links use the generic `related` graph
 
 Domain entities link via the platform's `related` graph (`IWithRelatedOnly` /
 `IRelatedModules` in `sneat-libs`), so neither side hard-codes the other; a game
@@ -125,7 +134,7 @@ reads schedule/venue through its linked happening. The linkage validator
 games satisfy this by living spaceless at `/ext/gameboard/games/{id}` per
 [decision 0002](0002-reserved-extension-space-ids.md).
 
-### 7. Routing is optional, override-only, and resolved at open-time
+### 8. Routing is optional, override-only, and resolved at open-time
 
 Where the invitee goes is **not** a single frozen `domain` string — that conflates
 three orthogonal axes (**product** · **channel** · **host**) across two distinct
@@ -134,7 +143,7 @@ freeze per-visitor host selection that must stay dynamic. Instead the invite
 carries an optional **`Routing`** of three symmetric `Destination`s — `Review`,
 `OnAccept`, `OnDecline` — each with optional `Product` / `Channel` / `Host`.
 Everything is **derived by default** (product from `target.type`: game →
-gameboard.live, space → sneat.team, happening → eventus/rsvp; channel → `web`;
+gameboard.live, space → sneat.team, happening → Eventius/RSVP; channel → `web`;
 host → resolved from product + channel + visitor locale/white-label). Only
 deliberate **overrides** are stored: drive into a bot (`Channel: "bot"`), pin a
 white-label or a specific host (`Host`), or send the invitee to a different
@@ -153,11 +162,23 @@ live); its `product × locale → host` mapping is a **static platform config**
 white-label and force-a-host cases — not a convention-derived host or a
 runtime-read registry doc.
 
+### 9. Writes are idempotent at the application boundary
+
+Invite creation and response changes accept a caller-supplied operation ID.
+Repeating the same operation returns the original logical result and does not
+create another Invite, response, counter increment, or graph effect. A responder
+has one current response per `(inviteID, responder identity)`; changing
+yes/maybe/no updates that logical response and adjusts counters transactionally.
+Transport update IDs and Telegram callback payloads remain adapter details and
+are never used as domain identity.
+
 ### Model sketch
 
 ```go
 // invitus — the one invite
 type Invite struct {
+    ID      string
+    OperationID string
     From    InviteContact
     Channel string            // email | sms | link
     Pin     string
@@ -181,7 +202,7 @@ type Invite struct {
 
 type Target struct {
     Type string   // "space" | "happening" | "game" | "tracker" | "user"
-    IDs  []string // e.g. [happeningID]  or  [spaceID, gameID]
+    IDs  []string // e.g. [spaceID, happeningID] or [spaceID, gameID]
 }
 
 // optional per-stage routing overrides; resolved to a concrete URL at open-time.
@@ -198,8 +219,10 @@ type Destination struct {
     Host    string `firestore:"host,omitempty"`    // pin a host (white-label/.ie/bot) default: resolved
 }
 
-// the universal invite-answer (promoted from eventus IRsvp; replaces accept/decline)
+// the universal invite-answer (promoted from Eventius IRsvp; replaces accept/decline)
 type InviteResponseDbo struct {
+    ID              string
+    OperationID     string
     InviteID        string
     Target          Target   // denormalized for cross-invite/cross-happening queries
     ResponderUserID string
@@ -217,24 +240,24 @@ type InviteResponseDbo struct {
 | `Target.Type` | `IDs` | Accept semantics | Default product |
 |---|---|---|---|
 | `space` | `[spaceID]` | join space as member (existing invitus flow) | sneat-team |
-| `happening` | `[happeningID]` | RSVP to event; no join | eventus / rsvp |
+| `happening` | `[spaceID, happeningID]` | RSVP to event; no join | Eventius / RSVP |
 | `game` | `[spaceID?, gameID]` | RSVP to game (schedule read-through); role-aware | gameboard |
 | `tracker` | `[trackerID]` | legacy debtus join-to-track | debtus |
 | `user` | `[userID]` | direct user-to-user invite | rsvp |
 
 `Routing` (optional) overrides the derived destinations per stage; the default
 product per target is shown above. See
-[§7](#7-routing-is-optional-override-only-and-resolved-at-open-time).
+[§8](#8-routing-is-optional-override-only-and-resolved-at-open-time).
 
 ## Rationale
 
-The duplication is the problem to solve: invitus and eventus are converging on the
+The duplication is the problem to solve: Invitus and Eventius are converging on the
 same thing from opposite directions (invitus generalized *who/what* you invite but
-has only coarse accept/decline; eventus built the rich *attendance response* but
+has only coarse accept/decline; Eventius built the rich *attendance response* but
 bound it to its own event model). Unifying on invitus-as-transport +
-eventus-response-as-shared collapses five implementations to one, and makes
+Eventius-response-as-shared collapses five implementations to one, and makes
 GameBoard ↔ RSVP a thin projection (`target.type="game"` + a role-aware
-view-model). The membership-vs-attendance split — already shipped in eventus —
+view-model). The membership-vs-attendance split — already shipped in Eventius —
 becomes structural rather than a per-extension convention. Data-delegation
 rendering is forced by the logged-out-stranger constraint; a component registry
 cannot run where nothing is installed.
@@ -260,7 +283,7 @@ conversion.
 
 ### A new RSVP model in rsvp-express
 
-eventus already has the richest one; duplicating it is the very problem this
+Eventius already has the richest one; duplicating it is the very problem this
 decision resolves.
 
 ### A separate rsvpus module for the response
@@ -276,34 +299,31 @@ logged-out strangers; `Target` + optional `Routing` make the invite reusable acr
 verticals, channels (web/bot/app), and white-label/localized deployments while the
 common invite stores no routing at all. Costs: real teardown (delete the old
 go-modules invitus, fold debtus invites in as `tracker`, reconcile contactus,
-promote eventus's response model) and two records (Invite + InviteResponse) to keep
+promote Eventius's response model) and two records (Invite + InviteResponse) to keep
 consistent with transactional counters. Each extension must implement the
 `(Target, Role) → IInvitePresentation` projection for a rich landing; until then a
 generic fallback card renders from the denormalized summary. The open-time
 **routing resolver** (product/host derivation, locale + white-label routing, the
 `snt.link/i/{inviteID}` shortlink) is deferred to its own future Feature.
-Sequencing (settled in review): build a **thin GameBoard vertical end-to-end
-first**, and within that the **role-rich participant flow** (player /
-parent-of-player / coach / team-admin (coordinator) / scorekeeper / timekeeper /
-judge) — chosen over the
-spectator/conversion flow because the **end-goal is building the relationship
-graph**: an accepted, role-tagged invite must **deposit the corresponding
-relationship edge via `linkage`** (the same graph-write-back eventus and ToGethered
-do), and for the crew roles (scorekeeper/timekeeper/judge) also grant the
-per-game append authority gameboard already models. This takes the hard part — the
-role → graph-edge taxonomy and the accept-time write-back — first. Then generalize,
-with the **teardown last** (delete the old go-modules invitus, fold debtus →
-`tracker`, reconcile contactus, promote eventus's response model) only once the new
-model is proven. The invite-acceptance → graph-edge write-back is a model addition
-not yet specified here — to be captured as its own Decision/Feature.
+Sequencing is proof-first: the GameBoard work established the role-aware
+consumer shape; the first generic Events vertical now proves Happening-target
+Invites and yes/maybe/no InviteResponses through Telegram. Legacy teardown
+(old go-modules Invitus, debtus/contactus copies, and Eventius-local response
+stores) happens only after the canonical path passes end-to-end tests. Optional
+invite-acceptance graph edges remain a separate Decision/Feature.
 
 ## Observed Consequences
 
-None observed yet.
+The first Eventius vertical adopts this model: event invitations target the
+canonical `kind=event` Happening and Telegram yes/maybe/no actions write only
+Invitus `InviteResponse`. Existing Eventius-local invitation/RSVP stores are
+legacy and are not extended.
 
 ## Affected Features
 
-None at this time.
+- `eventius/eventius-mvp`
+- `eventius/eventius-bot`
+- `eventius/mini-products/rsvp-express`
 
 ---
 *This document follows the https://specscore.md/decision-specification*
