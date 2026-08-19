@@ -580,9 +580,12 @@ Ionic renders two design languages — `ios` and `md` — and picks per device a
 runtime. That platform-adaptive chrome is a large part of why Ionic "feels
 Apple/Android", and it is a real reason Ionic is primary.
 
-**Verified today:** no Sneat app pins `mode`. The single wiring point is
-`sneat-libs/libs/app/src/lib/get-standard-sneat-providers.ts`, which calls a bare
-`provideIonicAngular()`. Also verified: the current per-extension apps
+**Verified today:** no Sneat app pins `mode`. As of `sneat-libs` 0.25.0 the
+wiring points are `provideSneatIonicShell()` and `provideSneatIonicIsland()` in
+`libs/app-ionic/src/lib/provide-sneat-ionic-island.ts`, both calling a bare
+`provideIonicAngular()`; `getStandardSneatProviders()` now delegates to the shell
+(see §13). Pin `mode` in the shell, not at each call site. Also verified: the
+current per-extension apps
 (`togethered`, `calendarius`, `contactus`, …) depend on `@capacitor/core` only
 for the Firebase auth plugin and have **no native iOS/Android projects** — only
 the legacy `sneat-apps` monorepo has an `ios/` directory. Today these ship as web
@@ -803,10 +806,11 @@ standard exists so that only one of them is doing it at a time.
   `@ionic/angular/standalone` at runtime **without declaring it as a
   dependency or peer dependency**: `@sneat/app`, `@sneat/core`, `@sneat/datagrid`,
   `@sneat/logging` (`ToastController` in `error-logger.service.ts`),
-  `@sneat/wizard`. That means there is currently **no such thing as a
-  PrimeNG-only Sneat surface that still uses Sneat logging** — you get Ionic
-  either way. Fix the undeclared peer deps before anyone plans a PrimeNG-only
-  app; until then, do not promise one.
+  `@sneat/wizard`. Historically that meant there was **no such thing as a
+  PrimeNG-only Sneat surface that still used Sneat logging** — you got Ionic
+  either way. `sneat-libs` 0.25.0 is actively fixing this by splitting the
+  composition root (§13): `@sneat/app-public` is Ionic-free. Re-measure rather
+  than assuming, and finish declaring those five peer deps.
 
 ---
 
@@ -898,6 +902,63 @@ committing to.
 
 ---
 
+## 13. Open: `sneat-libs` 0.25.0 has introduced the inverse arrangement
+
+**Landed in `sneat-libs` while this document was being written. Recorded, not
+resolved — it needs a founder decision.**
+
+`sneat-libs` 0.25.0 (`4e9b7f7 feat(app): split public and authenticated
+bootstrap`) split the single composition root into three packages:
+
+- **`@sneat/app-public`** — Ionic-free. Its own doc comment says *"New PrimeNG
+  public/cockpit apps should import `@sneat/app-public` and add `@sneat/app-auth`
+  only to their lazy private routes."*
+- **`@sneat/app-auth`** — the authenticated providers.
+- **`@sneat/app-ionic`** — `provideSneatIonicShell()` (*"Legacy full-Ionic shell
+  compatibility"*) and `provideSneatIonicIsland()` (*"Route-level Ionic setup for
+  specialist islands (calendar and legacy forms). Do not install this in a
+  PrimeNG public/cockpit root provider list."*), plus a
+  `SneatIonicIslandHostComponent`.
+
+### What this means
+
+There are now **two app archetypes**, not one:
+
+| Archetype | Root | Islands | Status |
+| --- | --- | --- | --- |
+| **A — Ionic-primary** | Ionic shell | PrimeNG islands (§2) | Every existing extension app. This document, §1–§12. |
+| **B — PrimeNG-primary** | PrimeNG public/cockpit | **Ionic** islands, lazy-routed, for calendar and legacy forms | New in 0.25.0. Not described anywhere. |
+
+Archetype B is the **inverse** of §2, and §3's central rule — *"Ionic outside,
+PrimeNG inside; the reverse is never allowed"* — is written for A and does not
+describe B. In B the Ionic island is the guest, and the overlay question becomes
+the opposite one: an `ion-modal` opened from inside a lazy Ionic island of a
+PrimeNG app will take z-index 20001 and sit above the whole PrimeNG page, which
+is probably what you want, but nothing here has verified the focus, Escape or
+back-button behaviour in that direction.
+
+### The terminology collision — fix this before it spreads
+
+**"Island" now means two opposite things.** This document's *PrimeNG island* is a
+PrimeNG component inside an Ionic app. `@sneat/app-ionic`'s *Ionic island* is an
+Ionic route inside a PrimeNG app. Two standards using one word for inverse
+concepts will cause real mistakes. Proposal, for the founder to accept or
+replace: keep **island** for the guest in both cases and always qualify it —
+*"PrimeNG island"* / *"Ionic island"*, never a bare "island".
+
+### What is needed
+
+1. **Is archetype B intended as a general direction, or only for public/cockpit
+   surfaces?** The founder decision of 2026-08-19 says Ionic stays primary, and
+   `provideSneatIonicIsland`'s own comment scopes B to "public/cockpit" apps and
+   calls the full Ionic shell "legacy". Those two readings differ, and the
+   difference decides whether §1–§12 describe the main case or the legacy case.
+2. Until that is answered, **§1–§12 remain the standard for every existing app**,
+   and archetype B is undocumented — do not build a new PrimeNG-primary app
+   against inference from this section.
+
+---
+
 ## Not yet verified
 
 Stated here rather than asserted above:
@@ -951,6 +1012,10 @@ Recorded, not softened — the decisions above stand as written.
 3. **PrimeNG's own approved home is an SSR app with no Ionic in it.** The
    evidence that unstyled PrimeNG works is real; the evidence that it coexists
    peacefully with Ionic is not, because that has never been run.
+4. **`sneat-libs` 0.25.0 landed the inverse arrangement** — a PrimeNG-primary
+   root with lazy *Ionic* islands, with the full Ionic shell labelled "legacy" —
+   while this document was being written. See §13. This is the largest open
+   question against "Ionic stays primary" and it is a founder call.
 
 ---
 
