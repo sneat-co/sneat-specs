@@ -10,6 +10,12 @@ blocks (`ion-card`, `ion-list`, `ion-item`, `ion-button`, `ion-modal`, …)
 directly — there is no custom card/button/modal wrapper component. Consistency
 comes from following these patterns, not from a shared widget.
 
+**Ionic is primary; PrimeNG is a guest**, admitted only where Ionic has no
+component at all (brackets / org charts, chat surfaces, trees, rich tables) and
+only inside a bounded island — see
+[`ionic-and-primeng.md`](./ionic-and-primeng.md). Every other document in this
+folder assumes Ionic unless that one says otherwise.
+
 ## Principles
 
 1. **Wrap content in cards.** A page is a stack of `ion-card`s, each grouping a
@@ -57,6 +63,13 @@ comes from following these patterns, not from a shared widget.
 - [`forms.md`](./forms.md) — inputs, labels, reactive forms, validation, submit.
 - [`modals.md`](./modals.md) — modals, alerts, popovers, toasts, dialog structure.
 - [`states.md`](./states.md) — loading, empty, and error states.
+
+### Libraries & theming
+
+- [`ionic-and-primeng.md`](./ionic-and-primeng.md) — **which library for which
+  need**, PrimeNG islands, the one-owner-per-flow overlay rule, and how
+  `@sneat/design-tokens` keeps both stacks visually in unison (light and dark).
+  Read this before adding any non-Ionic UI dependency.
 
 ### Other media
 
