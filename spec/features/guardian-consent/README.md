@@ -15,9 +15,8 @@ status: Approved
 
 ## Summary
 
-Capture and store a **verifiable parental-consent record** — the lawful-basis
-artifact for processing a minor's data — at the **guardian-link** step of the
-invitus accept flow ([Decision 0003](../../decisions/0003-invite-acceptance-graph-edges.md)).
+Capture and store a **verifiable parental-consent record** — the lawful-basis artifact for processing a minor's data — at the **guardian-link** step of the invitus accept flow ([Decision 0003](../../decisions/0003-invite-acceptance-graph-edges.md)).
+
 The record lives in the spaceless system namespace (`/ext/{ext-id}/...`, per
 [Decision 0002](../../decisions/0002-reserved-extension-space-ids.md)),
 captures the jurisdiction + consent-age resolved at that moment (from the
