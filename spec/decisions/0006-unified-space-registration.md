@@ -303,5 +303,28 @@ payment gate.
   existing space has module data but no marker — which must be measured, not
   assumed.)
 
+## Amendment (2026-08-24): child spaces are type `team`
+
+Teams ("Girls U14") are child Spaces: Spaces whose `parentSpaceID` is the
+organisation that owns them. The first implementation gave a child its
+parent's type, on a strict reading of rule 1 (a team's membership works like
+its club's). Live testing overturned that: the type shows in URLs and
+user-record briefs, and a team rendering as `/space/club/…` read as "my team
+was created as a club".
+
+So child Spaces get their own type, `team`, and rule 1 gains a clause: **the
+parent's type says how the organisation's membership works; `team` says the
+Space is a subdivision of it.** Consequences:
+
+- `POST /v0/spaces/create_child_space` mints type `team` and the parent link
+  together; `create_space` refuses `type: team`, so an orphan team cannot
+  exist. Module markers are still inherited from the parent — a team belongs
+  to the same product.
+- Teams are never registered as vendor Spaces and never claim public slugs.
+- Depth is capped at one level (a team has no sub-teams) until deeper
+  hierarchies are a deliberate product need.
+- Clubs-only listings (home page, space selectors) exclude teams by type
+  instead of loading each space document to check for a parent.
+
 ---
 *This document follows the https://specscore.md/decision-specification*
