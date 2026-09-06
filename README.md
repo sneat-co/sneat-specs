@@ -23,7 +23,8 @@ Read it before designing a new extension or a new entity.
 - [**Core entities & their relations**](standards/core-entities.md) — the
   foundational entity map and composition patterns (start here).
 - [Extension backend architecture](standards/extension-backend-architecture.md) —
-  ports & adapters; dalgo-only extension backends.
+  ports & adapters, DALgo-backed persistence, and backend authority for business
+  rules and totals across web, mobile, bot, automation, and AI surfaces.
 - [Repo naming](standards/repo-naming.md) — products, `ext-<id>` contract
   repos, discovery topics.
 - [Frontend UX](standards/frontend-ux/README.md) — cards, buttons, lists, page
