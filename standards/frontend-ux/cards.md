@@ -3,6 +3,60 @@
 `ion-card` is the primary content container. A page is a vertical stack of cards,
 each grouping one coherent block (a list, a form, a detail section).
 
+## NEVER a card inside a card
+
+**MUST NOT.** A card never contains another card — no `ion-card` inside an
+`ion-card`, and no element styled like a card (border + shadow/raised
+background, e.g. a result/"action committed" panel) inside a card. Nested cards
+double the borders, shadows and padding, blur which box owns the content, and
+waste scarce mobile width.
+
+**Exception — only with both of these:**
+
+1. the user (founder/product owner) **explicitly asked** for the nested card, and
+2. a **written justification** sits next to the code and in the PR, saying why
+   none of the flat alternatives below can do the job:
+
+   ```html
+   <!-- ui-bible: nested-card — asked for by <who/when>; justification: <why a
+        list/item/divider/section cannot do this> -->
+   ```
+
+A missing or vague justification ("looks nicer", "grouping") is a defect, not an
+exception. Reviewers reject it.
+
+**Use instead, inside the card:**
+
+| Need | Use |
+|---|---|
+| A sub-group of related rows | `ion-item-divider` / a labelled `ion-list` section |
+| A row with status or result | `ion-item` with `ion-icon slot="start"`, `ion-label`, `ion-note slot="end"` |
+| A highlighted message/result | `ion-item` with a `color`, or an `ion-text color="…"` line |
+| Key–value details | `ion-list` of `ion-item`s (`ion-label` + `ion-note slot="end"`) |
+| Visual separation only | a divider line (`lines="full"`) or spacing — not a box |
+
+**Wrong:**
+
+```html
+<ion-card>            <!-- "Done!" -->
+  <ion-card-content>
+    <ion-card>…Action committed…</ion-card>   <!-- NEVER -->
+  </ion-card-content>
+</ion-card>
+```
+
+**Right:**
+
+```html
+<ion-card>
+  <ion-item lines="none" color="header">
+    <ion-icon name="checkmark-circle" color="success" slot="start" />
+    <ion-label>Done!</ion-label>
+  </ion-item>
+  <ion-list>… one ion-item per result row …</ion-list>
+</ion-card>
+```
+
 ## Use a card for each content block
 
 Wrap each logical section — a list, a filter+segment+list combo, a detail

@@ -16,6 +16,29 @@ only inside a bounded island — see
 [`ionic-and-primeng.md`](./ionic-and-primeng.md). Every other document in this
 folder assumes Ionic unless that one says otherwise.
 
+## This is the single UI bible
+
+**Every Sneat web app and extension follows this folder — it is the only
+source.** Do not copy its rules into an app; link here. Each web app's
+`README.md` and `AGENTS.md` (and the `README.md` of each app directory inside a
+monorepo) MUST carry this pointer:
+
+```md
+> **Web UI:** follow the [Sneat web UI bible](https://github.com/sneat-co/sneat-specs/blob/main/standards/frontend-ux/README.md).
+```
+
+Rules marked **MUST / NEVER** below are hard rules. Everything else is a
+recommended convention.
+
+## Hard rules
+
+1. **NEVER put a card inside a card.** A card (`ion-card`, or any container
+   styled as one — border, shadow, raised background) is never a child of another
+   card. A nested card is allowed only when it is **explicitly asked for** *and*
+   carries a **written justification** (why a list, item, divider or section
+   cannot do the job). No justification, no nested card — see
+   [`cards.md`](./cards.md#never-a-card-inside-a-card).
+
 ## Principles
 
 1. **Wrap content in cards.** A page is a stack of `ion-card`s, each grouping a
