@@ -10,6 +10,7 @@ Pre-spec one-pagers. Each Idea is a lint-clean problem-direction-MVP one-pager t
 
 | Idea | Status | Date | Owner | Promotes To |
 |------|--------|------|-------|-------------|
+| [auth-oauth-host-split](auth-oauth-host-split.md) | Approved | 2026-10-16 | alex | — |
 | [coppa-gdpr](coppa-gdpr.md) | Specified | 2026-06-29 | alex | guardian-consent, jurisdiction-resolver, minor-data-protection |
 | [system-space-type](system-space-type.md) | Stale | 2026-06-27 | alex | — |
 
