@@ -46,7 +46,7 @@ This removes the Worker from the one path where an outage hurts every product, w
 
 ## MVP Scope
 
-Sign-in for all Sneat apps no longer depends on any Cloudflare Worker: `auth.sneat.co/__/auth/*` and `/__/firebase/init.json` are answered by Firebase Hosting, and the OAuth server answers on `oauth.sneat.co` with unchanged behaviour. Old `auth.sneat.co/oauth/*` and `/device` URLs keep working for a compatibility window (method-preserving redirect or narrow route) so released CLIs are not broken.
+Sign-in for all Sneat apps no longer depends on any Cloudflare Worker: `auth.sneat.co/__/auth/*` and `/__/firebase/init.json` are answered by Firebase Hosting, and the OAuth server answers on `oauth.sneat.co` with unchanged behaviour. Released CLIs move to `oauth.sneat.co` (one-time re-login; see Decision 0007).
 
 ## Not Doing (and Why)
 
@@ -61,7 +61,7 @@ Sign-in for all Sneat apps no longer depends on any Cloudflare Worker: `auth.sne
 |------|------------|-----------------|
 | Must-be-true | Firebase Hosting serves `/__/auth/*` and `/__/firebase/init.json` on a custom domain such that redirect and popup sign-in work with `authDomain = auth.sneat.co` | Canary: add the custom domain to a Hosting site, sign in with Google and Apple (popup + redirect) in Chrome and Safari before switching DNS for real traffic |
 | Must-be-true | The OAuth server can run with its public host (`oauth.sneat.co`) different from the Firebase `authDomain`, including its `/device` and `/oauth/authorize` pages that load Firebase sign-in | Go change + tests; browser test of device flow and authorize flow on the new host |
-| Should-be-true | Released CLIs and other OAuth clients that hard-code `auth.sneat.co/oauth/*` can be kept working during a compatibility window | Inventory of clients and released binaries; a working method-preserving redirect (308) or narrow route for `/oauth/*` |
+| Should-be-true | Only sneat-cli and datatug-cli call the OAuth server, so moving them is enough | Inventory done 2026-10-16 (no other clients found); re-check before cutover |
 | Should-be-true | Switching DNS for `auth.sneat.co` can be done with no sign-in downtime | Provision the Firebase custom domain and certificate before moving traffic |
 | Might-be-true | Firebase Hosting works behind a proxied Cloudflare record | Firebase and Cloudflare docs; otherwise use a DNS-only record |
 
@@ -73,5 +73,4 @@ Sign-in for all Sneat apps no longer depends on any Cloudflare Worker: `auth.sne
 
 ## Open Questions
 
-- Exact host name for the OAuth server: `oauth.sneat.co` (working assumption) or a `sneat.cloud` host.
-- Length of the compatibility window for old `auth.sneat.co/oauth/*` URLs, set by which released clients hard-code them.
+None at this time — host name and CLI compatibility are decided in Decision 0007.

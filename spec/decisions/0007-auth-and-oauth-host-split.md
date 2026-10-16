@@ -20,7 +20,7 @@ The same host also carries Sneat's own OAuth server (Go, `sneat-core-modules/aut
 
 ## Decision
 
-Split the two jobs onto two hosts (founder decision, 2026-10-16: "I choose option 2"):
+Split the two jobs onto two hosts (founder decision, 2026-10-16: "I choose option 2"; host name `oauth.sneat.co` chosen the same day):
 
 | Host | Serves | Hosted by | Worker? |
 |------|--------|-----------|---------|
@@ -33,9 +33,13 @@ Split the two jobs onto two hosts (founder decision, 2026-10-16: "I choose optio
 - **`oauth.sneat.co`** — used explicitly by clients that do **"Sign in with Sneat"**: the Sneat CLI and other CLIs' device login (`/oauth/device/code`, then the user opens `https://oauth.sneat.co/device`), MCP clients and third-party integrations using the authorization-code flow (`/oauth/authorize`, `/oauth/token`), and token revocation. Whether and where the host appears in issued tokens is to be confirmed (see Open Questions).
 - The OAuth server's own pages (`/device`, `/oauth/authorize`) still sign the user in through Firebase, with `authDomain = auth.sneat.co`.
 
-### Compatibility
+### Compatibility — CLIs move, users log in again
 
-Old `https://auth.sneat.co/oauth/*` and `/device` URLs (released CLIs, stored client configs) keep working during a compatibility window through a method-preserving redirect (308) or a narrow route to the OAuth server; the mechanism and window length are set in the implementation plan. After the window they are retired.
+Only two clients call the OAuth server today: **sneat-cli** and **datatug-cli** device login (via `strongo/deviceauth`), both hard-coding `https://auth.sneat.co` and calling `/oauth/device/code`, `/oauth/token`, `/oauth/userinfo` and `/oauth/revoke`. Their stored credentials are bound to that issuer string.
+
+Founder decision (2026-10-16): **release both CLIs pointing at `https://oauth.sneat.co`, and accept a one-time re-login for every CLI user.** No compatibility rewrite is kept on `auth.sneat.co`: once it moves to Firebase Hosting, old CLI versions can no longer reach the OAuth server and must be upgraded. The origin secret stays required on every OAuth path.
+
+Declined: forwarding the four API paths from Firebase Hosting to Cloud Run without the origin secret (would have avoided the re-login, but weakens the token issuer's origin protection).
 
 ## Rationale
 
@@ -65,7 +69,7 @@ Firebase documents that this does not support Apple sign-in or SAML (Apple is of
 - Clear ownership: each host has one job.
 
 **Cons / costs**
-- OAuth clients and stored configurations that name `auth.sneat.co/oauth/...` must move to `oauth.sneat.co`; if the host is embedded in issued tokens or client metadata, validation must accept both hosts during the window (to be confirmed).
+- Released sneat-cli and datatug-cli versions stop working at cutover; users must upgrade and log in again once.
 - One more hostname to operate (DNS, certificate, route).
 - Uses Firebase Hosting for one host, an exception to the "web surfaces deploy to Cloudflare" preference — justified because Firebase's sign-in helper is native only on Firebase Hosting.
 - The OAuth server still runs behind a Worker, so OAuth (not sign-in) remains subject to the Workers quota; acceptable at its traffic level.
@@ -77,7 +81,7 @@ None yet — not implemented at decision time.
 ## Affected Features
 
 - Sneat OAuth server — `sneat-core-modules` `auth/oauth` (OAuth host configuration; issuer only if tokens embed the host — to be confirmed).
-- Sneat CLI device login and other OAuth clients — issuer and endpoint URLs move to `oauth.sneat.co`.
+- sneat-cli and datatug-cli device login (`strongo/deviceauth`) — endpoint URLs (and stored-credential issuer) move to `oauth.sneat.co`; users log in again once.
 - `sneat-api-proxy` Worker (`sneat-sites/infra/sneat-api-proxy`) — routes and `/__/auth` proxying.
 - Firebase auth configuration in Sneat apps (`sneat-libs`) — unchanged (`authDomain: auth.sneat.co`).
 
@@ -87,12 +91,11 @@ None yet — not implemented at decision time.
 - **sneat-go**: wire the new configuration only (per `rule:sneat-go-wire-and-configure-only`).
 - **sneat-sites (`infra/sneat-api-proxy`)**: add route `oauth.sneat.co/*`; drop the `/__/auth` and `init.json` proxying for `auth.sneat.co`; remove the `auth.sneat.co/*` route at cutover.
 - **Firebase Hosting**: a site for `auth.sneat.co` with the custom domain provisioned (certificate active) **before** DNS moves, so the cutover has no sign-in downtime.
-- **Clients**: update the Sneat CLI and other clients to `oauth.sneat.co`; ship before the compatibility window ends.
+- **Clients**: release sneat-cli and datatug-cli (and `strongo/deviceauth` if the base URL lives there) pointing at `oauth.sneat.co` **before** `auth.sneat.co` moves to Firebase Hosting; announce the one-time re-login.
+- **Deadline**: the Firebase Hosting certificate for `auth.sneat.co` (already provisioned, `CERT_ACTIVE`) expires 2026-11-17 and likely cannot renew until DNS points at Hosting, so the DNS move should happen before about 2026-11-10.
 
 ## Open Questions
 
-- Final OAuth host name: `oauth.sneat.co` (working assumption) or a `sneat.cloud` host.
-- Compatibility-window mechanism and length for old `auth.sneat.co/oauth/*` URLs.
 - Where the OAuth host appears in issued tokens or client configuration (issuer claim, redirect URIs), which decides whether validation must accept both hosts.
 - Whether Firebase Hosting can sit behind a proxied Cloudflare record, or `auth.sneat.co` must be DNS-only.
 
