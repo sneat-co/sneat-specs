@@ -24,13 +24,13 @@ Split the two jobs onto two hosts (founder decision, 2026-10-16: "I choose optio
 
 | Host | Serves | Hosted by | Worker? |
 |------|--------|-----------|---------|
-| **`auth.sneat.co`** | Firebase sign-in helper only: `/__/auth/handler`, `/__/auth/iframe`, `/__/firebase/init.json` | **Firebase Hosting** custom domain (project `sneat-eur3-1`), native reserved URLs | **No** |
-| **`oauth.sneat.co`** | Sneat OAuth server: `/oauth/authorize`, `/oauth/token`, `/oauth/userinfo`, `/oauth/revoke`, `/oauth/device/*`, `/device`, `/oauth/firebase-config`, and its discovery metadata | Cloud Run behind the existing `sneat-api-proxy` Worker (route `oauth.sneat.co/*`), origin secret unchanged | Yes (low traffic) |
+| **`auth.sneat.co`** | Firebase sign-in helper only: `/__/auth/handler`, `/__/auth/iframe`, `/__/firebase/init.json` | **Firebase Hosting** custom domain (project `sneat-eur3-1`); reserved URLs served natively per Firebase docs — to be canaried before cutover | **No** |
+| **`oauth.sneat.co`** | Sneat OAuth server: `/oauth/authorize`, `/oauth/token`, `/oauth/userinfo`, `/oauth/revoke`, `/oauth/device/*`, `/device`, `/oauth/firebase-config` (no `.well-known` discovery route exists on main today) | Cloud Run behind the existing `sneat-api-proxy` Worker (route `oauth.sneat.co/*`), origin secret unchanged | Yes (low traffic) |
 
 ### Where each host is used
 
 - **`auth.sneat.co`** — used implicitly by the Firebase JS SDK in every Sneat web app (`authDomain: auth.sneat.co`) when a user signs in with Google, Apple, or another Firebase provider (popup or redirect). OAuth providers' registered redirect URI stays `https://auth.sneat.co/__/auth/handler`. Users see it only briefly during sign-in. No app config changes.
-- **`oauth.sneat.co`** — used explicitly by clients that do **"Sign in with Sneat"**: the Sneat CLI and other CLIs' device login (`/oauth/device/code`, then the user opens `https://oauth.sneat.co/device`), MCP clients and third-party integrations using the authorization-code flow (`/oauth/authorize`, `/oauth/token`), and token introspection or revocation. It is the OAuth issuer in metadata and tokens.
+- **`oauth.sneat.co`** — used explicitly by clients that do **"Sign in with Sneat"**: the Sneat CLI and other CLIs' device login (`/oauth/device/code`, then the user opens `https://oauth.sneat.co/device`), MCP clients and third-party integrations using the authorization-code flow (`/oauth/authorize`, `/oauth/token`), and token revocation. Whether and where the host appears in issued tokens is to be confirmed (see Open Questions).
 - The OAuth server's own pages (`/device`, `/oauth/authorize`) still sign the user in through Firebase, with `authDomain = auth.sneat.co`.
 
 ### Compatibility
@@ -59,13 +59,13 @@ Firebase documents that this does not support Apple sign-in or SAML (Apple is of
 
 **Pros**
 - Sign-in for every Sneat app no longer depends on a Cloudflare Worker or its daily quota; a Worker outage cannot take down sign-in.
-- No Worker invocations per sign-in (several per sign-in today).
-- Firebase serves `/__/firebase/init.json` natively; the synthesised copy in the Worker and the Cloud Run `/oauth/firebase-config` dependency on the sign-in path go away.
+- No Worker invocations per sign-in (today at least three per sign-in: handler, iframe, `init.json`).
+- Firebase Hosting serves `/__/firebase/init.json` natively (per Firebase docs; to be canaried); the synthesised copy in the Worker and the Cloud Run `/oauth/firebase-config` dependency on the sign-in path go away.
 - The OAuth server keeps its origin-secret protection unchanged.
 - Clear ownership: each host has one job.
 
 **Cons / costs**
-- OAuth clients and stored configurations that name `auth.sneat.co/oauth/...` must move to `oauth.sneat.co`; the issuer URL changes, so token validation must accept the new issuer (and the old one during the window).
+- OAuth clients and stored configurations that name `auth.sneat.co/oauth/...` must move to `oauth.sneat.co`; if the host is embedded in issued tokens or client metadata, validation must accept both hosts during the window (to be confirmed).
 - One more hostname to operate (DNS, certificate, route).
 - Uses Firebase Hosting for one host, an exception to the "web surfaces deploy to Cloudflare" preference — justified because Firebase's sign-in helper is native only on Firebase Hosting.
 - The OAuth server still runs behind a Worker, so OAuth (not sign-in) remains subject to the Workers quota; acceptable at its traffic level.
@@ -76,14 +76,14 @@ None yet — not implemented at decision time.
 
 ## Affected Features
 
-- Sneat OAuth server — `sneat-core-modules` `auth/oauth` (OAuth host configuration, issuer, metadata).
+- Sneat OAuth server — `sneat-core-modules` `auth/oauth` (OAuth host configuration; issuer only if tokens embed the host — to be confirmed).
 - Sneat CLI device login and other OAuth clients — issuer and endpoint URLs move to `oauth.sneat.co`.
 - `sneat-api-proxy` Worker (`sneat-sites/infra/sneat-api-proxy`) — routes and `/__/auth` proxying.
 - Firebase auth configuration in Sneat apps (`sneat-libs`) — unchanged (`authDomain: auth.sneat.co`).
 
 ## Implementation notes
 
-- **sneat-core-modules (`auth/oauth`)**: separate the OAuth public host from the Firebase `authDomain` (new config field; `allowedRequestHost`, issuer and metadata URLs use the OAuth host; `/oauth/firebase-config` keeps returning `authDomain: auth.sneat.co`).
+- **sneat-core-modules (`auth/oauth`)**: separate the OAuth public host from the Firebase `authDomain` (new config field; `allowedRequestHost`, `RegisterKnownHosts`, and the same-origin CORS rule use the OAuth host — today they key off `web.AuthDomain`, which `Validate` hard-codes to `auth.sneat.co`; `/oauth/firebase-config` keeps returning `authDomain: auth.sneat.co`).
 - **sneat-go**: wire the new configuration only (per `rule:sneat-go-wire-and-configure-only`).
 - **sneat-sites (`infra/sneat-api-proxy`)**: add route `oauth.sneat.co/*`; drop the `/__/auth` and `init.json` proxying for `auth.sneat.co`; remove the `auth.sneat.co/*` route at cutover.
 - **Firebase Hosting**: a site for `auth.sneat.co` with the custom domain provisioned (certificate active) **before** DNS moves, so the cutover has no sign-in downtime.
@@ -93,6 +93,8 @@ None yet — not implemented at decision time.
 
 - Final OAuth host name: `oauth.sneat.co` (working assumption) or a `sneat.cloud` host.
 - Compatibility-window mechanism and length for old `auth.sneat.co/oauth/*` URLs.
+- Where the OAuth host appears in issued tokens or client configuration (issuer claim, redirect URIs), which decides whether validation must accept both hosts.
+- Whether Firebase Hosting can sit behind a proxied Cloudflare record, or `auth.sneat.co` must be DNS-only.
 
 ---
 *This document follows the https://specscore.md/decision-specification*
