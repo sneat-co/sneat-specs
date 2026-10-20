@@ -79,6 +79,12 @@ recommended convention.
 - [`buttons.md`](./buttons.md) — colour, fill, expand, and icon conventions.
 - [`lists.md`](./lists.md) — `ion-list`, sliding items, grouped/collapsible lists.
 
+### Component reference
+
+- [`components/README.md`](./components/README.md) — the component-by-component
+  index. Each page describes where that Ionic element belongs and the shared
+  rules for using it; start with [`ion-item-divider`](./components/ion-item-divider.md).
+
 ### Composition
 
 - [`page-layout.md`](./page-layout.md) — page scaffolding: header/toolbar,
