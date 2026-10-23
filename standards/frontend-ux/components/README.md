@@ -10,4 +10,5 @@ component pages link back to those guides instead of copying them.
 - [`ion-item-divider`](./ion-item-divider.md) — semantic headings between item
   groups, neutral styling, optional counts, and accessible collapse controls.
   Also the required header row of every `ion-card`
-  (`color="light"`, see [`cards.md`](../cards.md#card-headers)).
+  (`color="light"`, or `warning` / `danger` for status cards; see
+  [`cards.md`](../cards.md#card-headers)).
