@@ -39,6 +39,7 @@ exception. Reviewers reject it.
 
 ```html
 <ion-card>            <!-- "Done!" -->
+  <ion-item-divider color="light"><ion-label>Done!</ion-label></ion-item-divider>
   <ion-card-content>
     <ion-card>…Action committed…</ion-card>   <!-- NEVER -->
   </ion-card-content>
@@ -49,10 +50,10 @@ exception. Reviewers reject it.
 
 ```html
 <ion-card>
-  <ion-item lines="none" color="header">
+  <ion-item-divider color="light">
     <ion-icon name="checkmark-circle" color="success" slot="start" />
     <ion-label>Done!</ion-label>
-  </ion-item>
+  </ion-item-divider>
   <ion-list>… one ion-item per result row …</ion-list>
 </ion-card>
 ```
@@ -72,54 +73,40 @@ Examples:
 
 ## Card headers
 
-There are two header styles in use. Pick by whether the header carries actions or
-collapses.
-
-### Recommended: `ion-item-divider` for actionable / collapsible headers
-
-When the header has buttons or toggles a collapsible section, use an
-`ion-item-divider` (or an `ion-item`) as the header row, with actions in
-`slot="end"`:
+**MUST.** Every `ion-card` starts with exactly one header row:
+`<ion-item-divider color="light">`, the title in an `ion-label`, any actions in
+`slot="end"`. The light background is what makes cards read as one family.
 
 ```html
-<ion-item-divider color="light" class="with-buttons" tappable>
-  <ion-label>{{ listGroup.title }}</ion-label>
-  <ion-buttons slot="end">
-    <ion-button color="medium" (click)="addTo($event, listGroup.type)">
-      <ion-icon name="add" />
-    </ion-button>
-  </ion-buttons>
-</ion-item-divider>
+<ion-card>
+  <ion-item-divider color="light">
+    <ion-label>{{ title }}</ion-label>
+    <ion-buttons slot="end">
+      <ion-button color="medium" (click)="add($event)"><ion-icon name="add" /></ion-button>
+    </ion-buttons>
+  </ion-item-divider>
+  <ion-card-content>…</ion-card-content>
+</ion-card>
 ```
-*(listus `lists-page.component.html`)*
 
-This is the dominant pattern for headers that **do** something (add, edit,
-expand/collapse). See [`card-title-buttons.md`](./card-title-buttons.md) for the
-button conventions inside these headers.
+**MUST NOT:** a bare `ion-card-header` / `ion-card-title`, an `ion-card-title`
+inside a plain `ion-item`, or a card with no header row. This applies to static
+titles too, so adding a button later never changes the header's look. For
+collapsible headers add `tappable`; see
+[`card-title-buttons.md`](./card-title-buttons.md) for the button conventions.
 
-### Acceptable: `ion-card-header` for static titles
+**Only exceptions:** an error card (`<ion-card color="danger">`, divider
+`color="danger"`), and the media item card below, which has no header by design.
 
-A plain `ion-card-header` + `ion-card-title` is fine for a **purely static**
-title with no actions (as some contactus cards do). If you later add a button,
-prefer switching to the `ion-item` / `ion-item-divider` form so the action sits
-cleanly in `slot="end"`.
-
-### Also seen: `ion-card-title` inside a plain `ion-item`
-
-calendarius uses a third, hybrid header — an `<ion-card-title>` (for the type-scale
-text) placed inside a plain `<ion-item>` (not `ion-card-header`), with the action
-in `slot="end"` — and even documents the choice inline ("We intentionally do not
-use ion-item-divider here"). *(calendarius
-`happening-participants.component.html`.)* Acceptable when you want card-title
-typography **and** a clean action slot; but prefer the `ion-item-divider` form
-unless you specifically need the larger title text, to keep headers uniform.
+**Enforcement.** datatug-apps enforces this mechanically with
+`pnpm run check:card-headers`; other repos can adopt the same checker.
 
 ## Media item card (poster + metadata + actions)
 
 Some items are enriched from an external data source and need a card shaped
 around a **thumbnail image + a metadata block + an action row**, rather than a
-header/body split — a movie (poster, cast, trailer), a book (cover, author), a
-product (photo, price). This shape isn't a list card or a static-title card; it's
+header/body split (the one card without a header row) — a movie (poster,
+cast, trailer), a book (cover, author), a product (photo, price). This shape isn't a list card or a static-title card; it's
 its own layout, worth naming so it isn't reinvented per extension.
 
 ```html
@@ -157,7 +144,8 @@ its own layout, worth naming so it isn't reinvented per extension.
   flexible (`flex: 1 1 auto; min-width: 0` so long titles/overview text wraps
   and truncates instead of blowing out the card width).
 - **No card header at all** — the title lives in the metadata block (an `h2`),
-  not `ion-card-header`/`ion-item-divider`. There's no collapsible/actionable
+  not a header row. This is the documented exception to the
+  [card header rule](#card-headers). There's no collapsible/actionable
   header row here; the whole card *is* the content.
 - **Always give the thumbnail a placeholder branch** (`@if (item.posterURL) {
   img } @else { icon in a sized, `background: var(--ion-color-light)` box)` —
@@ -187,11 +175,5 @@ internally-authored text.
 ## Summary
 
 - One `ion-card` per content block; native Ionic only.
-- Header with actions/collapse → `ion-item-divider` (or `ion-item`), actions in
-  `slot="end"`. **Recommended.**
-- Static title, no actions → `ion-card-header` is acceptable.
-- Need card-title typography + an action → `ion-card-title` inside an `ion-item`
-  is an accepted hybrid (calendarius), but don't reach for it by default.
-- Poster/cover/photo + structured metadata + actions, no header → the media
-  item card (above): thumbnail + placeholder, flex layout, actions row at the
-  bottom.
+- Every card: `ion-item-divider color="light"` header, actions in `slot="end"`.
+  **Required**, no alternatives. (Media item card: no header, see above.)

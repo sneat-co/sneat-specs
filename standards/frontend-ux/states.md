@@ -39,10 +39,13 @@ by whether the backing signal is defined yet.
 
 ```html
 @if (!$happenings()) {
-  <ion-card><ion-card-content>
-    <ion-spinner name="lines" class="ion-margin-end" />
-    <ion-text color="medium">Loading…</ion-text>
-  </ion-card-content></ion-card>
+  <ion-card>
+    <ion-item-divider color="light"><ion-label>Loading…</ion-label></ion-item-divider>
+    <ion-card-content>
+      <ion-spinner name="lines" class="ion-margin-end" />
+      <ion-text color="medium">Loading…</ion-text>
+    </ion-card-content>
+  </ion-card>
 }
 ```
 
@@ -83,7 +86,7 @@ Surface errors; don't swallow them. Three established shapes:
 | Pattern | When | Example |
 | --- | --- | --- |
 | Inline `color="danger"` label | Field/section validation | below a form control *(calendarius `happening-form.component.html`)* — see [`forms.md`](./forms.md) |
-| Error card | Form-/section-level failure | `ion-card-header color="danger"` *(contactus `new-member-form.component.html`)* |
+| Error card | Form-/section-level failure | `<ion-card color="danger">` + `<ion-item-divider color="danger">` header *(contactus `new-member-form.component.html`)* |
 | Toast `color="danger"` | Transient action failure | `ToastController` *(listus `new-list-item.component.ts`)* — see [`modals.md`](./modals.md) |
 
 **Recommended:** give data-fetching components an `error` signal and render a
