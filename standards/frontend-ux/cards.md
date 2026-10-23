@@ -74,8 +74,9 @@ Examples:
 ## Card headers
 
 **MUST.** Every `ion-card` starts with exactly one header row:
-`<ion-item-divider color="light">`, the title in an `ion-label`, any actions in
-`slot="end"`. The light background is what makes cards read as one family.
+`<ion-item-divider color="light">` (or `warning` / `danger` for status cards, see
+below), the title in an `ion-label`, any actions in `slot="end"`. The light
+background is what makes cards read as one family.
 
 ```html
 <ion-card>
@@ -95,8 +96,22 @@ titles too, so adding a button later never changes the header's look. For
 collapsible headers add `tappable`; see
 [`card-title-buttons.md`](./card-title-buttons.md) for the button conventions.
 
-**Only exceptions:** an error card (`<ion-card color="danger">`, divider
-`color="danger"`), and the media item card below, which has no header by design.
+**Header colour.** The divider is `color="light"` by default. Status, warning
+and error cards use the same divider with `color="warning"` or `color="danger"`,
+for example a "GitHub access expired" card:
+
+```html
+<ion-card>
+  <ion-item-divider color="warning">
+    <ion-label>GitHub access expired</ion-label>
+    <ion-button slot="end" size="small">Reconnect</ion-button>
+  </ion-item-divider>
+  <ion-card-content>…</ion-card-content>
+</ion-card>
+```
+
+The card itself takes no `color`. Any other divider colour is not allowed. The
+media item card below is the only card with no header by design.
 
 **Enforcement.** datatug-apps enforces this mechanically with
 `pnpm run check:card-headers`; other repos can adopt the same checker.
@@ -175,5 +190,6 @@ internally-authored text.
 ## Summary
 
 - One `ion-card` per content block; native Ionic only.
-- Every card: `ion-item-divider color="light"` header, actions in `slot="end"`.
-  **Required**, no alternatives. (Media item card: no header, see above.)
+- Every card: one `ion-item-divider` header, actions in `slot="end"`. Colour is
+  `light` by default, or `warning` / `danger` for status and error cards. Any
+  other colour is not allowed. (Media item card: no header, see above.)
