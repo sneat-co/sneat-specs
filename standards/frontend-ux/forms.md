@@ -78,8 +78,8 @@ being touched so the form isn't red before the user types:
 - Prefer **specific** messages ("Email is not valid") over a bare "Required field".
 - Pair any visual `required` marker with an actual `Validators.required` — don't
   set `required` on the input without the validator.
-- For form-level errors, a single `ion-card color="danger"` with an
-  `<ion-item-divider color="danger">` header is the pattern *(contactus `new-member-form.component.html`)*.
+- For form-level errors, a single `ion-card` with an
+  `<ion-item-divider color="danger">` header is the pattern *(contactus `new-member-form.component.html`)*. See [`cards.md`](./cards.md#card-headers) for header colours.
 
 ## Money amount inputs — value + currency as a pair
 

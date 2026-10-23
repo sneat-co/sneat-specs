@@ -86,7 +86,7 @@ Surface errors; don't swallow them. Three established shapes:
 | Pattern | When | Example |
 | --- | --- | --- |
 | Inline `color="danger"` label | Field/section validation | below a form control *(calendarius `happening-form.component.html`)* — see [`forms.md`](./forms.md) |
-| Error card | Form-/section-level failure | `<ion-card color="danger">` + `<ion-item-divider color="danger">` header *(contactus `new-member-form.component.html`)* |
+| Error card | Form-/section-level failure | `<ion-card>` + `<ion-item-divider color="danger">` header *(contactus `new-member-form.component.html`)*; see [`cards.md`](./cards.md#card-headers) |
 | Toast `color="danger"` | Transient action failure | `ToastController` *(listus `new-list-item.component.ts`)* — see [`modals.md`](./modals.md) |
 
 **Recommended:** give data-fetching components an `error` signal and render a
