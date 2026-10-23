@@ -10,10 +10,10 @@ Feature specifications for this project.
 
 | Feature | Status | Description |
 |---------|--------|-------------|
-| [system-space-type](system-space-type/README.md) | Deprecated | **Superseded by [Decision 0002](../decisions/0002-reserved-extension-space-ids.md)** — replaced by the spaceless system namespace (`/ext/`) with per-record access control, specified in that Decision. (Was: a SpaceTypeSystem space for shared cross-user records.) |
-| [guardian-consent](guardian-consent/README.md) | Approved | Capture and store a verifiable parental-consent record (the lawful-basis artifact) at guardian-link, in the system namespace (`/ext/{ext-id}/...`), with lightweight verification; gate a minor's data until valid consent exists. |
-| [jurisdiction-resolver](jurisdiction-resolver/README.md) | Approved | Map a subject to the applicable child-privacy rule set + consent age from ordered signals (declared country, else deduced from venue/region/locale; never IP-geo), backed by a static country-level config, with a strictest-applicable fallback when signals conflict or are absent. |
-| [minor-data-protection](minor-data-protection/README.md) | Approved | A central minor-data policy guard that every collection/share/ad/profiling point consults to enforce data-minimization defaults and a binding no-behavioral-ads constraint for a known minor, for as long as they are a minor. |
+| [System Space Type](system-space-type/README.md) | Deprecated | **Superseded by [Decision 0002](../../decisions/0002-reserved-extension-space-ids.md)** — replaced by the spaceless system namespace (`/ext/`) with per-record access control, specified in that Decision. |
+| [Guardian Consent](guardian-consent/README.md) | Approved | Capture and store a **verifiable parental-consent record** — the lawful-basis artifact for processing a minor's data — at the **guardian-link** step of the invitus accept flow ([Decision 0003](../../decisions/0003-invite-acceptance-graph-edges.md)). |
+| [Jurisdiction Resolver](jurisdiction-resolver/README.md) | Approved | A **stateless, near-pure platform resolver** that maps a subject (a minor in context) to the applicable **child-privacy rule set + consent age**, from ordered caller-supplied signals and never from IP-geo. |
+| [Minor Data Protection](minor-data-protection/README.md) | Approved | A central **minor-data policy guard** — `minorDataPolicy(subject, regime) → constraints` — that **every** collection, sharing, advertising and profiling decision point across products consults to enforce **data-minimization defaults** and a binding **no-behavioral-ads / no-profiling** constraint for a known **minor**. |
 
 ## Open Questions
 

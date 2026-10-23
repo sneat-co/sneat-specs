@@ -23,7 +23,9 @@ status: Deprecated
 
 ## Summary
 
-A SpaceTypeSystem space whose module-record writes are open to any authenticated user (public reads), branched in the spaceus access check, with per-record mutation authorization delegated to the owning extension.
+**Superseded by [Decision 0002](../../decisions/0002-reserved-extension-space-ids.md)** — replaced by the spaceless system namespace (`/ext/`) with per-record access control, specified in that Decision.
+
+Was: a SpaceTypeSystem space whose module-record writes are open to any authenticated user (public reads), branched in the spaceus access check, with per-record mutation authorization delegated to the owning extension.
 
 ## Problem
 

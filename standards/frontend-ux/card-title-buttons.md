@@ -2,7 +2,8 @@
 
 Action buttons that belong to a card or section go in the **header row**,
 **end-aligned**, inside `<ion-buttons slot="end">`. This is the most consistent
-convention across the surveyed apps.
+convention across the surveyed apps. The header row is always
+`<ion-item-divider color="light">` (see [`cards.md`](./cards.md#card-headers)).
 
 ## The pattern
 
@@ -23,7 +24,7 @@ convention across the surveyed apps.
 
 Examples:
 - `contactus/.../components/contact-details/contact-details.component.html` —
-  edit button (`name="create"`, `color="medium"`) in the card header item.
+  edit button (`name="create"`, `color="medium"`) in the card header (`ion-item-divider`).
 - `listus/.../pages/lists/lists-page.component.html` — `add` button in an
   `ion-item-divider` header.
 

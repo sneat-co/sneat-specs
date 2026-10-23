@@ -119,12 +119,12 @@ This is the current house convention. **Recommended:** keep using `confirm()` fo
 simple yes/no destructive prompts for consistency; reach for `AlertController`
 only when you need styled buttons or inputs.
 
-**Irreversible bulk actions must confirm — swipe is not consent.** A "Clear list"
-that deletes every item, or a "Remove" that deletes a whole list, needs a
-`confirm()` step. listus's `list-page.component.ts` "Clear list" and
-`lists-page.component.ts` list "Remove" currently execute immediately with **no**
-confirmation — relying on the swipe gesture as the only friction. Don't ship an
-irreversible action whose only guard is the gesture that triggered it.
+**Irreversible bulk actions must confirm — swipe is not consent.** A "Clear
+list" that deletes every item needs the same `confirm()` step as a single-item
+delete. listus's `list-page.component.ts` `deleteAll()` ("Clear list") and
+`deleteCompleted()` ("Delete completed") both guard with `confirm()` (plus an
+`alert()` when there's nothing to act on) before running. Don't ship an
+irreversible bulk action whose only guard is the gesture that triggered it.
 
 ## Toasts for feedback
 
@@ -148,8 +148,10 @@ await toast.present();
   flat number.
 - `color="danger"` for errors (see [`states.md`](./states.md)),
   `position: 'middle'` for important messages.
-- **Every mutating action deserves a toast on failure** — not just a silent
-  `errorLogger.logError(...)`. See the "Surface failures" rule in
+- **Every mutating action needs an `error:` callback that calls
+  `errorLogger.logError(...)`** (that alone already surfaces a `color="danger"`
+  toast) — a subscribe with no `error:` handler at all is the defect to catch,
+  not a terse-but-present one. See the "Surface failures" rule in
   [`states.md`](./states.md).
 
 ## Summary

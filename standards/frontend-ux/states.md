@@ -39,10 +39,13 @@ by whether the backing signal is defined yet.
 
 ```html
 @if (!$happenings()) {
-  <ion-card><ion-card-content>
-    <ion-spinner name="lines" class="ion-margin-end" />
-    <ion-text color="medium">Loading…</ion-text>
-  </ion-card-content></ion-card>
+  <ion-card>
+    <ion-item-divider color="light"><ion-label>Loading…</ion-label></ion-item-divider>
+    <ion-card-content>
+      <ion-spinner name="lines" class="ion-margin-end" />
+      <ion-text color="medium">Loading…</ion-text>
+    </ion-card-content>
+  </ion-card>
 }
 ```
 
@@ -83,28 +86,38 @@ Surface errors; don't swallow them. Three established shapes:
 | Pattern | When | Example |
 | --- | --- | --- |
 | Inline `color="danger"` label | Field/section validation | below a form control *(calendarius `happening-form.component.html`)* — see [`forms.md`](./forms.md) |
-| Error card | Form-/section-level failure | `ion-card-header color="danger"` *(contactus `new-member-form.component.html`)* |
+| Error card | Form-/section-level failure | `<ion-card>` + `<ion-item-divider color="danger">` header *(contactus `new-member-form.component.html`)*; see [`cards.md`](./cards.md#card-headers) |
 | Toast `color="danger"` | Transient action failure | `ToastController` *(listus `new-list-item.component.ts`)* — see [`modals.md`](./modals.md) |
 
 **Recommended:** give data-fetching components an `error` signal and render a
 `color="danger"` message (with a retry affordance where it helps) when it's set —
 not just forms. Use a toast for failures of one-off actions (save, delete).
 
-### Surface failures — never log-only
+### Surface failures — never leave one truly silent
 
-The single most common state defect across the surveyed apps is a mutating action
-whose `error:` handler only calls `errorLogger.logError(...)` (console/telemetry)
-with **no user-visible feedback** — the spinner just resets and nothing appears to
-have happened. This is a **silent failure** (see [`flows.md`](./flows.md)) and is
-not acceptable for an action the user initiated.
+`errorLogger.logError(...)` is **not** log-only: `ErrorLoggerService` (the shared
+implementation behind the `ErrorLogger` token, `@sneat/logging`) already shows a
+`color="danger"` "Something went wrong" toast via `ToastController` by default on
+every call — see its `showError()` — unless the caller opts out with
+`{ show: false }`. A component whose `error:` callback calls
+`errorLogger.logError(...)` already gives the user a toast; that is not the
+silent-failure defect.
 
-- Every `error:` callback of a user-initiated mutation (create/save/delete/
-  archive/invite) must surface a `color="danger"` toast **in addition to**
-  `errorLogger.logError(...)` — the logger is for you, the toast is for the user.
-- This is a **target**, not the current state: calendarius uses `ToastController`
-  **nowhere** (all failures funnel silently through `errorLogger`, e.g.
-  `slot-context-menu.component.ts`), and trackus's `new-tracker-form.component.ts`
-  create-failure path is log-only. Apply the rule to new and touched code.
+The real defect is a mutating subscribe with **no `error:` callback at all** — not
+log-only, but log-*never*: nothing is shown, nothing is even logged, and the item
+is left stuck mid-update. (Example, now fixed: calendarius's
+`happening-prices.component.ts` `priceChecked()` subscribed to
+`setHappeningPrices()` with only a `complete:` handler — a failed price toggle had
+zero feedback and zero telemetry.)
+
+- Every mutating subscribe of a user-initiated action (create/save/delete/
+  archive/invite) must have an `error:` callback that calls
+  `errorLogger.logError(...)` (or `.logErrorHandler(...)`) — that alone already
+  surfaces a toast. Reach for something more specific (an inline
+  `color="danger"` note, a retry affordance) only where the generic toast isn't
+  good enough for the action.
+- Treat "no `error:` handler at all" as the defect to catch in review, not a
+  present-but-terse one.
 
 ### The canonical tri-state signal formula
 

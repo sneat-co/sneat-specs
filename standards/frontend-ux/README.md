@@ -10,6 +10,35 @@ blocks (`ion-card`, `ion-list`, `ion-item`, `ion-button`, `ion-modal`, …)
 directly — there is no custom card/button/modal wrapper component. Consistency
 comes from following these patterns, not from a shared widget.
 
+**Ionic is primary; PrimeNG is a guest**, admitted only where Ionic has no
+component at all (brackets / org charts, chat surfaces, trees, rich tables) and
+only inside a bounded island — see
+[`ionic-and-primeng.md`](./ionic-and-primeng.md). Every other document in this
+folder assumes Ionic unless that one says otherwise.
+
+## This is the single UI bible
+
+**Every Sneat web app and extension follows this folder — it is the only
+source.** Do not copy its rules into an app; link here. Each web app's
+`README.md` and `AGENTS.md` (and the `README.md` of each app directory inside a
+monorepo) MUST carry this pointer:
+
+```md
+> **Web UI:** follow the [Sneat web UI bible](https://github.com/sneat-co/sneat-specs/blob/main/standards/frontend-ux/README.md).
+```
+
+Rules marked **MUST / NEVER** below are hard rules. Everything else is a
+recommended convention.
+
+## Hard rules
+
+1. **NEVER put a card inside a card.** A card (`ion-card`, or any container
+   styled as one — border, shadow, raised background) is never a child of another
+   card. A nested card is allowed only when it is **explicitly asked for** *and*
+   carries a **written justification** (why a list, item, divider or section
+   cannot do the job). No justification, no nested card — see
+   [`cards.md`](./cards.md#never-a-card-inside-a-card).
+
 ## Principles
 
 1. **Wrap content in cards.** A page is a stack of `ion-card`s, each grouping a
@@ -44,11 +73,17 @@ comes from following these patterns, not from a shared widget.
 
 ### Building blocks
 
-- [`cards.md`](./cards.md) — when and how to use `ion-card`, header styles.
+- [`cards.md`](./cards.md) — when and how to use `ion-card`, the required header row.
 - [`card-title-buttons.md`](./card-title-buttons.md) — action buttons in card /
   section headers.
 - [`buttons.md`](./buttons.md) — colour, fill, expand, and icon conventions.
 - [`lists.md`](./lists.md) — `ion-list`, sliding items, grouped/collapsible lists.
+
+### Component reference
+
+- [`components/README.md`](./components/README.md) — the component-by-component
+  index. Each page describes where that Ionic element belongs and the shared
+  rules for using it; start with [`ion-item-divider`](./components/ion-item-divider.md).
 
 ### Composition
 
@@ -57,6 +92,13 @@ comes from following these patterns, not from a shared widget.
 - [`forms.md`](./forms.md) — inputs, labels, reactive forms, validation, submit.
 - [`modals.md`](./modals.md) — modals, alerts, popovers, toasts, dialog structure.
 - [`states.md`](./states.md) — loading, empty, and error states.
+
+### Libraries & theming
+
+- [`ionic-and-primeng.md`](./ionic-and-primeng.md) — **which library for which
+  need**, PrimeNG islands, the one-owner-per-flow overlay rule, and how
+  `@sneat/design-tokens` keeps both stacks visually in unison (light and dark).
+  Read this before adding any non-Ionic UI dependency.
 
 ### Other media
 

@@ -10,6 +10,7 @@ and iterate with `@for` (always with `track`):
 
 ```html
 <ion-card>
+  <ion-item-divider color="light"><ion-label>Items</ion-label></ion-item-divider>
   <ion-list>
     @for (item of items; track item.id) {
       <ion-item>…</ion-item>
@@ -64,29 +65,12 @@ action:
 
 ## Grouped / collapsible lists — `ion-item-group` + `ion-item-divider`
 
-Group related items under a divider that doubles as a collapsible header, with
-actions in `slot="end"` — see [below](#clickable-rows-need-a-real-interactive-element)
-for how to make that header actually keyboard-operable:
+Group related items under a static divider. Use `ion-accordion-group` when the
+group must collapse; for the structure, styling, heading, count, and accessible
+custom collapse rules, see the dedicated [`ion-item-divider` reference](./components/ion-item-divider.md).
 
-```html
-<ion-item-group>
-  <ion-item-divider (click)="clickGroup(listGroup)" tabindex="0" role="button"
-    (keydown.enter)="clickGroup(listGroup)">
-    <ion-icon [name]="isCollapsed(listGroup) ? 'chevron-down-outline' : 'chevron-up-outline'" />
-    <ion-label>{{ listGroup.title }}</ion-label>
-    <ion-buttons slot="end">
-      <ion-button (click)="addTo($event, listGroup.type)">
-        <ion-icon name="add" />
-      </ion-button>
-    </ion-buttons>
-  </ion-item-divider>
-  <!-- grouped items -->
-</ion-item-group>
-```
-*(listus `lists-page.component.html`, adjusted — see below.)*
-
-Use a chevron icon to signal collapse state, and call
-`$event.stopPropagation()` in header buttons so they don't toggle the group.
+Keep group-level actions in `slot="end"`. A divider is not an action control by
+default; keep any interaction on a real button inside it.
 
 ## Clickable rows need a real interactive element
 
@@ -96,9 +80,8 @@ Ionic's `IonItem`/`IonItemDivider` component interfaces (checked against
 and does nothing: the row still renders as a plain, non-focusable `<div>`, so
 keyboard and screen-reader users can't reach it even though `(click)` fires
 for a mouse. This is a recurring copy-paste mistake — it shows up in
-calendarius, contactus, `space` components, `sneat-ui`'s own
-`select-from-list.component.html`, and (until this fix) in this very doc's
-grouped-list example above.
+calendarius, contactus, `space` components, and `sneat-ui`'s own
+`select-from-list.component.html`.
 
 - **For a clickable `ion-item`** (a row that navigates or selects, like an
   asset-type picker entry): use the real prop, `button="true"`. This renders an
@@ -115,11 +98,10 @@ grouped-list example above.
   *(Before: `tappable="true"`, inert to keyboard. After: `button="true"`,
   keyboard-operable — fixed in assetus PR #48.)*
 
-- **For `ion-item-divider`** (no `button` prop exists on it at all): add
-  `tabindex="0" role="button"` plus a `(keydown.enter)` (and usually
-  `(keydown.space)`) handler alongside `(click)`, as in the corrected snippet
-  above — there's no native-element shortcut here, so the keyboard path has to
-  be added by hand.
+- **For `ion-item-divider`**, do not set `tappable` or use the divider as a
+  button. Keep it a heading and use a real `ion-button` with `aria-expanded`
+  and `aria-controls` when a custom collapse control is needed; see the
+  [`ion-item-divider` reference](./components/ion-item-divider.md#collapsible-groups).
 
 Applies to every "grouped/collapsible list" and "picker" pattern in this file
 and in [`cards.md`](./cards.md) — audit existing `tappable` usages when
@@ -129,8 +111,7 @@ touching that code.
 picker (e.g. a going/maybe/out attendance picker) — `ion-chip` has no `button`
 prop at all (checked against `@ionic/core`'s `Chip` class: only `color` /
 `outline` / `disabled`), so a bare `(click)` leaves it just as non-focusable as
-`tappable`. Fix it the same way as `ion-item-divider` above — there's no native
-shortcut, so add the keyboard path by hand, plus `role="radio"`/`aria-checked`
+`tappable`. Add the keyboard path by hand, plus `role="radio"`/`aria-checked`
 (or `role="button"` for a non-exclusive chip) so the selection state is
 announced:
 
@@ -152,12 +133,11 @@ because of a lint rule.)*
 
 ### Alternative: `ion-accordion-group` for collapsible groups
 
-For genuinely collapsible groups (as opposed to a static divider), Ionic's
-`ion-accordion-group` / `ion-accordion` is an accepted — and often better —
-alternative to hand-rolling `ion-item-group` + chevron + `stopPropagation`: it
-provides expand/collapse animation, single-vs-multiple expansion, and a11y
-semantics for free. Put the header in `slot="header"` and gate any header action
-with `stopPropagation()` as usual.
+For genuinely collapsible groups (as opposed to a static divider), prefer
+Ionic's `ion-accordion-group` / `ion-accordion` to a custom collapse control: it
+provides expand/collapse animation, single-vs-multiple expansion, and
+accessibility semantics. Put the header in `slot="header"`; if it has a
+separate action button, keep that action from toggling the accordion.
 
 ```html
 <ion-accordion-group>
@@ -174,17 +154,7 @@ with `stopPropagation()` as usual.
 ```
 *(trackus `components/trackers/trackers.component.html`.)*
 
-## Counts — `ion-badge` in a divider
-
-Show counts with an `ion-badge` in the divider:
-
-```html
-<ion-item-divider>
-  <ion-label>{{ group.brief?.title }}</ion-label>
-  <ion-badge color="light">{{ group.dbo?.numberOf?.members }} members</ion-badge>
-</ion-item-divider>
-```
-*(contactus `members-page.component.html`)*
+For optional counts on group headings, see the [`ion-item-divider` reference](./components/ion-item-divider.md#optional-counts-and-trailing-actions).
 
 ## Grouped list with a computed fill/availability summary
 
@@ -239,7 +209,7 @@ still-empty roster, not by reading the per-group template.)*
 | --- | --- |
 | Scrollable list | `ion-list` inside `ion-card`, `@for … track` + `@empty` |
 | Per-item swipe actions | `ion-item-sliding` + `ion-item-options` (success start / danger end) |
-| Grouped / collapsible | `ion-item-group` + `ion-item-divider` (`tabindex`/`role="button"` for keyboard) |
+| Grouped / collapsible | `ion-item-group` + static `ion-item-divider`; use `ion-accordion` or a separate accessible button for collapse |
 | Clickable row | `ion-item [button]="true"` — **not** `tappable` (not a real prop) |
 | Count on a group header | `ion-badge` in the divider |
 | Grouped-by-derived-status + fill summary | one pure fold fn for rows + summary; guard the whole-collection-empty case, not just each group |

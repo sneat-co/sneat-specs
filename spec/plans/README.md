@@ -10,6 +10,7 @@ Canonical index of all plans in this repository. Each plan is a single Markdown 
 
 | Plan | Status | Source | Date | Owner |
 |---|---|---|---|---|
+| [system-space-type](system-space-type.md) | Implemented | system-space-type | 2026-06-27 | alexandertrakhimenok |
 
 ## Recently Closed
 

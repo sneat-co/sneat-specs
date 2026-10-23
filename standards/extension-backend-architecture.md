@@ -3,6 +3,10 @@
 **Status:** Required target for extension extraction · **Reference implementation:** `togethered/backend` + `sneat-bots/extensions/togethered` + `sneat-go/pkg/modules/togethered/module.go`
 **Origin:** pattern emerged during the eventius extraction (2026-07); named and standardized during the ecosystem review 2026-07-09 (`backstage/spec/research/ecosystem-review-2026-07/`).
 
+> Founder direction, 2026-09-06: “This is not budgetus only - this is general
+> principal that should be respected by all Sneat apps & extensions. But money
+> related especially. (budgetus, splitus, debtus, bookius, calendarious, etc.)”
+
 ## The rule
 
 All extension implementation belongs outside `sneat-go`. The extension's core
@@ -26,6 +30,89 @@ integrations, register routes/delayers/bot profiles, and translate the final
 host callback types. A package under `sneat-go/pkg/modules/<id>` must not contain
 domain decisions, persistence algorithms, command handlers, presentation, or a
 reusable adapter implementation.
+
+## Backend authority across every delivery surface
+
+The extension backend is the authority for business rules and business
+outcomes. This includes calculations, recurrence expansion, pricing,
+availability, allocations, matching and reconciliation, domain validation,
+authorization, idempotency, and state transitions. The extension exposes these
+capabilities through stable contract facades or HTTPS APIs. Web and mobile
+apps, bots such as Telegram, automation integrations, and AI experiences call
+the same owner facade; a delivery surface must not maintain a second version of
+the rules.
+
+Clients may hold drafts, perform syntactic input checks, format values, and
+sort or group records that are already loaded for presentation. A syntactic
+check can establish that a field is present or that a date or decimal can be
+parsed. It cannot establish domain eligibility, permission, availability,
+price, a recurring schedule, an allocation, a match, or an authoritative
+total. The backend repeats all validation that affects acceptance or outcomes
+and establishes the actor, Space scope, and permissions from trusted session
+state.
+
+An aggregate returned with a paginated detail list must be computed by the
+backend over the complete authorized query, independently of page size and
+cursor. A client must never add the visible page and present the result as a
+total. If a required source is incomplete, capped, or unavailable, the
+aggregate is explicitly unavailable with a reason; a partial number must not
+be labelled as the total. Partial detail may still be returned when it is
+clearly diagnosed as partial.
+
+When a user needs to inspect an outcome before committing a mutation, expose a
+server dry-run or preview that invokes the same business engine as the commit.
+Do not reproduce the calculation in the client for preview purposes.
+
+Firestore client reads are read models for display, not an authority for
+cross-record business outcomes. All writes go through the extension's HTTPS
+API and DALgo-backed implementation. `sneat-go` authenticates and wires the
+route to the owner module; it does not implement the rule.
+
+Examples of the required ownership boundary include:
+
+- Budgetus, Splitus, and Debtus calculate financial position, shares,
+  receivables and payables, settlements, reconciliation, and totals in their
+  owner backends. Repayment classification and effective financial totals must
+  be consistent across web, bot, automation, and AI clients.
+- Calendarius expands recurrence and applies occurrence changes and
+  cancellations in its owner backend. Consumers use the resulting occurrence
+  contract instead of independently expanding the schedule.
+- Bookius decides availability, eligibility, and pricing in its owner backend;
+  clients render the quoted result and submit the referenced quote or revision.
+
+These examples define the required target. They do not assert that every
+existing caller has already migrated. Each module must inventory and retire
+client-side or host-side business logic through an explicit cutover.
+
+### Authority review checklist
+
+1. Name the owner backend and the contract facade or HTTPS operation for every
+   business decision shown by a client.
+2. Verify web, mobile, bot, automation, and AI surfaces consume that same
+   operation rather than reimplementing it.
+3. Keep input parsing and presentation local; move eligibility, validation,
+   recurrence, pricing, allocation, reconciliation, totals, and transitions to
+   the owner backend.
+4. Prove summaries do not change when detail page size, cursor, or client
+   presentation order changes.
+5. Prove an incomplete or failed dependency suppresses the affected aggregate
+   and returns an explicit unavailable reason.
+6. Prove client-supplied actor, Space, role, revision, and source references are
+   authorized and validated by the server before use.
+7. Use DALgo for persistence and keep `sneat-go` limited to route and adapter
+   wiring.
+8. Where preview is required, prove preview and commit use the same business
+   engine and produce the same result for the same snapshot.
+
+Owner-backend tests cover domain boundaries such as recurrence dates,
+rounding, currency segregation, allocations, matching, authorization,
+idempotency, and transitions. Contract or integration tests prove adapters
+preserve those results. Client tests assert rendering and local interaction
+without recomputing authoritative outcomes. Composition-root tests verify
+wiring only. At least one end-to-end test should exercise the same important
+journey through its real facade and persistence path; cross-surface contract
+tests should demonstrate equivalent inputs receive equivalent business
+outcomes.
 
 The dependency-inversion rule applies to the **whole extension implementation
 module**. Core packages should depend on `dalgo` and small generic libraries

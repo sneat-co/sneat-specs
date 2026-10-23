@@ -15,9 +15,9 @@ status: Approved
 
 ## Summary
 
-A **stateless, near-pure platform resolver** that maps a subject (a minor in
-context) to the applicable **child-privacy rule set + consent age**. It reads an
-ordered set of **signals** supplied by the caller — **declared country**
+A **stateless, near-pure platform resolver** that maps a subject (a minor in context) to the applicable **child-privacy rule set + consent age**, from ordered caller-supplied signals and never from IP-geo.
+
+It reads an ordered set of **signals** supplied by the caller — **declared country**
 (authoritative; the child's/family's stated country), else **deduced**: the
 **game/event venue** (strongest deduction), then **team/division region**, then
 **locale** — and **never IP-geo**. A resolved country maps, via a **static,

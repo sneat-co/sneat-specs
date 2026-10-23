@@ -14,11 +14,9 @@ status: Approved
 
 ## Summary
 
-A central **minor-data policy guard** — `minorDataPolicy(subject, regime) →
-constraints` — that **every** collection / share / advertising / profiling
-decision point across products (gameboard, eventus, togethered) consults to
-enforce, for a known **minor**, two protections: **data-minimization defaults**
-and a binding **no-behavioral-ads / no-profiling** constraint. It is the
+A central **minor-data policy guard** — `minorDataPolicy(subject, regime) → constraints` — that **every** collection, sharing, advertising and profiling decision point across products consults to enforce **data-minimization defaults** and a binding **no-behavioral-ads / no-profiling** constraint for a known **minor**.
+
+The decision points span gameboard, eventus and togethered. It is the
 **enforcement** half of the compliance track, distinct from
 [guardian-consent](../guardian-consent/README.md) (the *authorization* gate): even
 within a consented scope, a minor's data gets minimized handling and is never
