@@ -2,8 +2,10 @@
 
 Use `ion-item-divider` to introduce a named group of related items inside an
 `ion-list`. It separates list sections and gives each section a visible label.
-Use it for group headings, including the first group when the list already has
-an overall title in its card header. Do not substitute it for that overall title.
+Use it for group headings inside the card body. The card's own header row is
+also an `ion-item-divider color="light"` (see
+[`cards.md`](../cards.md#card-headers)); a group divider below it must not
+repeat the card title.
 
 ## Choose the right element
 

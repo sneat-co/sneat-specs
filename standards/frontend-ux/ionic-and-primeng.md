@@ -748,8 +748,8 @@ standard exists so that only one of them is doing it at a time.
   screen the two read as two different applications.
 - **Label the island.** A `p-organizationchart` or `p-table` is an unlabelled
   region to a screen reader unless you give the wrapping element an
-  `aria-label` (or `aria-labelledby` pointing at the card's `ion-card-title` /
-  `ion-item-divider` label). Do this in the island's own template so it cannot be
+  `aria-label` (or `aria-labelledby` pointing at the card's `ion-item-divider`
+  label). Do this in the island's own template so it cannot be
   forgotten by the host.
 - **Keep PrimeNG's ARIA; add the Sneat wording.** PrimeNG emits correct roles and
   `aria-*` for its widgets. Override only the human-readable strings, through

@@ -10,6 +10,7 @@ and iterate with `@for` (always with `track`):
 
 ```html
 <ion-card>
+  <ion-item-divider color="light"><ion-label>Items</ion-label></ion-item-divider>
   <ion-list>
     @for (item of items; track item.id) {
       <ion-item>…</ion-item>
