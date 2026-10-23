@@ -73,7 +73,7 @@ recommended convention.
 
 ### Building blocks
 
-- [`cards.md`](./cards.md) — when and how to use `ion-card`, header styles.
+- [`cards.md`](./cards.md) — when and how to use `ion-card`, the required header row.
 - [`card-title-buttons.md`](./card-title-buttons.md) — action buttons in card /
   section headers.
 - [`buttons.md`](./buttons.md) — colour, fill, expand, and icon conventions.
