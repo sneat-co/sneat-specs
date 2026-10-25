@@ -2,7 +2,7 @@
 
 Project: `sneat-eur3-1`; database: `(default)` (console confirms location `eur3`, Standard edition).
 
-The founder supplied this inventory; the open Firebase console independently displays the same root names. There are 54 roots: 5 approved baseline roots, 41 definite relocation proposals, and 8 root candidates for founder review. Classification is a proposal, never deletion approval.
+The founder supplied this inventory; the open Firebase console independently displays the same root names. There are 54 roots: 6 approved baseline roots, 43 relocation proposals, and 5 root candidates for founder review. Classification is a proposal, never deletion approval.
 
 **Counts measured successfully.** The complete fixed-snapshot metadata scan and per-root/per-subcollection tables are in the private workspace report `.wb/runtime/firestore-root-governance/root-review.md`. Concrete document IDs and descendant paths stay in its private JSON/CSV appendix; they are not committed to the specification repository. The dashes below intentionally mean “see private measured report”, not zero.
 
@@ -51,7 +51,7 @@ Direct records count only existing documents at that collection path. Direct sub
 | `datatug_projects` | relocate | `ext/datatug/projects` | — | — / — | — |
 | `ext` | approved | `ext` | — | — / — | — |
 | `health_checks` | approved | `health_checks` | — | — / — | — |
-| `invites` | review-root-candidate | `spaces/{space}/ext/invitus/invites or ext/invitus/invites` | — | — / — | — |
+| `invites` | approved | `invites` | — | — / — | — |
 | `moneyEvents` | review-root-candidate | `ext/paymentus/moneyEvents` | — | — / — | — |
 | `oauthDeviceAuthorizations` | review-root-candidate | `ext/auth/deviceAuthorizations` | — | — / — | — |
 | `oauthDeviceUserCodes` | review-root-candidate | `ext/auth/deviceUserCodes` | — | — / — | — |
@@ -60,9 +60,9 @@ Direct records count only existing documents at that collection path. Direct sub
 | `ovdbDeviceUserCodes` | relocate | `ext/ovdb/deviceUserCodes` | — | — / — | — |
 | `ovdbWritableSandboxCapacity` | relocate | `ext/ovdb/writableSandboxCapacity` | — | — / — | — |
 | `referrers` | review-root-candidate | `ext/anybot/referrers or ext/debtus/referrers` | — | — / — | — |
-| `slugs` | review-root-candidate | `ext/core/slugs` | — | — / — | — |
+| `slugs` | relocate | scope-dependent extension `slugNamespaces/{kind}/claims` | — | — / — | — |
 | `spaces` | approved | `spaces` | — | — / — | — |
-| `transfers` | review-root-candidate | `spaces/{space}/ext/debtus/transfers or ext/debtus/transfers` | — | — / — | — |
+| `transfers` | relocate | `ext/debtus/transfers` | — | — / — | — |
 | `users` | approved | `users` | — | — / — | — |
 
 Targets are proposed storage ownership, not authorization grants. Space-owned data defaults to `spaces/{space}/ext/{extension}/…`; global extension coordinators use `ext/{extension}/…`. An `ext` root allow-list alone does not approve arbitrary extension IDs or child paths. Preserve stable document IDs where useful; reset data rather than copy it, per founder direction. The `ext/checkout` namespace follows the founder's explicit example even though Paymentus owns its backend.
@@ -81,7 +81,7 @@ Remote `origin/main` was fetched on 2026-10-25. Read these exact revisions befor
 | sneat-co/debtus | `909d39afb9604913c14301da7261db7f6e7e40de` | `backend/debtus/models4debtus/transfer.go:62`; `referrer.go:9` |
 | bots-go-framework/bots-fw-store-dalgo | `743adf61fec59b40e8f4a0d8d095bfde3f1c64ee` | `store.go:24` platform root; also inspect sibling Telegram driver and wallet bot-charge consumers |
 | sneat-games/bidding-tictactoe | `18242e5e2b0823c545364977c735fe40f153c3e2` | `server-go/btttmatch/store.go:11` |
-| sneat-co/sneat-go-core | `3855e233054ce6b6ca8fdb095b07d805510e02bf` | `slugs/types.go:18,148` global namespaces |
+| sneat-co/sneat-go-core | `3855e233054ce6b6ca8fdb095b07d805510e02bf` | `slugs/types.go:18,22-30,96-108,148` shared registry mixes global and space-local opaque namespaces |
 | dal-go/dalgo | `d8ee60a8be438d34bf0716642649e0060070fcec` | `access/database.go:54-56,81` mandatory database policies; existing generic policy API avoids a new exported DALgo interface |
 | datatug/datatug-cli | `d84b81689e157b5f2f3f95c6e8b4513e57a1f339` | `pkg/schemers/firestoreschema/simple_provider.go` lists root/parent collections; `pkg/watch/definitions.go` accepts interval 86400 seconds; neither proves a deployed schema-enumeration Check |
 | datatug/datatug-apps | `6d2b35dcdbe4a043c8367627e84eaa3aa557f76a` | `libs/datatug/main/src/lib/services/repo/project-item-service.ts:137`; `datatug-store.service.firestore.ts:15,100` hard-code root reads and subscriptions; change with backend and rules |
@@ -94,11 +94,15 @@ These are **source risks to inspect**, not claims of populated production collec
 ## Root candidates for founder review
 
 - `botPlatforms`: shared bot framework coordination; recommend `ext/bots/platforms` unless declared platform infrastructure.
-- `invites`: shared invite lookup across extensions; prefer a global lookup under Invitus and space-owned invite records; review lookup/authority split.
+- `invites`: founder approved root placement on 2026-10-25; removed from root candidates.
 - `moneyEvents`: shared money evidence, but currently owned by Paymentus; recommend `ext/paymentus/moneyEvents` with existing fences intact.
 - `oauthDeviceAuthorizations`, `oauthDeviceUserCodes`: platform auth bootstrap before a space exists; either explicitly approve roots or put global state under `ext/auth`.
-- `slugs`: cross-extension uniqueness registry; credible platform root candidate, alternatively `ext/core/slugs`.
+- `slugs`: removed from root candidates; proposed relocation separates global public-space lookup claims from space-local claims. See the plan refinement; final target templates remain under review.
 - `referrers`: Debtus and Anybot use the same name; classify records and intended shared contract before choosing one owner.
-- `transfers`: Debtus domain data despite a generic name; prefer its owning space where available. Do not conflate with Paymentus transfer subcollections.
+- `transfers`: removed from root candidates; propose one authoritative `ext/debtus/transfers/{id}` record, with optional space-local references/projections. This follows the founder suggestion and current optional `OwnerSpaceID` semantics; it is not deletion approval. Do not conflate with Paymentus transfer subcollections.
 
-The recommendation is to keep only the five baseline roots unless a reviewed infrastructure reason warrants an exception. No root candidate is automatically allowed by the proposed registry.
+The recommendation is to keep the six approved roots unless a reviewed infrastructure reason warrants an exception. No root candidate is automatically allowed by the proposed registry.
+
+## Slug and transfer follow-up source evidence
+
+Refreshed owning remote sources on 2026-10-25: Sneat Core `3855e233054ce6b6ca8fdb095b07d805510e02bf` (`slugs/types.go:22-30,96-108`); core modules `365c49eb191fdcb2ae1c7956979677e81a388b22` (`spaceus/facade4spaceus/resolve_public_slug.go:31-44`); Bookius `a09fe803088ee1be3e458380d2f2705b2a4c5724` (`backend/facade4bookius/booking.go:100-105,213`); Debtus `909d39afb9604913c14301da7261db7f6e7e40de` (`backend/debtus/models4debtus/transfer.go:225-230`). Slugs hold target identity/type, claim audit fields and release/rename metadata, not the target entity's domain data. The private audit snapshot has two Sneat Club claims and five Schoolus claims; no Bookius root claims were observed.

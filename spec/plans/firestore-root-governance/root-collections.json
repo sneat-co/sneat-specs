@@ -6,18 +6,16 @@
     "_smoke",
     "ext",
     "health_checks",
+    "invites",
     "spaces",
     "users"
   ],
   "rootCandidatesRequireFounderApproval": [
     "botPlatforms",
-    "invites",
     "moneyEvents",
     "oauthDeviceAuthorizations",
     "oauthDeviceUserCodes",
-    "referrers",
-    "slugs",
-    "transfers"
+    "referrers"
   ],
   "observedAt": "2026-10-25",
   "observation": "Complete read-only metadata scan at 2026-10-25T20:19:15.940404Z; exact counts include missing-parent descendants.",
@@ -558,8 +556,8 @@
     },
     {
       "collection": "invites",
-      "classification": "review-root-candidate",
-      "proposedCollectionPath": "spaces/{space}/ext/invitus/invites or ext/invitus/invites",
+      "classification": "approved",
+      "proposedCollectionPath": "invites",
       "owner": "sneat-core-modules/invitus; trackus also creates invite keys",
       "directRecords": null,
       "directSubcollectionInstances": null,
@@ -567,7 +565,8 @@
       "descendantRecords": null,
       "totalRecords": null,
       "countStatus": "measured-in-private-live-inventory",
-      "deletionApproved": false
+      "deletionApproved": false,
+      "decision": "Founder approved keeping invites at root on 2026-10-25; this is not deletion approval."
     },
     {
       "collection": "moneyEvents",
@@ -675,8 +674,8 @@
     },
     {
       "collection": "slugs",
-      "classification": "review-root-candidate",
-      "proposedCollectionPath": "ext/core/slugs",
+      "classification": "relocate",
+      "proposedCollectionPath": "scope-dependent extension slugNamespaces/{kind}/claims",
       "owner": "sneat-go-core/slugs; global uniqueness namespaces",
       "directRecords": null,
       "directSubcollectionInstances": null,
@@ -684,7 +683,8 @@
       "descendantRecords": null,
       "totalRecords": null,
       "countStatus": "measured-in-private-live-inventory",
-      "deletionApproved": false
+      "deletionApproved": false,
+      "decision": "Proposed: space-local claims beneath owning space extension; public-space lookup claims beneath global owning extension. No new root exception proposed. Final target templates require review."
     },
     {
       "collection": "spaces",
@@ -701,8 +701,8 @@
     },
     {
       "collection": "transfers",
-      "classification": "review-root-candidate",
-      "proposedCollectionPath": "spaces/{space}/ext/debtus/transfers or ext/debtus/transfers",
+      "classification": "relocate",
+      "proposedCollectionPath": "ext/debtus/transfers",
       "owner": "debtus root TransferCollectionRef; distinguish Paymentus nested transfers",
       "directRecords": null,
       "directSubcollectionInstances": null,
@@ -710,7 +710,8 @@
       "descendantRecords": null,
       "totalRecords": null,
       "countStatus": "measured-in-private-live-inventory",
-      "deletionApproved": false
+      "deletionApproved": false,
+      "decision": "Proposed global authoritative transfer; optional space-local references/projections. Founder suggested this path; deletion still requires separate approval."
     },
     {
       "collection": "users",
