@@ -13,13 +13,13 @@ status: In Review
 
 ## Summary
 
-Govern Firestore collection placement in `sneat-eur3-1`, using one reviewed registry for AI-agent guidance, mandatory DALgo path checks, CI, and a daily DataTug Check and operator alert runner. The initial inventory contains 54 roots: 6 approved baseline roots, 43 relocation proposals and 5 candidates for founder root-level review. The founder authorized prevention and monitoring implementation on 2026-10-25. Audit and agent instructions are landed; runtime rollout and live monitor acceptance remain in progress. Consumer cutover and deletion remain separately gated.
+Govern Firestore collection placement in `sneat-eur3-1`, using one reviewed registry for AI-agent guidance, mandatory DALgo path checks, CI, and a daily DataTug Check and operator alert runner. The initial inventory contains 54 roots: 6 approved baseline roots, 43 relocation proposals and 5 candidates for founder root-level review. The founder authorized prevention and monitoring implementation on 2026-10-25. Audit, agent instructions, the canonical policy, daily scanner and independent freshness observer are deployed and verified. Full fleet placement/CI coverage, consumer cutover and deletion remain separately gated.
 
 The founder explicitly says backward compatibility is unnecessary and existing records may be dropped. The later clarification controls execution: **the founder must review and approve the exact deletion list before any deletion**. No approval of this plan, registry, root candidate or source-code change substitutes for that approval.
 
 ## Approach
 
-Deliver prevention before cleanup: measure the live tree, review ownership, land an agent rule and one policy registry, cover the runtime write boundary and CI, establish the daily DataTug dogfood check, then switch all consumers and reset approved legacy roots. Reuse DALgo's existing `access.SecureDB` and mandatory database policies rather than change its exported API. Global extension coordination uses `ext/{extension}/{collection}/{id}`; business entities default to `spaces/{space}/ext/{extension}/{collection}/{id}`. Source provenance and every supplied root are in [inventory.md](inventory.md); the reviewable classification is in [root-collections.json](root-collections.json). That JSON is currently a proposal, not a deployed policy.
+Deliver prevention before cleanup: measure the live tree, review ownership, land an agent rule and one policy registry, cover the runtime write boundary and CI, establish the daily DataTug dogfood check, then switch all consumers and reset approved legacy roots. Reuse DALgo's existing `access.SecureDB` and mandatory database policies rather than change its exported API. Global extension coordination uses `ext/{extension}/{collection}/{id}`; business entities default to `spaces/{space}/ext/{extension}/{collection}/{id}`. Source provenance and every supplied root are in [inventory.md](inventory.md); the reviewable classification is in [root-collections.json](root-collections.json). That JSON remains the audit proposal; the deployed policy is the versioned public Core registry described below.
 
 ### End-to-end journey and observable results
 
@@ -34,6 +34,20 @@ Deliver prevention before cleanup: measure the live tree, review ownership, land
 ### Audit verification
 
 A complete read-only, name-only scan at one fixed snapshot enumerated every page and recursively visited missing parent references. Private evidence and the full per-root/per-subcollection count tables are in `.wb/runtime/firestore-root-governance/root-review.md`; concrete paths stay outside Git. Independent server-side COUNT queries matched the three largest collection counts. Independent review round 3 recomputed recursive totals, checked retained versus proposed-deletion classifications, and confirmed every deletion approval flag remains false. Plan and rule review rounds 1–2 resolved sequencing and registry-authority findings; no findings remain. SpecScore lint passes. These receipts validate this audit and proposed plan, not deployed runtime controls.
+
+### Verified prevention rollout — 2026-10-26
+
+The canonical registry digest is `7e453f4e97be72eea320ddb0195fbb260e03ec44e82b1880d8f208520cf14f61`: six approved roots, 48 exact temporary legacy allowances and 62 registered extension IDs. Mandatory DALgo policy tests cover direct, transaction, batch and generated-key mutations, including a permissive caller that cannot widen the mandatory policy. Native administrative SDK access can bypass this wrapper; the daily metadata scan provides detection, not prevention, for such writes. Legacy allowances remain visible until their consumers cut over; deployment does not approve new code using those roots.
+
+The private `sneat-co/sneat-datatug-proj` project commit `1aae2bf2e0f5236ed0180b8145cef0c86bb7f08d` owns the sealed Core Check. DataTug Cloud PR #56 landed at `ecf7d282d835ccd71be6ed033357d64acfb3f02e`; Go CI run 40261322393 and automatic deploy 40262196861 succeeded. Production revision `datatug-cloud-00036-8sx` serves 100 percent of traffic with the pinned configuration and existing bot-secret binding.
+
+An unattended authenticated scheduler run completed at `2026-10-26T03:06:02.268180Z`. Core evidence `roots-1` passed with zero unexpected roots: 54 observed roots equal six approved plus 48 frozen legacy names. The next scan is due 24 hours later. The following minute tick left the success time, evidence and state update time unchanged, proving the daily runner did not repeat the scan. Private acceptance receipts are under `.wb/runtime/firestore-root-prevention/scanner-acceptance/`; no collection contents were inspected by this monitor.
+
+The actual Go sender authenticated the approved existing private DataTug Bot destination and delivered one labeled test message, with provider receipt 4 at `2026-10-26T00:46:52Z`. Exact recipient identifiers remain private deployment configuration. Use that bot chat until the founder provides the future Telegram channel ID. The separate sneat-app freshness observer is accepted live as recorded below. Both runtimes depend on Firestore and Cloud Scheduler; their separate jobs detect scanner/job failure, not a total shared-platform outage.
+
+The observer repair [Sneat Go PR #1298](https://github.com/sneat-co/sneat-go/pull/1298) landed at `abaa03c73b0580b3152e403928a11d0aa1260875`. Main CI 40267701436 and production deploy 40267875717 succeeded. Production revision `sneat-app-00016-d6v` serves 100 percent of traffic with the exact pinned operator artifact and read-only existing token binding. A natural five-minute scheduler request at `2026-10-26T04:20:00.177195Z` returned HTTP 200. Scanner success time, next-run time, state update time and complete evidence remained unchanged, so the observer did not manufacture scan freshness. Private receipts are under `.wb/runtime/firestore-root-prevention/observer-acceptance/`. A separate checkout TEST deployment failed against a destroyed pre-existing credential version; this production observer acceptance does not assert that TEST deployment succeeded.
+
+The backend repair has a separate unresolved full native Watch CI failure: [run 40257686330](https://github.com/datatug/backend/actions/runs/40257686330) failed initial baselines, then registration-recovery acceptance on one unchanged failed-job retry. Its reviewed source and main merge have identical trees; bounded log inspection found no placement denial or counter-encoding signature, but the underlying deadline cause remains unknown. [Backend issue #117](https://github.com/datatug/backend/issues/117) preserves the evidence and requires retaining the existing authorization, retry-stage proof, race/fencing assertions and deadlines. No further retry or gate waiver is claimed. Scanner-specific CI and production acceptance above do not imply that this full backend gate passed.
 
 ### Ownership and root candidates
 
@@ -53,7 +67,7 @@ Claims hold `targetID`, `targetKind`, `claimedAt`, optional `claimedBy`, and rel
 
 ### Registry and enforcement contract
 
-- One versioned canonical registry must enumerate project/database, approved roots, registered extension IDs, allowed collection-path templates, owner, rationale, sensitivity and review authority. During this draft, `root-collections.json` carries classifications and proposals. Promote the approved policy into public `sneat-go-core/firestorepolicy/root-collections.json`, with a digest-verified deployment mirror in private `sneat-firebase/firebase/root-collections.json`; update the agent rule to point to that promoted registry in the same change; pin its digest/version in backend, CI and DataTug; fail rather than silently use divergent copies.
+- One versioned canonical registry must enumerate project/database, approved roots, registered extension IDs, allowed collection-path templates, owner, rationale, sensitivity and review authority. The local `root-collections.json` carries audit classifications and proposals. The promoted runtime policy is public `sneat-go-core/firestorepolicy/root-collections.json` (Core v0.71.14, commit `32f9196f617670cc5cc99d6c50094c54344a5929`), with a digest-verified deployment mirror in private `sneat-firebase/firebase/root-collections.json`. The agent rule points to that canonical registry; backend, CI and DataTug pin its digest/version and fail rather than silently use divergent copies.
 - No prefix allow-lists (`checkout*`, `datatug*`, `ovdb*`), no arbitrary `ext/*/**` acceptance. Placement approval never grants access to data. Existing auth, memberships, money fences, TEST/LIVE separation and token secrecy still apply.
 - Compose a mandatory storage-placement policy with existing caller/tenant policies using `access.SecureDB(..., access.WithDatabasePolicies(...))`. Read required normalized resources through the current generic policy surface. Keep the Sneat registry in Sneat, not hard-coded inside generic DALgo. No exported DALgo API changes are approved by this plan.
 - Cover Insert/Set/Update/Delete, multi-record operations, incomplete/generated keys, write sessions, nested descendants and every read-write transaction handle; reject the whole batch before committing any denied item. Match full hierarchical resources structurally. Keep normal access authorization separate. Before the final cutover, exact existing legacy paths may have temporary read and write placement allowances so deployed consumers keep working; ordinary authorization remains mandatory and the legacy set cannot grow. The final new-path deployment removes both allowances. After cutover, reads of disallowed paths are permitted only through explicitly scoped diagnostic/cutover tooling.
@@ -66,7 +80,7 @@ Tests must prove approved examples, arbitrary unknown roots, typo roots, depreca
 
 ### Daily DataTug Check and alert contract
 
-- Use an operator-owned scheduled DataTug Core Check against a metadata-only Firestore schema source, project `sneat-eur3-1`, database `(default)`. Enumerate collection IDs with pagination; compare exact names against the approved registry. The runner reuses the sealed Core catalog and evaluator; live metadata-source execution remains an activation gate.
+- Use an operator-owned scheduled DataTug Core Check against a metadata-only Firestore schema source, project `sneat-eur3-1`, database `(default)`. Enumerate collection IDs with pagination; compare exact names against the approved registry. The runner reuses the sealed Core catalog and evaluator; unattended production metadata-source execution passed on 2026-10-26 as recorded above. Independent freshness-observer activation also passed on 2026-10-26 as recorded above.
 - Run the operator-owned scheduled Core Check every 86400 seconds; run once at activation so existing unexpected roots alert immediately, not baseline silently. Use a 24-hour interval from the first successful scan and retry source failures after 15 minutes; no fixed local-time or DST promise is made. Persist last successful scan time and registry digest.
 - Emit deterministic evidence: unexpected roots, legacy roots awaiting approved cleanup, newly appeared/disappeared names, policy digest, project/database and observation time. Never send document contents, customer IDs, tokens or credential fields. The daily health check needs root metadata only; recursive counting is a separate on-demand audit.
 - Unknown roots are actionable immediately. Before cutover, track the existing 48 non-baseline roots as visible legacy inventory rather than flood on each run; keep them separate from approved roots and remove each temporary legacy entry after its approved cleanup. No wildcard legacy exception and no permission to add a new root. This is monitor rollout classification, not old/new data compatibility.
@@ -85,7 +99,11 @@ Deletion is a separate final execution gate. Stop old jobs/writers and establish
 
 ### Task 1: Measure and review collection ownership
 
-**Status:** planning
+**Id:** t-001
+
+**Status:** complete
+**Implemented-by:** sneat-co/sneat-specs@2bc5b6d0217085fe453673ccbd409fd738001a62
+**Note:** Fixed-snapshot recursive audit and independent count verification are complete; deletion approval remains separate.
 
 **Verifies:** none — source-less audit plan; acceptance: all live roots classified with complete recursive counts, no partial scan reported as zero.
 
@@ -93,7 +111,11 @@ Owner: audit runner + founder. Authenticate read access, fix one snapshot readTi
 
 ### Task 2: Land the agent rule and canonical registry
 
-**Status:** planning
+**Id:** t-002
+
+**Status:** complete
+**Implemented-by:** sneat-co/sneat-go-core@32f9196f617670cc5cc99d6c50094c54344a5929
+**Note:** Canonical Core registry, digest-verified Firebase mirror and shared AI-agent trigger are landed; deployed scanner uses the same digest.
 
 **Verifies:** none — acceptance: AI instructions resolve one rule; policy, tests and monitor resolve one reviewed registry digest.
 
@@ -101,7 +123,9 @@ Owners: Backstage rule, Workbench instruction renderer, Sneat Firebase registry.
 
 ### Task 3: Enforce mandatory placement at every backend write boundary
 
-**Status:** planning
+**Id:** t-003
+
+**Status:** in_progress
 
 **Verifies:** none — acceptance: a new forbidden root cannot be created via any routine backend mutation surface; ordinary permitted work still passes.
 
@@ -109,7 +133,9 @@ Owners: reusable Sneat policy library, sneat-go-host construction/wiring, module
 
 ### Task 4: Add CI placement and security regression gates
 
-**Status:** planning
+**Id:** t-004
+
+**Status:** in_progress
 
 **Verifies:** none — acceptance: unknown/legacy roots and transaction/batch/native-SDK bypass tests fail before deployment.
 
@@ -117,13 +143,19 @@ Owners: policy library tests, Sneat Firebase emulator/rules suite and host CI. I
 
 ### Task 5: Activate the daily DataTug dogfood Check and freshness alarm
 
-**Status:** planning
+**Id:** t-005
 
-**Verifies:** none — acceptance: exact-root set evaluation, one real channel test delivery, an unattended scheduled-run receipt, and failure/freshness coverage.
+**Status:** complete
+**Implemented-by:** sneat-co/sneat-go@abaa03c73b0580b3152e403928a11d0aa1260875
+**Note:** Daily pinned Core Check, real Go bot delivery and independent observer accepted live; natural scan and five-minute tick receipts are recorded above. Shared-platform outage coverage is not claimed.
+
+**Verifies:** none — acceptance: exact-root set evaluation, one real approved bot-chat delivery, an unattended scheduled-run receipt, and failure/freshness coverage.
 
 Owners: DataTug schema-source/check implementation and platform operations. Use the existing sealed catalog and Core EvaluateCheck contracts for an operator-only metadata source and daily runner. The private sneat-co/sneat-datatug-proj repository owns the exact Check artifact; pin its bytes, digest and commit in operator configuration. Invoke scanning from the DataTug minute catchup task. Invoke freshness and delivery separately from sneat-app and its five-minute cron job; this observer never enumerates roots or updates scan success. Bind the existing bot secret read-only without rewriting it or changing IAM. Test delivery to the approved chat. Keep source credentials in the established secret binding. Monitoring stores evidence beneath its extension/space extension, creating no new root. Prove the whole detection/recovery journey and out-of-band heartbeat failure detection.
 
 ### Task 6: Switch every consumer to approved paths and seal deletion manifest
+
+**Id:** t-006
 
 **Status:** planning
 
@@ -132,6 +164,8 @@ Owners: DataTug schema-source/check implementation and platform operations. Use 
 Owners: Paymentus/checkout, DataTug, core modules, OVDB, Commītius, games, bot drivers and clients, with host wiring only in sneat-go. Replace all paths including root queries, parent-null assumptions and serialized key reconstruction; prepare indexes/TTL/rules/triggers before new traffic. Quiesce old workers/tasks and fence writes. No copy/backfill. Exercise fresh setup, auth, project creation, search, Watch and TEST checkout callbacks; explicitly verify stale event replay cannot recreate entitlements. Do not perform live payments. Recount under the fence and request approval of the exact manifest digest. Wait for that approval.
 
 ### Task 7: Execute only the founder-approved deletion scope and verify absence
+
+**Id:** t-007
 
 **Status:** planning
 
@@ -143,8 +177,8 @@ Owner: one named cleanup operator. Validate project/database/manifest digest and
 
 - Founder: which of the five remaining root candidates should remain root-level, and what is the rationale/owner for each exception?
 - Founder: review unresolved project/referrer ownership and the game extension ID; slug scope split and global Debtus transfer placement are approved.
-- Operations: verify the approved DataTug Bot destination and independent sneat-app freshness path live; change the destination only after the founder supplies the channel ID.
-- Implementers: verify the deployed operator metadata source, pinned Core Check evaluator and independent freshness runtime; source/CI completion alone is insufficient.
+- Operations: keep the approved private DataTug Bot chat active; review future Telegram channel routing after the founder supplies its ID.
+- Implementers: complete the remaining fleet placement/bypass inventory and CI coverage; retain exact-source deployment and scheduled-run evidence for future monitor changes.
 - Founder final gate: review and approve the exact counted recursive deletion manifest after cutover and writer fencing. No deletion has been approved or performed.
 
 ---
