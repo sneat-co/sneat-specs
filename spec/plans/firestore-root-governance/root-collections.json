@@ -1,20 +1,19 @@
 {
   "project": "sneat-eur3-1",
   "database": "(default)",
-  "registryStatus": "deployed-baseline-with-reviewed-source-cutover-in-progress",
+  "registryStatus": "approved-seven-root-source-policy-prepared-not-deployed",
   "approvedRoots": [
     "_smoke",
     "ext",
     "health_checks",
     "invites",
+    "referrers",
     "spaces",
     "users"
   ],
-  "rootCandidatesRequireFounderApproval": [
-    "referrers"
-  ],
+  "rootCandidatesRequireFounderApproval": [],
   "observedAt": "2026-10-25",
-  "observation": "Complete read-only metadata scan at 2026-10-25T20:19:15.940404Z; exact counts include missing-parent descendants.",
+  "observation": "Historical immutable initial audit: complete read-only metadata scan at 2026-10-25T20:19:15.940404Z; exact counts include missing-parent descendants. Initial 54-root classification was six approved, 43 relocation proposals and five review candidates. Current placement decisions below do not change snapshot counts.",
   "deletionAuthorization": "NONE: exact recursive deletion manifest requires founder review and approval.",
   "collections": [
     {
@@ -662,16 +661,17 @@
     },
     {
       "collection": "referrers",
-      "classification": "review-root-candidate",
-      "proposedCollectionPath": "ext/anybot/referrers or ext/debtus/referrers",
-      "owner": "debtus + sneat-bots/extensions/anybot; shared-name collision needs record classification",
+      "classification": "approved",
+      "proposedCollectionPath": "referrers",
+      "owner": "sneat-bots/extensions/anybot; shared bot acquisition attribution and leaderboard",
       "directRecords": null,
       "directSubcollectionInstances": null,
       "recursiveSubcollectionInstances": null,
       "descendantRecords": null,
       "totalRecords": null,
       "countStatus": "measured-in-private-live-inventory",
-      "deletionApproved": false
+      "deletionApproved": false,
+      "decision": "Founder approved retaining referrers as the seventh root on 2026-10-26. Five snapshot records and zero descendants retained; raw attribution is server-private. No deletion approval."
     },
     {
       "collection": "slugs",

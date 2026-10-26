@@ -1,8 +1,8 @@
-# Firestore root collection inventory — 2026-10-25
+# Historical Firestore root collection inventory — 2026-10-25
 
 Project: `sneat-eur3-1`; database: `(default)` (console confirms location `eur3`, Standard edition).
 
-The founder supplied this inventory; the open Firebase console independently displays the same root names. There are 54 roots: 6 approved baseline roots, 43 relocation proposals, and 5 root candidates for founder review. Classification is a proposal, never deletion approval.
+The founder supplied this inventory; the open Firebase console independently displays the same root names. The immutable initial audit recorded 54 roots: 6 approved baseline roots, 43 relocation proposals, and 5 root candidates for founder review. The table below preserves those historical classifications and measured-count references; later decisions are recorded separately below and in the current classification JSON. Historical labels are not current placement permission or deletion approval.
 
 **Counts measured successfully.** The complete fixed-snapshot metadata scan and per-root/per-subcollection tables are in the private workspace report `.wb/runtime/firestore-root-governance/root-review.md`. Concrete document IDs and descendant paths stay in its private JSON/CSV appendix; they are not committed to the specification repository. The dashes below intentionally mean “see private measured report”, not zero.
 
@@ -91,17 +91,18 @@ Remote `origin/main` was fetched on 2026-10-25. Read these exact revisions befor
 
 These are **source risks to inspect**, not claims of populated production collections and not additions to the deletion list: `oauthAuthorizationCodes`, `ovdbWritableSandboxes`, `ovdbWritableSandboxOwners`, `ovdbConnections`, `ovdbConnectionSessions`, `ovdbSpaceConnections`, `datatug_github_oauth_states`, DataTug personal-log pending/completion/terminal/cleanup roots, AI question/call/day/person roots, and Commītius drafts/certificates/wallet roots. Scan the full deployed dependency graph for runtime-generated names, not just prefixes or this list.
 
-## Root candidates for founder review
+## Root-candidate decisions — current as of 2026-10-26
 
-- `botPlatforms`: shared bot framework coordination; recommend `ext/bots/platforms` unless declared platform infrastructure.
-- `invites`: founder approved root placement on 2026-10-25; removed from root candidates.
-- `moneyEvents`: shared money evidence, but currently owned by Paymentus; recommend `ext/paymentus/moneyEvents` with existing fences intact.
-- `oauthDeviceAuthorizations`, `oauthDeviceUserCodes`: platform auth bootstrap before a space exists; either explicitly approve roots or put global state under `ext/auth`.
-- `slugs`: removed from root candidates; proposed relocation separates global public-space lookup claims from space-local claims. See the plan refinement; final target templates remain under review.
-- `referrers`: Debtus and Anybot use the same name; classify records and intended shared contract before choosing one owner.
-- `transfers`: removed from root candidates; propose one authoritative `ext/debtus/transfers/{id}` record, with optional space-local references/projections. This follows the founder suggestion and current optional `OwnerSpaceID` semantics; it is not deletion approval. Do not conflate with Paymentus transfer subcollections.
+The initial five candidates are resolved. Current approved roots are `_smoke`, `users`, `spaces`, `health_checks`, `ext`, `invites` and `referrers`.
 
-The recommendation is to keep the six approved roots unless a reviewed infrastructure reason warrants an exception. No root candidate is automatically allowed by the proposed registry.
+- `botPlatforms`: approved source target `ext/bots/platforms`.
+- `moneyEvents`: approved source target `ext/paymentus/moneyEvents`, preserving payment and replay fences.
+- `oauthDeviceAuthorizations`, `oauthDeviceUserCodes`: approved source targets under global `ext/auth`.
+- `referrers`: founder approved **retaining the root**, not moving it to `ext/bots` or another extension. AnyBot owns the maintained cross-product bot acquisition/leaderboard flow; fields are platform (`p`), destination bot (`to`), referrer type/ID (`by`) and creation time (`t`), with no SpaceID. The inspected duplicate Debtus factory has only local test references. The frozen snapshot's five direct records and zero descendants are retained; raw attribution remains server-private.
+
+`invites` remains approved at root; the dedicated `bidding-tictactoe` extension, typed slug scope split and authoritative global `ext/debtus/transfers/{id}` placement are separately approved. None grants data access or deletion authority.
+
+The prepared policy has seven approved roots, 47 observed legacy roots and no writable legacy roots. The deployed `7e453f4e97be72eea320ddb0195fbb260e03ec44e82b1880d8f208520cf14f61` policy remains the earlier six-approved/48-legacy baseline until verified rollout. Do not rewrite the historical audit counts to describe the prepared policy. The historical **47-root / 1,911-record deletion proposal remains unchanged and unapproved**; referrers' five retained records are excluded. A fresh counted manifest still requires separate founder approval.
 
 ## Slug and transfer follow-up source evidence
 
