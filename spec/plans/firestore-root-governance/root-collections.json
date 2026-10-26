@@ -1,7 +1,7 @@
 {
   "project": "sneat-eur3-1",
   "database": "(default)",
-  "registryStatus": "proposed-policy-not-runtime-enforced",
+  "registryStatus": "deployed-baseline-with-reviewed-source-cutover-in-progress",
   "approvedRoots": [
     "_smoke",
     "ext",
@@ -11,10 +11,6 @@
     "users"
   ],
   "rootCandidatesRequireFounderApproval": [
-    "botPlatforms",
-    "moneyEvents",
-    "oauthDeviceAuthorizations",
-    "oauthDeviceUserCodes",
     "referrers"
   ],
   "observedAt": "2026-10-25",
@@ -62,7 +58,7 @@
     },
     {
       "collection": "botPlatforms",
-      "classification": "review-root-candidate",
+      "classification": "relocate",
       "proposedCollectionPath": "ext/bots/platforms",
       "owner": "bots-go-framework store + Telegram + wallet consumers",
       "directRecords": null,
@@ -71,20 +67,22 @@
       "descendantRecords": null,
       "totalRecords": null,
       "countStatus": "measured-in-private-live-inventory",
-      "deletionApproved": false
+      "deletionApproved": false,
+      "placementApproval": "Founder approved source placement on 2026-10-26; deletion remains unapproved."
     },
     {
       "collection": "bttt-matches",
       "classification": "relocate",
       "proposedCollectionPath": "ext/bidding-tictactoe/matches",
-      "owner": "sneat-games/bidding-tictactoe; extension ID to verify",
+      "owner": "sneat-games/bidding-tictactoe; dedicated extension approved",
       "directRecords": null,
       "directSubcollectionInstances": null,
       "recursiveSubcollectionInstances": null,
       "descendantRecords": null,
       "totalRecords": null,
       "countStatus": "measured-in-private-live-inventory",
-      "deletionApproved": false
+      "deletionApproved": false,
+      "placementApproval": "Founder approved source placement on 2026-10-26; deletion remains unapproved."
     },
     {
       "collection": "checkoutAccountAcceptedRevisions",
@@ -570,7 +568,7 @@
     },
     {
       "collection": "moneyEvents",
-      "classification": "review-root-candidate",
+      "classification": "relocate",
       "proposedCollectionPath": "ext/paymentus/moneyEvents",
       "owner": "paymentus/moneyevents + subscriptions + AI money evidence",
       "directRecords": null,
@@ -579,11 +577,12 @@
       "descendantRecords": null,
       "totalRecords": null,
       "countStatus": "measured-in-private-live-inventory",
-      "deletionApproved": false
+      "deletionApproved": false,
+      "placementApproval": "Founder approved source placement on 2026-10-26; deletion remains unapproved."
     },
     {
       "collection": "oauthDeviceAuthorizations",
-      "classification": "review-root-candidate",
+      "classification": "relocate",
       "proposedCollectionPath": "ext/auth/deviceAuthorizations",
       "owner": "sneat-core-modules/auth/oauth",
       "directRecords": null,
@@ -592,11 +591,12 @@
       "descendantRecords": null,
       "totalRecords": null,
       "countStatus": "measured-in-private-live-inventory",
-      "deletionApproved": false
+      "deletionApproved": false,
+      "placementApproval": "Founder approved source placement on 2026-10-26; deletion remains unapproved."
     },
     {
       "collection": "oauthDeviceUserCodes",
-      "classification": "review-root-candidate",
+      "classification": "relocate",
       "proposedCollectionPath": "ext/auth/deviceUserCodes",
       "owner": "sneat-core-modules/auth/oauth",
       "directRecords": null,
@@ -605,7 +605,8 @@
       "descendantRecords": null,
       "totalRecords": null,
       "countStatus": "measured-in-private-live-inventory",
-      "deletionApproved": false
+      "deletionApproved": false,
+      "placementApproval": "Founder approved source placement on 2026-10-26; deletion remains unapproved."
     },
     {
       "collection": "ovdbAccessTokens",
