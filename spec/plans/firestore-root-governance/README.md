@@ -51,7 +51,7 @@ The backend repair has a separate unresolved full native Watch CI failure: [run 
 
 ### Ownership and root candidates
 
-Approved baseline: `_smoke`, `users`, `spaces`, `health_checks`, `ext`, `invites` (founder approved retaining `invites` on 2026-10-25). Root candidates requiring founder decisions: `botPlatforms`, `moneyEvents`, `oauthDeviceAuthorizations`, `oauthDeviceUserCodes`, `referrers`. The default recommendation is to relocate these too unless the founder identifies a shared platform-infrastructure need. `ext` is a root collection; `ext/checkout` is its extension document; `ext/checkout/customers` is the customer collection.
+Approved baseline: `_smoke`, `users`, `spaces`, `health_checks`, `ext`, `invites` (founder approved retaining `invites` on 2026-10-25). The remaining root candidate requiring a founder decision is `referrers`. The founder approved `botPlatforms → ext/bots/platforms`, `moneyEvents → ext/paymentus/moneyEvents`, both `oauthDevice*` roots under `ext/auth`, and the dedicated `bidding-tictactoe` extension on 2026-10-26. `ext` is a root collection; `ext/checkout` is its extension document; `ext/checkout/customers` is the customer collection.
 
 All `checkout*`, `datatug*`, OVDB, AI, Commītius and game roots must leave root level. Proposed targets do not settle user/space ownership: inspect the existing domain contract before choosing global extension versus space extension paths. Commītius explicitly documents personal global ownership; move it beneath its extension without inventing space ownership. Reconcile the Debtus/Anybot `referrers` collision. Keep cross-account payment/global uniqueness coordinators global within their extension. Checkout keeps the founder's requested `ext/checkout` name although Paymentus owns the code. Verify the game's registered extension ID before using the proposed `bidding-tictactoe` segment.
 
@@ -95,6 +95,24 @@ For the founder's review produce an immutable manifest with exact project/databa
 
 Deletion is a separate final execution gate. Stop old jobs/writers and establish a fence; recount and seal the manifest. The founder approves its digest and exact scope. Any newly observed collection path, changed counts, stale cutover state or changed manifest requires renewed review rather than widening deletion silently. A separate deletion identity can have scoped cleanup access; application identities cannot bypass placement policy. Delete only explicitly approved legacy roots recursively, never `ext`, `users`, `spaces`, `_smoke`, `health_checks` or `invites` by a broad exclusion/prefix sweep. A reviewed candidate is still excluded until its deletion entry is explicitly approved. Restore writer traffic only on the new version; re-enumerate the entire tree and exercise real workflows. If rollback is needed after deletion, code must continue using approved paths; do not roll back to a legacy writer that recreates roots.
 
+### Source cutover in progress — 2026-10-26
+
+The founder authorized proceeding with source cutover. Reviewed integration branches relocate checkout, DataTug private state, AI allowance/usage, OVDB, Commītius, slug claims and Debtus transfers. Readers, query parents and result prototypes move together. These are implementation receipts, not production acceptance or deletion authorization.
+
+The reviewed Core root registry schema version 2 separates all 48 frozen `legacyRoots` observation names from required `legacyWritableRoots`: only `referrers`. Digest `b285091803f1ab712f81470c90925cec6678ac7335874baa6ac80ee96c4a5d0c` (Core `72cfa7e94db6236127fbdebb76956c903e848c9d`) fences mutations to the other 47 roots while retained records remain visible as legacy inventory. The deployed scanner and observer keep the earlier digest until the exact library, mirror and sealed configuration pins roll out together. Removing observation names still requires approved cleanup.
+
+The final client rules source passed 286 emulator tests, including private bot/auth/game/money paths and per-user wallet invoice admissions and replay fences. Independent review found no issues; deployment remains unverified.
+
+A retained-Space metadata projection at `2026-10-26T10:32:37.781175Z` found 60 Spaces: seven retain old string `publicSlug.namespace`, 53 have no slug metadata, and none carry new typed `scope`. Ordinary authorized Space reads and updates remain compatible. The seven stale slug fields require a separately counted, preconditioned field-reset proposal in the deletion manifest; whole Spaces must not be removed. No reset is authorized.
+
+The bot cutover must verify real authenticated enrollment with the founder’s current Google sign-in and the approved Telegram chat. Existing identity proof is not copied. Fresh invoice admissions bind original user, native payer, bot, mode, amount and currency before issuance; adapter integration checks remain in progress. Do not enable a reset bot identity store until these checks and authenticated enrollment are complete. OVDB external-capacity reconciliation and competition Space ownership remain separate cutover gates.
+
+Checkout completion requires fresh server-created session admission in the new namespace; old re-signed events cannot reconstruct entitlements, and updates cannot expand a personal admission into a Space. OVDB capacity counters fail closed until explicitly initialized from reconciled external-resource authority. No initialization or external-resource cleanup has been performed.
+
+The unchanged full native Watch journey passed locally using backend `853211b18e607fcaec3c90e1ad8ad2e5d280a7d1` and CLI `0b76f32620d919b6973da39ddc118d96091990fb`, with three real emulator runners and recovery receipts. The earlier registration timeout did not reproduce; this does not establish its cause or exercise a registration deadline that did not occur. Backend `0c309f9d60c0c9a75b70546fc51a047ae126425d` subsequently pins that exact CLI for CI. Exact CI and deployed acceptance remain required.
+
+Further inspection found eight active Bookius root factories absent from the frozen live inventory. Space-owned booking storage and the global vendor routing registry are being cut over with callers and contracts. Competition target/request/reservation storage still needs trusted owning-space propagation through Competios, Bookius and payment references; total capacity cannot establish zero existing occupancy after a reset. This remains an explicit full-cutover gap, with unapproved root mutations already denied. Unused constants do not establish populated collections or deletion scope.
+
 ## Tasks
 
 ### Task 1: Measure and review collection ownership
@@ -129,7 +147,7 @@ Owners: Backstage rule, Workbench instruction renderer, Sneat Firebase registry.
 
 **Verifies:** none — acceptance: a new forbidden root cannot be created via any routine backend mutation surface; ordinary permitted work still passes.
 
-Owners: reusable Sneat policy library, sneat-go-host construction/wiring, module key factories. Reuse existing DALgo access composition. Inventory and close raw-SDK bypasses. Cover host startup and all modules, jobs and bots. Keep any pre-cutover exact legacy read and write placement allowances visible and temporary until Task 6; never allow a new root. They are a deployment sequencing control, not backward-compatible data storage. Fail startup on missing/invalid policy. The final new-path deployment removes all legacy allowances before deletion. Any necessary DALgo gap is a separately reviewed additive proposal subject to its repository's human API-approval rule.
+Owners: reusable Sneat policy library, sneat-go-host construction/wiring, module key factories. Reuse existing DALgo access composition. Inventory and close raw-SDK bypasses. Cover host startup and all modules, jobs and bots. Keep any pre-cutover exact legacy read and write placement allowances visible and temporary until Task 6; never allow a new root. They are a deployment sequencing control, not backward-compatible data storage. Fail startup on missing/invalid policy. The final new-path deployment removes write eligibility for every relocated root before deletion; frozen observation names remain until approved cleanup, and unresolved candidates remain explicit temporary exceptions. Any necessary DALgo gap is a separately reviewed additive proposal subject to its repository's human API-approval rule.
 
 ### Task 4: Add CI placement and security regression gates
 
@@ -157,7 +175,9 @@ Owners: DataTug schema-source/check implementation and platform operations. Use 
 
 **Id:** t-006
 
-**Status:** planning
+**Status:** in_progress
+
+**Note:** Source cutover authorized; reviewed provider/client changes and the legacy-write fence are in integration. Deployment, remaining ownership/API gaps and the final counted manifest remain incomplete; no deletion is authorized.
 
 **Verifies:** none — acceptance: zero routine old-path callers/writers, green new-path workflows and immutable fully counted manifest presented to founder.
 
