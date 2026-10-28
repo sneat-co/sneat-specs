@@ -39,6 +39,11 @@ recommended convention.
    cannot do the job). No justification, no nested card — see
    [`cards.md`](./cards.md#never-a-card-inside-a-card).
 
+2. **Content-page headers MUST have a light background in every Sneat app.**
+   Set `color="light"` on the page's `ion-toolbar`; use the equivalent neutral
+   light background for a non-Ionic header. See
+   [`page-layout.md`](./page-layout.md#toolbar).
+
 ## Principles
 
 1. **Wrap content in cards.** A page is a stack of `ion-card`s, each grouping a
