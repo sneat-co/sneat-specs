@@ -33,8 +33,12 @@ Examples:
 
 ## Toolbar
 
-- **One `ion-toolbar`**, `color="light"` by default. Only diverge to
-  `color="primary"` when the content genuinely needs the visual distinction (rare).
+- **Content-page headers MUST have a light background in every Sneat app.**
+  Use one `ion-toolbar` with explicit `color="light"`. Do not leave the toolbar
+  on its default background or use `color="primary"` for visual distinction.
+  Non-Ionic content-page headers use the equivalent neutral light background.
+  This requirement applies to list, detail, form and operational pages,
+  including their loading, empty and error states.
 - **Back button** in `<ion-buttons slot="start">` as
   `<ion-back-button [defaultHref]="$defaultBackUrl()" />`. **Recommended:** use the
   `$defaultBackUrl()` signal rather than hard-coding a route.
