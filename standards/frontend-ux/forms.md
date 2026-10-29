@@ -221,7 +221,14 @@ interface IRoleDef {
   [`buttons.md`](./buttons.md).
 - **Placement:** in a **modal**, the submit/cancel pair goes in the modal
   `ion-footer` (see [`modals.md`](./modals.md)); on a **page**, put the primary
-  submit in a full-width button (`expand="block"`) at the end of the form's card.
+  submit in a full-width button (`expand="block"`) at the end of the form's card,
+  directly under the last field.
+- **Never in a page footer or toolbar.** On a routed page, the form's submit
+  never lives in a page-level `ion-footer` or `ion-toolbar`. Founder,
+  2026-10-29: "That button should be right under end of form."
+- **Visibly a button, and the only solid one.** A modal-footer submit sets
+  `fill="solid"`, and secondary actions are `outline` or `clear` (see the fill
+  rule in [`buttons.md`](./buttons.md)).
 
 ## Summary
 
@@ -235,4 +242,5 @@ interface IRoleDef {
 - Multi-entity roles: one single-select picker per named role, optional roles
   collapsed behind "+ Add {role}", validated by a pure schema function, rest
   of the form gated behind required roles being filled.
-- Submit: disabled-until-valid + in-flight spinner; footer in modals, card on pages.
+- Submit: disabled-until-valid + in-flight spinner; footer in modals (`fill="solid"`),
+  block button right under the last field on pages; never in a page footer.
