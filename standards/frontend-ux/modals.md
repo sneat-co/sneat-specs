@@ -41,7 +41,7 @@ pattern.
   <ion-toolbar>
     <ion-buttons slot="end">
       <ion-button (click)="close()"><ion-label>Cancel</ion-label></ion-button>
-      <ion-button color="primary" [disabled]="$isSubmitting() || !valid()"
+      <ion-button color="primary" fill="solid" [disabled]="$isSubmitting() || !valid()"
         (click)="save()">
         <ion-icon name="save-outline" slot="start" />
         <ion-label>Save</ion-label>
@@ -59,8 +59,9 @@ pattern.
   header close button — listus's "footer-cancel-only" variant is the exception,
   not the rule.
 - **Footer:** Cancel + primary action in `<ion-buttons slot="end">`. Primary is
-  `color="primary"` with an icon + label; disable it while submitting (see
-  [`buttons.md`](./buttons.md)).
+  `color="primary"` **and `fill="solid"`** with an icon + label; disable it while
+  submitting. Inside `ion-buttons` Ionic defaults to `fill="clear"` (see the fill
+  rule in [`buttons.md`](./buttons.md)).
 - **Titles** can carry context, e.g. `Invite {{ member | contactTitle }}`.
 
 ## Invocation & results
