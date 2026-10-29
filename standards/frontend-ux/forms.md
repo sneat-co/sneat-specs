@@ -221,7 +221,17 @@ interface IRoleDef {
   [`buttons.md`](./buttons.md).
 - **Placement:** in a **modal**, the submit/cancel pair goes in the modal
   `ion-footer` (see [`modals.md`](./modals.md)); on a **page**, put the primary
-  submit in a full-width button (`expand="block"`) at the end of the form's card.
+  submit in a full-width button (`expand="block"`) at the end of the form's card,
+  directly under the last field.
+- **Never in a page footer or toolbar.** A page's primary submit never lives in a
+  page-level `ion-footer` or `ion-toolbar`. A toolbar button there is at most a
+  shortcut that repeats the end-of-form button. Founder, 2026-10-29: "That button
+  should be right under end of form."
+- **Always visibly a button.** Any submit inside `ion-buttons` (a modal footer, a
+  toolbar shortcut) sets `fill="solid"`. Ionic defaults those to `fill="clear"`,
+  which reads as grey text.
+- **One primary action per form.** Secondary actions (Cancel, Generate draft) use
+  `fill="outline"` or `fill="clear"`, so the submit is the only solid button.
 
 ## Summary
 
@@ -235,4 +245,5 @@ interface IRoleDef {
 - Multi-entity roles: one single-select picker per named role, optional roles
   collapsed behind "+ Add {role}", validated by a pure schema function, rest
   of the form gated behind required roles being filled.
-- Submit: disabled-until-valid + in-flight spinner; footer in modals, card on pages.
+- Submit: disabled-until-valid + in-flight spinner; footer in modals (`fill="solid"`),
+  block button right under the last field on pages; never in a page footer.
