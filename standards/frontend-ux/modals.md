@@ -60,13 +60,8 @@ pattern.
   not the rule.
 - **Footer:** Cancel + primary action in `<ion-buttons slot="end">`. Primary is
   `color="primary"` **and `fill="solid"`** with an icon + label; disable it while
-  submitting (see [`buttons.md`](./buttons.md)). Ionic renders a button inside
-  `ion-buttons` as `fill="clear"` by default, so without `fill="solid"` the
-  primary action reads as grey text and users miss it (founder, 2026-10-29, on
-  DataTug's "Create new project").
-- **Short modals** (three fields or fewer) may instead put the primary action
-  inline, as an `expand="block"` button directly under the last field, the same
-  as a page form.
+  submitting. Inside `ion-buttons` Ionic defaults to `fill="clear"` (see the fill
+  rule in [`buttons.md`](./buttons.md)).
 - **Titles** can carry context, e.g. `Invite {{ member | contactTitle }}`.
 
 ## Invocation & results

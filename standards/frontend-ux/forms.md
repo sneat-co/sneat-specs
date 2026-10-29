@@ -223,15 +223,12 @@ interface IRoleDef {
   `ion-footer` (see [`modals.md`](./modals.md)); on a **page**, put the primary
   submit in a full-width button (`expand="block"`) at the end of the form's card,
   directly under the last field.
-- **Never in a page footer or toolbar.** A page's primary submit never lives in a
-  page-level `ion-footer` or `ion-toolbar`. A toolbar button there is at most a
-  shortcut that repeats the end-of-form button. Founder, 2026-10-29: "That button
-  should be right under end of form."
-- **Always visibly a button.** Any submit inside `ion-buttons` (a modal footer, a
-  toolbar shortcut) sets `fill="solid"`. Ionic defaults those to `fill="clear"`,
-  which reads as grey text.
-- **One primary action per form.** Secondary actions (Cancel, Generate draft) use
-  `fill="outline"` or `fill="clear"`, so the submit is the only solid button.
+- **Never in a page footer or toolbar.** On a routed page, the form's submit
+  never lives in a page-level `ion-footer` or `ion-toolbar`. Founder,
+  2026-10-29: "That button should be right under end of form."
+- **Visibly a button, and the only solid one.** A modal-footer submit sets
+  `fill="solid"`, and secondary actions are `outline` or `clear` (see the fill
+  rule in [`buttons.md`](./buttons.md)).
 
 ## Summary
 

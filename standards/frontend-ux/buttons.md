@@ -22,9 +22,16 @@ Example: listus `list-page.component.html` uses `light` (reactivate), `warning`
 
 | `fill` | Meaning |
 | --- | --- |
-| *(default, solid)* | Standard button, e.g. toolbar actions, the primary submit |
+| *(default, solid)* | Standard button in content, e.g. the primary submit under a form |
 | `outline` | Secondary action (form cancel, secondary "Add") |
 | `clear` | Tertiary / link-like (text links inside cards) |
+
+**Inside `ion-buttons` (a toolbar or a modal footer) the default is `clear`, not
+solid.** A primary or submit button there must set `fill="solid"`; otherwise it
+renders as coloured text with no button shape and users miss it (founder,
+2026-10-29, on DataTug's "Create new project" page). A form has one solid
+button, its primary action; Cancel and other secondary actions are `outline` or
+`clear`.
 
 Examples: `fill="outline"` for an in-card "Add" (listus `lists-page`),
 `fill="clear"` for a link-style button (listus `list-page`).
@@ -57,7 +64,7 @@ Disable a primary/submit button while its action is invalid or in flight, and
 show progress inline so the user knows something is happening:
 
 ```html
-<ion-button color="primary" [disabled]="!formIsValid() || $isSubmitting()"
+<ion-button color="primary" fill="solid" [disabled]="!formIsValid() || $isSubmitting()"
   (click)="submit()">
   @if ($isSubmitting()) {
     <ion-spinner name="lines-small" slot="start" />

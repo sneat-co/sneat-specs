@@ -92,8 +92,10 @@ The footer is **not** dialogs-only: listus's routed `list-page` carries a
 persistent footer action row for its whole-list actions. The test is *scope*
 (does the action apply to the whole page?), not *whether the page is a dialog*.
 
-**Recommended:** don't add a footer to plain detail/edit pages — put their
-submit/cancel in the form's own footer (see [`forms.md`](./forms.md)) or a card.
+A form's submit is never a whole-page action: on a routed page (a
+create/detail/edit page, not a dialog page) it goes directly under the form's
+last field, not in a page `ion-footer` or toolbar (see [`forms.md`](./forms.md)).
+Dialog pages presented as modals follow [`modals.md`](./modals.md).
 
 ## Segments (in-page tabs)
 
