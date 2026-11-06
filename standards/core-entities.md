@@ -22,9 +22,10 @@ graph TD
     Space -->|contains| Contact
     Contact[Contact<br/>person · company · location · animal] -->|"linkage edges (roles)"| Contact
     Contact -->|"may be claimed by"| User
-    Happening[Happening<br/>calendarius: single or recurring] -->|lives in| Space
+    Happening[Happening<br/>calendarius: planned, single, or recurring] -->|lives in| Space
     Happening -->|"slot.Locations + related ref"| Contact
-    Event[Event<br/>eventius overlay] -->|"thin overlay on"| Happening
+    Eventius[Eventius<br/>event semantics & workflows] -->|"uses kind=event; EventID = HappeningID"| Happening
+    Invitus[Invitus<br/>Invite + InviteResponse] -->|"targets"| Happening
     Venue[Venue = location Contact<br/>+ optional community layer] -.->|is a| Contact
     SpotSpace[Spot space<br/>venue-scoped Space, empty membership] -->|owns| Venue
 ```
@@ -112,23 +113,45 @@ same fields.
 ## 5. Happening — when something occurs (calendarius)
 
 A **Happening** (`calendarius`; contract: `ext-calendarius/backend`) is the
-when-record: `single` or `recurring` (weekly slots, weekday codes,
-week-of-month; per-occurrence **adjustments** for cancel/modify one date).
-Occurrence times are wall-clock in an IANA timezone.
+canonical record for something that happens or is being planned. It may be
+`single` or `recurring` (weekly slots, weekday codes, week-of-month;
+per-occurrence **adjustments** for cancel/modify one date). Occurrence times are
+wall-clock in an IANA timezone.
 
-- **Where does it happen?** `HappeningSlot.Locations` (`physical|online`,
-  max one physical) plus the slot's `WithRelated` **ref to the place** — i.e.
-  to a location contact / venue (§4). Don't add location fields elsewhere.
+An event Happening (`kind=event`) may temporarily have **no slots** while people
+are still deciding when and where it should occur. Its title is required;
+description, date, time, and location are optional. Adding a schedule later
+updates that same Happening — it does not create an Eventius record or change
+identity. Scheduled non-event kinds may keep stricter slot invariants.
+
+- **Where does it happen?** When known, `HappeningSlot.Locations`
+  (`physical|online`, max one physical) plus the slot's `WithRelated` **ref to
+  the place** — i.e. to a location contact / venue (§4). Don't add a duplicate
+  Eventius location field.
 - **What kind?** `HappeningKind` is open: `event` (hosted — Eventius),
   `activity` (host-less recurring activity), etc. Kinds let products overlay
   meaning without forking the time model (`Ext[extID]` carries the overlay).
 
-## 6. Event & the occasion family (eventius and friends)
+## 6. Events & the occasion family (eventius and friends)
 
-An **Event** (`eventius`) is a happening (`kind=event`) plus a thin hosting
-overlay: invitations, RSVP links/QR, hybrid anonymous/account identity.
+An **Event** is the Eventius interpretation of a Calendarius Happening with
+`kind=event`; it is **not a second entity**. `EventID` is the Happening ID.
+Eventius owns the event lifecycle, event semantics, metadata validation,
+queries, and application workflows while Calendarius owns the canonical
+Happening persistence and scheduling vocabulary. Eventius-specific metadata,
+when genuinely needed, lives in the Happening's extension data rather than in a
+parallel `events` collection.
+
+Invitations and their answers are a separate concern. **Invitus** owns the
+canonical `Invite` and `InviteResponse` records. An event invite targets the
+Happening ID. RSVP owns the response experience and yes/maybe/no semantics, but
+persists through Invitus; Eventius may expose attendance projections and
+queries without copying the response state. An `InviteResponse` never grants
+space membership.
+
 Sibling products (RSVP.express verticals, GameBoard.live games, ToGethered
-ambient plans) are members of one **occasion family** that shares:
+collaborative planning) are different doors into one **occasion family** that
+shares:
 
 - **The participation vocabulary** — `ext-eventius/backend`, package
   `participation`: the coarse scale (`yes|no|maybe`), the graded scale
@@ -137,10 +160,15 @@ ambient plans) are members of one **occasion family** that shares:
   **Never mint a new response scale** — add an alias rendering if a domain
   needs different words.
 - **Attend-not-join** — responding to / attending an occasion NEVER grants
-  space membership. Participation leaves **linkage** residue only (§7).
-- Response *records* stay per-product (a parent-proxy game RSVP and a
-  household headcount RSVP are legitimately different shapes) — only the
-  scale is shared.
+  space membership. Any graph write-back is a separate, explicit `linkage`
+  effect (§7).
+- **One invite answer** — the canonical response is Invitus
+  `InviteResponse`. Product-specific details such as headcount or a game-day
+  role are optional typed details on that answer, not parallel RSVP records.
+- **One event identity across doors** — `/events`, `/rsvp`, and future
+  `/together` experiences address the same Happening. ToGethered can start
+  with an unscheduled event Happening and progressively populate its schedule
+  without migration or identity replacement.
 
 ## 7. Linkage — the relationship graph
 
