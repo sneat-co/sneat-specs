@@ -1,7 +1,10 @@
-# Data storage design — principles (DRAFT for the founder to edit)
+# Data storage design — principles
 
-**Status:** Draft, 2026-11-13. Nothing here is in force until the founder approves it.
-Lines marked **(founder)** quote him. Everything else is a proposal.
+**Status:** In force from 2026-11-13. The founder asked for this page ("We need to define
+DB design principals and philosophy for sneat ecosystem") and on 2026-11-13 answered "yes"
+to building it together with its three controls (below). Lines marked **(founder)** quote
+him. Lines marked **(proposal)** are an agent's wording that he has not individually
+confirmed: follow them, and raise it with him if one looks wrong.
 
 Read this before adding or changing any stored record, collection, index or document path.
 The process rule is [`storage-layout-needs-human-approval`](https://github.com/sneat-co/backstage/tree/main/spec/rules/storage-layout-needs-human-approval).
@@ -27,7 +30,7 @@ were so many.
 4. **Embed by default.** **(founder)** "Can't some of this collections be inside of room
    record as properties?" / "WE have 1mb limit per record". Small, bounded data lives as
    fields on its parent record. The 1 MB limit is a budget to use.
-5. **A separate collection needs a stated reason.** Accepted reasons (proposal):
+5. **A separate collection needs a stated reason.** Accepted reasons *(proposal)*:
    - many people write at once — **(founder)** "contention on join - and it's where we
      deserve a dedicated collection. Especially if we allow a lot of spectators."
    - it grows without limit (append-only history);
@@ -35,9 +38,9 @@ were so many.
    - it needs different access rules;
    - it would exceed the size budget.
 6. **Never put a per-person list on a shared record** that many people write. One document
-   per person instead. (proposal, follows from 2 and 5)
+   per person instead. *(proposal, follows from 2 and 5)*
 7. **Nothing an idle user does may read the database repeatedly.** No per-client polling
-   that scales with audience. (proposal)
+   that scales with audience. *(proposal)*
 8. **Names say what the thing is, in plain words.** **(founder)** on "epochs": "It says
    nothing to me". (the rule is a proposal)
 9. **Space-bounded by default**: records live under `spaces/{space}/ext/{extension}/…`
@@ -102,9 +105,15 @@ One page: each record kind with path, key and an example record with realistic d
 is embedded and what is separate, with the reason from principle 5; reads and writes per
 user action; which existing records were considered for reuse; the typical case and the 100,000 case; what is kept for how long.
 
-## Proposed controls (not built)
+## Controls
 
-- A list of every known collection per extension, in one file, next to the existing
-  extension registry. A new path that is not on the list fails CI with a message linking
-  this page.
-- The entry for a collection records who approved it and when.
+1. A trigger line in the shared agent-instructions index points here (owner's file).
+2. Every feature spec carries a **Storage layout** section, checked by the spec linter:
+   example records, existing records considered for reuse, and the owner's approval line —
+   or the explicit statement that the feature stores nothing.
+3. A list of every known collection per extension, next to the extension registry. A path
+   that is not on the list fails CI with a link to this page. An entry records who
+   approved it and when.
+
+Controls 2 and 3 are being built (2026-11-13); until they exist this page binds as a
+Stated rule only.
