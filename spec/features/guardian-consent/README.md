@@ -112,7 +112,7 @@ jurisdiction's **retention window** elapses.
 
 ## Storage layout
 
-Not built yet: no code on `main` of any repository under `sneat-co` implements this feature (searched for the record, the gate and the capture hook), so the points below come from this spec's text only and nothing was verified in code.
+Not built yet: as of 2026-11-13 no code on `main` of any repository under `sneat-co` implements this feature (searched for the record, the gate and the capture hook), so the points below come from this spec's text only and nothing was verified in code.
 
 - **Record kind:** one consent record per (guardian, child, scope).
 - **Path:** in the spaceless system namespace, `/ext/{ext-id}/...` (Decision 0002). The extension id, the collection name and the document id rule are not determined; the Open Questions section lists the namespace owner as undecided.
