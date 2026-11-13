@@ -70,6 +70,7 @@ were so many.
     | Spaces, membership, roles and permissions | Spaceus | founder, 2026-11-13: "Spaceus - also roles/permissions" |
     | User-authored ad-hoc forms and collecting their answers | Formius | founder, 2026-11-13: "formius is anything if we want to collect user authored ad-hoc forms" |
     | People deciding together on the place and/or time of a happening | ToGethered | founder, 2026-11-13: "togethered - when people need to decide on place and/or time of a happening" |
+    | Tournaments, competitions and ranking of participants | Competios | founder, 2026-11-13: "anything for tournaments/competitions/ranking participants" |
 
     Related existing rule: `reuse-existing-sneat-code`.
 
