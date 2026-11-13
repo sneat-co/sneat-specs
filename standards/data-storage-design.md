@@ -43,11 +43,19 @@ were so many.
 9. **Space-bounded by default**: records live under `spaces/{space}/ext/{extension}/…`
    (existing rule `sneat-is-space-bounded`, still Draft).
 
+10. **Reuse an existing record before inventing one.** **(founder)** "We already should
+    have single instance happening adjustments/records that we should use to record
+    instance of a recurring happening. No need to invent from scratch." / "data storage
+    layout is very important and must be done right to make sure we reuse code". Search the
+    ecosystem first (Calendarius, Contactus, Spaceus, Linkage…) and say what you searched.
+    One occurrence of a recurring happening is named the way Calendarius already names it:
+    day record `days/{YYYY-MM-DD}` → happening → slot.
+
 ## What to show for approval
 
 One page: each record kind with path, key and an example record with realistic data; what
 is embedded and what is separate, with the reason from principle 5; reads and writes per
-user action; the typical case and the 100,000 case; what is kept for how long.
+user action; which existing records were considered for reuse; the typical case and the 100,000 case; what is kept for how long.
 
 ## Proposed controls (not built)
 
