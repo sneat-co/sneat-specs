@@ -10,6 +10,7 @@ building.
 | Standard | Purpose |
 |---|---|
 | [**Core Entities**](core-entities.md) | **Start here.** The foundational entity map — User, Space (incl. virtual entity-scoped spaces), Contact (a place is a location contact), Venue as composition, Happening, the occasion family + participation vocabulary, Linkage — and the cross-cutting reuse patterns. Founder direction 2026-07-16. |
+| [**Data storage design**](data-storage-design.md) | **Read before adding or changing anything stored.** Principles for records and collections: human approval of every layout, design for scale, reads and writes cost money, embed by default, a separate collection needs a stated reason. |
 | [Brand Usage](brand-usage.md) | "Sneat" never stands alone in copy — always suffixed (Sneat Co./App/Team/Work, the Sneat platform, a Sneat product). Founder rule 2026-07-09. |
 | [Frontend UX](frontend-ux/README.md) | UI/UX conventions for Sneat extensions — cards, buttons, lists, page layout, forms, modals, and loading/empty/error states, each citing real components from `calendarius` / `contactus` / `listus`. Includes [Ionic & PrimeNG in one app](frontend-ux/ionic-and-primeng.md) — which library for which need, PrimeNG islands, overlay ownership, and `@sneat/design-tokens`. Founder decision 2026-08-19. |
 | [Repository Naming](repo-naming.md) | How repos are named (`sneat-*` platform, `<id>` product/implementation repos, `ext-<id>` public extension-definition repos) + the GitHub-topics registry for finding all extensions. |
