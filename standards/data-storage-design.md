@@ -69,6 +69,7 @@ were so many.
     | Meetings of every kind (in person, video, call), not only video | Meetingus | founder, 2026-11-13: "Meetingus - all kind of meetings, not just video" |
     | Spaces, membership, roles and permissions | Spaceus | founder, 2026-11-13: "Spaceus - also roles/permissions" |
     | User-authored ad-hoc forms and collecting their answers | Formius | founder, 2026-11-13: "formius is anything if we want to collect user authored ad-hoc forms" |
+    | People deciding together on the place and/or time of a happening | ToGethered | founder, 2026-11-13: "togethered - when people need to decide on place and/or time of a happening" |
 
     Related existing rule: `reuse-existing-sneat-code`.
 
