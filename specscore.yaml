@@ -16,3 +16,8 @@ gates:
             - name: human-approval
               type: human
               description: Human author approval before plan/implement
+
+storage_layout:
+  required: true
+  guide_url: https://github.com/sneat-co/sneat-specs/blob/main/standards/data-storage-design.md
+  existing_until: 2026-11-13

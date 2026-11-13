@@ -95,6 +95,10 @@ now-adult is no longer minor-constrained by this guard. The guard reflects
 **current** minor status (read from the determination); it does not itself run the
 age-out transition.
 
+## Storage layout
+
+None — this feature stores nothing.
+
 ## Acceptance Criteria
 
 ### AC: products-consult-guard-for-minor (verifies REQ:central-policy-guard)

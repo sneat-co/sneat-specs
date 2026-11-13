@@ -110,6 +110,23 @@ MUST survive family-space deletion and the child-data erasure itself (it is the
 proof-of-consent + deletion ledger), and MUST be purged only after the applicable
 jurisdiction's **retention window** elapses.
 
+## Storage layout
+
+Not built yet: as of 2026-11-13 no code on `main` of any repository under `sneat-co` implements this feature (searched for the record, the gate and the capture hook), so the points below come from this spec's text only and nothing was verified in code.
+
+- **Record kind:** one consent record per (guardian, child, scope).
+- **Path:** in the spaceless system namespace, `/ext/{ext-id}/...` (Decision 0002). The extension id, the collection name and the document id rule are not determined; the Open Questions section lists the namespace owner as undecided.
+- **Owner extension:** not determined (a dedicated compliance namespace versus a `coppa-gdpr` overlay under invitus).
+- **Fields required by `REQ:consent-record`:** `guardianUserID`, the child reference (`childUserID` or `childContactID`), `jurisdiction`, `consentAge`, `scope`, `method`, `assuranceLevel`, the verified-channel reference, `grantedAt`, `status`. The guardian's phone or email is stored on the guardian record, not on the minor.
+- **Example record:** none given; no layout exists to take it from.
+- **Growth:** one active record per (guardian, child, scope), kept after the child's data is erased until the jurisdiction's retention window ends; whether superseded records are kept is the `re-consent` feature's concern.
+- **Reads and writes per consent grant:** not determined.
+
+**Known deviations from the storage principles:**
+- The record is outside any space (`/ext/{ext-id}/...`, not `spaces/{space}/ext/...`), by Decision 0002; principle 9 makes space-bounded the default.
+
+**Approved by:** pending
+
 ## Acceptance Criteria
 
 ### AC: consent-record-persisted-in-system-namespace (verifies REQ:consent-record)
