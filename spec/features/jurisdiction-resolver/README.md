@@ -103,6 +103,10 @@ maps it to this result's `country` + `regime`; the resolver never "fails to
 resolve" — absence/ambiguity surfaces as the `fallback-applied`/`ambiguous` result,
 on which the consumer gates.)
 
+## Storage layout
+
+None — this feature stores nothing.
+
 ## Acceptance Criteria
 
 ### AC: declared-country-wins (verifies REQ:signal-precedence)
