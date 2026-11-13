@@ -74,6 +74,28 @@ were so many.
 
     Related existing rule: `reuse-existing-sneat-code`.
 
+12. **Another extension's data about a record lives UNDER that record, at
+    `…/ext/{extension}/…`.** The owner keeps its record; the other extension hangs its
+    data beneath it, addressed the same way the owner addresses the thing. **(founder)**
+    approved example, 2026-11-13 — the video room of one occurrence of a happening:
+
+    ```
+    spaces/{space}/ext/calendarius/days/2026-11-13            ← Calendarius day record (unchanged)
+      happeningAdjustments.{happeningID}.slots.{slotID}       ← the occurrence: cancel, move, attendance
+    spaces/{space}/ext/calendarius/days/2026-11-13
+        /happeningAdjustments/{happeningID}/slots/{slotID}
+            /ext/meetingus                                    ← Meetingus: the room of that call
+            /ext/meetingus/attendees/{userID}                 ← one per person who joined
+    ```
+
+    His words: "No, it should be under happeningAdjustment … `happeningAdjsutments/
+    {happening-id}/ext/meetingus/...`" and, on the layout above with the slot level:
+    "yes - that what I had in min from the beginning." One occurrence of a happening IS the
+    session: "using happening adjustment for session and expanding it for attendence is
+    right call." No product keeps its own session record.
+    Words: *participants* (Calendarius) = who is expected; *attendees* (Meetingus) = who
+    joined.
+
 ## What to show for approval
 
 One page: each record kind with path, key and an example record with realistic data; what
