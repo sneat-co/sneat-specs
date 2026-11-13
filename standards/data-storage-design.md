@@ -51,6 +51,27 @@ were so many.
     One occurrence of a recurring happening is named the way Calendarius already names it:
     day record `days/{YYYY-MM-DD}` → happening → slot.
 
+11. **Separation of concerns: each area has one owning extension — check it first.**
+    **(founder)** "We have a module/extension for each area. Calendarius for anything
+    scheduling related - if any agent needs to do anything related to
+    date/times/calendar/scheduling we should first of all check calendarius if it supports
+    already or need extension or is it a special enough case to live outside. Same for
+    contacts". The order is always: (a) does the owning extension already support it?
+    (b) if not, extend the owning extension; (c) only a special enough case lives outside,
+    with the reason written down and approved.
+
+    | Area | Owning extension | Source |
+    |---|---|---|
+    | Dates, times, calendar, scheduling, recurrence, one occurrence of a repeating event | Calendarius | founder, 2026-11-13 |
+    | People and contacts | Contactus | founder, 2026-11-13 |
+    | Money: wallet, charge, refund, payout, VAT | Paymentus | existing rule `money-belongs-to-paymentus` |
+    | Notifications and reminders | shared Sneat notifications | founder, 2026-11-13 (earlier) |
+    | Video meetings | Meetingus | proposal |
+    | Spaces and membership | Spaceus | proposal |
+    | Forms authored by an organisation | Formius | proposal (from an earlier founder note) |
+
+    Related existing rule: `reuse-existing-sneat-code`.
+
 ## What to show for approval
 
 One page: each record kind with path, key and an example record with realistic data; what
