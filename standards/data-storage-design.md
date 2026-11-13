@@ -67,7 +67,7 @@ were so many.
     | Money: wallet, charge, refund, payout, VAT | Paymentus | existing rule `money-belongs-to-paymentus` |
     | Notifications and reminders | shared Sneat notifications | founder, 2026-11-13 (earlier) |
     | Meetings of every kind (in person, video, call), not only video | Meetingus | founder, 2026-11-13: "Meetingus - all kind of meetings, not just video" |
-    | Spaces and membership | Spaceus | proposal |
+    | Spaces, membership, roles and permissions | Spaceus | founder, 2026-11-13: "Spaceus - also roles/permissions" |
     | Forms authored by an organisation | Formius | proposal (from an earlier founder note) |
 
     Related existing rule: `reuse-existing-sneat-code`.
