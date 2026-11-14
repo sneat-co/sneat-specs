@@ -3,7 +3,7 @@
 **Status:** In force from 2026-11-13. The founder asked for this page ("We need to define
 DB design principals and philosophy for sneat ecosystem") and on 2026-11-13 answered "yes"
 to building it together with its three controls (below). **How to read it:** only text inside
-quotation marks after **(founder)** is his. Every heading, summary and sentence outside
+quotation marks after **(founder)** is his. He often types on a phone; from 2026-11-14 a quote with typos is recorded as a clean version that he confirmed (the three quotes dated 2026-11-14 below: confirmed "All good", 2026-11-14). Every heading, summary and sentence outside
 quotation marks is an agent's wording of what he said, and anything marked *(proposal)* is
 an agent's own suggestion he has not confirmed. If the wording and his quote disagree, the
 quote wins; if a proposal looks wrong for your case, ask him rather than follow it.
@@ -83,7 +83,7 @@ were so many.
     | User-authored ad-hoc forms and collecting their answers | Formius (not yet in the extension registry, so its paths are refused until it is registered) | founder, 2026-11-13: "formius is anything if we want to collect user authored ad-hoc forms" |
     | People deciding together on the place and/or time of a happening | ToGethered | founder, 2026-11-13: "togethered - when people need to decide on place and/or time of a happening" |
     | Tournaments, competitions and ranking of participants | Competios | founder, 2026-11-13: "anything for tournaments/competitions/ranking participants" |
-    | Invites, including a voucher code | Invitus | founder, 2026-11-14: "Voucher code should be invitus invite and the invite can be extended with extension data so it can hold monetary value and whatever is needed." The money itself stays with Paymentus (the Paymentus row); see principle 13 |
+    | Invites, including a voucher code | Invitus | founder, 2026-11-14: "A voucher code should be an Invitus invite, and the invite can be extended with extension data so it can hold monetary value and whatever is needed." The money itself stays with Paymentus (the Paymentus row); see principle 13 |
 
     Related existing rule: `reuse-existing-sneat-code`.
 
@@ -122,18 +122,18 @@ were so many.
     (Meetingus) = who joined.
 
 13. **Records are designed to be extended: enrich the owner's record, or keep an isolated
-    record when that is better.** **(founder)** 2026-11-14: "Remember that all or [our] records
-    designed to be extendable - one extension can enrich records of other extension if it
-    make sense or keep records isolated when it's better".
+    record when that is better.** **(founder)** 2026-11-14: "Remember that all our records are
+    designed to be extendable: one extension can enrich records of another extension if it
+    makes sense, or keep records isolated when that's better.".
     *(agent's reading, to be corrected)* Before creating a collection of its own, an
     extension asks whether its data is really extra data about a record another extension
     already owns. If so it enriches that record instead of keeping a parallel record with
     a copy of the owner's facts.
 
-    **(founder)** 2026-11-14, on what "enrich" means: "I mean records can be enriched that
-    should be supported by the hosted extension record type - like invite has ext field.
-    But any record can have /ext/id subcollection entry for extending with a dedicated
-    record attached under the extendable one".
+    **(founder)** 2026-11-14, on what "enrich" means: "I mean records can be enriched where
+    that is supported by the host extension's record type, like the invite has an ext field.
+    But any record can have an /ext/{id} subcollection entry, for extending it with a
+    dedicated record attached under the extendable one.".
     *(agent's reading)* So there are two forms, and the layout shown for approval must say
     which: (a) extension data inside the owner's own document — only where the owner's
     record type supports it, as the Invitus invite does with its `ext` field; (b) a
