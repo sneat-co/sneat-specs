@@ -83,6 +83,7 @@ were so many.
     | User-authored ad-hoc forms and collecting their answers | Formius (not yet in the extension registry, so its paths are refused until it is registered) | founder, 2026-11-13: "formius is anything if we want to collect user authored ad-hoc forms" |
     | People deciding together on the place and/or time of a happening | ToGethered | founder, 2026-11-13: "togethered - when people need to decide on place and/or time of a happening" |
     | Tournaments, competitions and ranking of participants | Competios | founder, 2026-11-13: "anything for tournaments/competitions/ranking participants" |
+    | Invites, join links and codes that are handed to a person, including a voucher code | Invitus | founder, 2026-11-14: "Voucher code should be invitus invite and the invite can be extended with extension data so it can hold monetary value and whatever is needed." |
 
     Related existing rule: `reuse-existing-sneat-code`.
 
@@ -119,6 +120,24 @@ were so many.
     hold the detail it is derived from (who connected, when, on which devices).
     Words *(proposal)*: participants (Calendarius) = who is expected; attendees
     (Meetingus) = who joined.
+
+13. **Records are designed to be extended: enrich the owner's record, or keep an isolated
+    record when that is better.** **(founder, 2026-11-14)** "Remember that all our records
+    designed to be extendable - one extension can enrich records of other extension if it
+    make sense or keep records isolated when it's better".
+    *(agent's reading, to be corrected)* Before creating a collection of its own, an
+    extension asks whether its data is really extra data about a record another extension
+    already owns. If so it enriches that record (principle 12 says where such data lives)
+    instead of keeping a parallel record with a copy of the owner's facts. An isolated
+    record is the better choice when the data would push the owner's record toward 1 MB,
+    is written far more often than the owner's record, must be readable by a different
+    audience, or outlives the owner's record. Which was chosen, and why, is part of what
+    is shown for approval.
+
+    His example: a voucher code is an Invitus invite, and the invite carries the monetary
+    value as extension data. *(agent's note)* The money itself still follows the rule
+    `money-belongs-to-paymentus`; how the value on the invite and the balance in Paymentus
+    relate is a layout to show him, not something this page decides.
 
 ## What to show for approval
 
