@@ -128,10 +128,17 @@ were so many.
     *(agent's reading, to be corrected)* Before creating a collection of its own, an
     extension asks whether its data is really extra data about a record another extension
     already owns. If so it enriches that record instead of keeping a parallel record with
-    a copy of the owner's facts. "Enrich" has two forms, and the layout shown for approval
-    must say which: extension data inside the owner's own document, or a document under
-    the owner's record at `…/ext/{extension}` (principle 12). A fully isolated record is
-    the third choice. Principle 5 (size and write frequency) decides between them, plus
+    a copy of the owner's facts.
+
+    **(founder)** 2026-11-14, on what "enrich" means: "I mean records can be enriched that
+    should be supported by the hosted extension record type - like invite has ext field.
+    But any record can have /ext/id subcollection entry for extending with a dedicated
+    record attached under the extendable one".
+    *(agent's reading)* So there are two forms, and the layout shown for approval must say
+    which: (a) extension data inside the owner's own document — only where the owner's
+    record type supports it, as the Invitus invite does with its `ext` field; (b) a
+    dedicated record attached under the owner's record at `…/ext/{extension}`
+    (principle 12) — possible for any record. A fully isolated record is the third choice. Principle 5 (size and write frequency) decides between them, plus
     two more reasons to keep data out of the owner's document: it must be readable by a
     different audience, or it outlives the owner's record.
 
