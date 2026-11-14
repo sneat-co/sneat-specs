@@ -83,7 +83,7 @@ were so many.
     | User-authored ad-hoc forms and collecting their answers | Formius (not yet in the extension registry, so its paths are refused until it is registered) | founder, 2026-11-13: "formius is anything if we want to collect user authored ad-hoc forms" |
     | People deciding together on the place and/or time of a happening | ToGethered | founder, 2026-11-13: "togethered - when people need to decide on place and/or time of a happening" |
     | Tournaments, competitions and ranking of participants | Competios | founder, 2026-11-13: "anything for tournaments/competitions/ranking participants" |
-    | Invites, including a voucher code | Invitus | founder, 2026-11-14: "Voucher code should be invitus invite and the invite can be extended with extension data so it can hold monetary value and whatever is needed." The money itself stays with Paymentus (row above); see principle 13 |
+    | Invites, including a voucher code | Invitus | founder, 2026-11-14: "Voucher code should be invitus invite and the invite can be extended with extension data so it can hold monetary value and whatever is needed." The money itself stays with Paymentus (the Paymentus row); see principle 13 |
 
     Related existing rule: `reuse-existing-sneat-code`.
 
