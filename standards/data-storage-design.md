@@ -83,6 +83,7 @@ were so many.
     | User-authored ad-hoc forms and collecting their answers | Formius (not yet in the extension registry, so its paths are refused until it is registered) | founder, 2026-11-13: "formius is anything if we want to collect user authored ad-hoc forms" |
     | People deciding together on the place and/or time of a happening | ToGethered | founder, 2026-11-13: "togethered - when people need to decide on place and/or time of a happening" |
     | Tournaments, competitions and ranking of participants | Competios | founder, 2026-11-13: "anything for tournaments/competitions/ranking participants" |
+    | Invites, including a voucher code | Invitus | founder, 2026-11-14: "Voucher code should be invitus invite and the invite can be extended with extension data so it can hold monetary value and whatever is needed." The money itself stays with Paymentus (the Paymentus row); see principle 13 |
 
     Related existing rule: `reuse-existing-sneat-code`.
 
@@ -120,11 +121,38 @@ were so many.
     Words *(proposal)*: participants (Calendarius) = who is expected; attendees
     (Meetingus) = who joined.
 
+13. **Records are designed to be extended: enrich the owner's record, or keep an isolated
+    record when that is better.** **(founder)** 2026-11-14: "Remember that all or [our] records
+    designed to be extendable - one extension can enrich records of other extension if it
+    make sense or keep records isolated when it's better".
+    *(agent's reading, to be corrected)* Before creating a collection of its own, an
+    extension asks whether its data is really extra data about a record another extension
+    already owns. If so it enriches that record instead of keeping a parallel record with
+    a copy of the owner's facts.
+
+    **(founder)** 2026-11-14, on what "enrich" means: "I mean records can be enriched that
+    should be supported by the hosted extension record type - like invite has ext field.
+    But any record can have /ext/id subcollection entry for extending with a dedicated
+    record attached under the extendable one".
+    *(agent's reading)* So there are two forms, and the layout shown for approval must say
+    which: (a) extension data inside the owner's own document — only where the owner's
+    record type supports it, as the Invitus invite does with its `ext` field; (b) a
+    dedicated record attached under the owner's record at `…/ext/{extension}`
+    (principle 12) — possible for any record. A fully isolated record is the third choice. Principle 5 (size and write frequency) decides between them, plus
+    two more reasons to keep data out of the owner's document: it must be readable by a
+    different audience, or it outlives the owner's record.
+
+    A separate statement of his the same day gives an example (quoted in the owner table,
+    principle 11): a voucher code is an Invitus invite, and the invite carries the monetary
+    value as extension data. *(agent's note)* The money itself still follows the rule
+    `money-belongs-to-paymentus`; how the value on the invite and the balance in Paymentus
+    relate is a layout to show him, not something this page decides.
+
 ## What to show for approval
 
 One page: each record kind with path, key and an example record with realistic data; what
 is embedded and what is separate, with the reason from principle 5; reads and writes per
-user action; which existing records were considered for reuse; the typical case and the large case (principle 2); what is kept for how long.
+user action; which existing records were considered for reuse, and for each whether the data enriches the owner's record (inside its document, or under it at `…/ext/{extension}`) or is kept isolated, with the reason (principle 13); the typical case and the large case (principle 2); what is kept for how long.
 
 ## Controls
 
